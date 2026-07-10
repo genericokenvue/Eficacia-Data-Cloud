@@ -1,42 +1,37 @@
 name: Run ETL Suite Eficacia
 
 on:
-  # 1. Permite ejecutar manualmente desde la web ingresando parámetros opcionales
   workflow_dispatch:
     inputs:
-      argumentos:
-        description: 'Parámetros de ejecución (Ej: --mes 7 --anio 2026)'
+      script:
+        description: 'Nombre del script a ejecutar (Ej: etl_precios_supa_sharepoint.py). Dejar vacío para run_all.py'
         required: false
         default: ''
-
-  # 2. Programación automática opcional (Descomenta si quieres dejarlo fijo)
-  # schedule:
-  #   - cron: '0 7 * * 1-5' # De lunes a viernes a las 2:00 AM hora Colombia (7:00 AM UTC)
+      argumentos:
+        description: 'Parámetros de fecha (Ej: --mes 7 --anio 2026)'
+        required: false
+        default: ''
 
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
 
     steps:
-    # Paso 1: Clonar todo tu árbol de scripts en el servidor
-    - name: Checkout repository code
+    - name: Descargar todo el código del repositorio
       uses: actions/checkout@v4
 
-    # Paso 2: Configurar el entorno de Python
-    - name: Set up Python
+    - name: Configurar entorno de Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         cache: 'pip'
 
-    # Paso 3: Instalar las dependencias del requirements.txt
-    - name: Install dependencies
+    - name: Instalar dependencias del proyecto
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Paso 4: Ejecutar el orquestador inyectando tus variables secretas
-    - name: Execute ETL Script
+    - name: Ejecutar ETL Seleccionada
       env:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -44,8 +39,11 @@ jobs:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       run: |
-        # Si vas a ejecutar el orquestador general de todos tus scripts:
-        python run_all.py ${{ github.event.inputs.argumentos }}
-        
-        # O si prefieres probar específicamente el de precios con los parámetros del input:
-        # python etl_precios_supa_sharepoint.py ${{ github.event.inputs.argumentos }}
+        # Validamos si el usuario escribió un script específico o si corre el orquestador general
+        if [ -n "${{ github.event.inputs.script }}" ]; then
+          echo "Ejecutando script individual: ${{ github.event.inputs.script }}"
+          python ${{ github.event.inputs.script }} ${{ github.event.inputs.argumentos }}
+        else
+          echo "Ejecutando suite completa de ETLs..."
+          python run_all.py ${{ github.event.inputs.argumentos }}
+        fi
