@@ -4,6 +4,7 @@ import os
 import urllib.parse
 import requests
 import msal
+import numpy as np  
 import pandas as pd
 from datetime import datetime
 from dotenv import load_dotenv
@@ -384,7 +385,10 @@ def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
             if 'año' in df_kpi.columns:
                 df_kpi = df_kpi.rename(columns={'año': 'anio'})
             
+            # 🛠️ AJUSTE AQUÍ: Limpiar infinitos y NaNs antes de mapear a diccionarios JSON
+            df_kpi.replace([np.inf, -np.inf], 0, inplace=True)
             df_kpi_limpio = df_kpi.where(pd.notnull(df_kpi), None)
+            
             registros_json = df_kpi_limpio.to_dict(orient="records")
             
             supabase.table("precios_kpis").upsert(registros_json).execute()

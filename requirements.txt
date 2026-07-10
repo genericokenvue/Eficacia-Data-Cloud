@@ -4,3 +4,4 @@ msal
 supabase
 python-dotenv
 openpyxl
+numpy
