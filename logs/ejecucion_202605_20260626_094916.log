@@ -1,0 +1,51 @@
+2026-06-26 09:49:16  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202605_20260626_094916.log
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260626T094916_d178d2
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-26 09:49:16
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      Run ID: 20260626T094916_d178d2
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      Periodo: Mayo_2026 (05/2026)
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif']
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-06-26 09:49:16  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-26 09:49:16  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Mayo 2026.xlsx
+2026-06-26 09:49:16  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Mayo 2026.xlsx
+2026-06-26 09:49:16  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-26 09:49:16  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-26 09:49:16  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-26 09:49:18  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,755 filas PT  |  3,319 filas módulos cargadas
+2026-06-26 09:49:18  [etl.shared_loader]  ✓ INFO      [ISM] 2,445 filas PT  |  859 filas módulos cargadas
+2026-06-26 09:49:18  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,200 filas totales
+2026-06-26 09:49:18  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 5 | Año 2026
+2026-06-26 09:49:18  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-26 09:49:18  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,182 filas retenidas
+2026-06-26 09:49:19  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 981 filas retenidas
+2026-06-26 09:49:19  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,152 filas retenidas
+2026-06-26 09:49:19  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 622 filas retenidas
+2026-06-26 09:49:19  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,165 filas retenidas
+2026-06-26 09:49:19  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 622 filas retenidas
+2026-06-26 09:49:19  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-26 09:49:19  [etl.orquestador]   ✓ INFO      shared_loader completado en 2.3s
+2026-06-26 09:49:19  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-26 09:49:19  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-06-26 09:49:19  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-26 09:49:19  [etl.cif]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-26 09:49:19  [etl.cif]           ✓ INFO      ETL CIF — iniciando
+2026-06-26 09:49:19  [etl.cif]           ✓ INFO      Paso 1 — PT consolidado: 11,200 filas
+2026-06-26 09:49:19  [etl.cif]           ✓ INFO      Paso 2 — Agrupación SQL
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:49:19  [etl.cif]           ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\CIF\PLAN DE TRABAJO\Plan de trabajo consolidado_grupado.csv
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] Resumen agrupado (Primeros 5):
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] ACRONIMO ID_PDV_INVOLVES  TIEMPO_SERVICIO_HORAS
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] 0    LE001           10032                    NaN
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] 1    LE001           10033                    NaN
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] 2    LE001           10035                    NaN
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] 3    LE001           10036                    NaN
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] 4    LE001           10069                    NaN
+2026-06-26 09:49:19  [etl.cif]           ✓ INFO      Paso 3 — Visitas Involves
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES (CRUCE PRIORIZANDO BASE VENTAS)  (Mayo_2026)
+2026-06-26 09:49:19  [etl.cif]           · DEBUG     [stdout] ========================================

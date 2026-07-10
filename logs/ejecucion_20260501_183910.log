@@ -1,0 +1,2 @@
+2026-05-01 18:39:10  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_183910.log
+2026-05-01 18:39:27  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=8 fallidos=0 sin_chat_id=0 prueba=False

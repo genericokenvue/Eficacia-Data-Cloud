@@ -1,0 +1,2 @@
+2026-06-19 15:03:41  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260619_150341.log
+2026-06-19 15:03:42  [etl.alertas_email]  ✓ INFO      Email — filas_cola=34 macro_ok=True prueba=True

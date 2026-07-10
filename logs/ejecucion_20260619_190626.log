@@ -1,0 +1,4 @@
+2026-06-19 19:06:26  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260619_190626.log
+2026-06-19 19:06:27  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-06-19 19:16:02  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 05/2026 | gestores=172 supervisores=28 adjuntos=37
+2026-06-19 19:16:32  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=37 fallidos=0 sin_chat_id=0 prueba=True

@@ -1,0 +1,81 @@
+2026-05-03 11:46:53  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260503_114653.log
+2026-05-03 11:46:53  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-03 11:46:53  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-05-03 11:46:53  [etl.orquestador]   ✓ INFO      Inicio: 2026-05-03 11:46:53
+2026-05-03 11:46:53  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['nopresencia', 'precios', 'sos']
+2026-05-03 11:46:53  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-05-03 11:46:53  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-03 11:46:53  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-03 11:46:53  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-05-03 11:46:53  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-03 11:46:56  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-05-03 11:46:57  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-05-03 11:46:57  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-05-03 11:46:57  [etl.shared_loader]  ✓ INFO      Periodo detectado en el PT: Mes 4 | Año 2026
+2026-05-03 11:46:57  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'no_presencia': el filtro devolvió 0 filas (columna 'NO PRESENCIA' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   [ISM] Módulo 'no_presencia': el filtro devolvió 0 filas (columna 'NO PRESENCIA_FINAL' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   Módulo 'no_presencia': DataFrame final vacío (ambas fuentes sin datos) — el ETL correspondiente se ejecutará pero sin filas de PT
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   [ISM] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS_FINAL' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   Módulo 'precios': DataFrame final vacío (ambas fuentes sin datos) — el ETL correspondiente se ejecutará pero sin filas de PT
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'sos': el filtro devolvió 0 filas (columna 'ESPACIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   [ISM] Módulo 'sos': el filtro devolvió 0 filas (columna 'ESPACIOS_FINAL' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.shared_loader]  ⚠ WARNING   Módulo 'sos': DataFrame final vacío (ambas fuentes sin datos) — el ETL correspondiente se ejecutará pero sin filas de PT
+2026-05-03 11:46:57  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      shared_loader completado en 4.1s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 3 ETLs en paralelo
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-03 11:46:57  [etl.nopresencia]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-03 11:46:57  [etl.nopresencia]   ✓ INFO      ETL No Presencia — iniciando
+2026-05-03 11:46:57  [etl.precios]       ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-03 11:46:57  [etl.precios]       ✓ INFO      ETL Precios — iniciando
+2026-05-03 11:46:57  [etl.precios]       ✗ ERROR     DataFrame de PT vacío para módulo 'precios' — no hay PDVs con módulo activo. ETL abortado.
+2026-05-03 11:46:57  [etl.nopresencia]   ✗ ERROR     DataFrame de PT vacío para módulo 'no_presencia' — no hay PDVs con módulo activo. ETL abortado.
+2026-05-03 11:46:57  [etl.precios]       ✓ INFO      Duración total: 0.0s
+2026-05-03 11:46:57  [etl.sos]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ETL 'precios' terminó — ✓ OK en 0.0s
+2026-05-03 11:46:57  [etl.nopresencia]   ✓ INFO      Duración total: 0.0s
+2026-05-03 11:46:57  [etl.sos]           ✓ INFO      ETL SOS — iniciando
+2026-05-03 11:46:57  [etl.sos]           ✗ ERROR     DataFrame de PT vacío para módulo 'sos' — no hay PDVs con módulo activo. ETL abortado.
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ETL 'nopresencia' terminó — ✓ OK en 0.0s
+2026-05-03 11:46:57  [etl.sos]           ✓ INFO      Duración total: 0.0s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ETL 'sos' terminó — ✓ OK en 0.0s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        nopresencia            ✓ OK               0.0s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        precios                ✓ OK               0.0s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        sos                    ✓ OK               0.0s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               4.1s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                          4.1s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                    4.1s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  3 ERROR  |  9 WARNING
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ························································
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        ERROR (3)
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ························································
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [precios]           DataFrame de PT vacío para módulo 'precios' — no hay PDVs con módulo activo. ETL abortado.
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [nopresencia]       DataFrame de PT vacío para módulo 'no_presencia' — no hay PDVs con módulo activo. ETL abortado.
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [sos]               DataFrame de PT vacío para módulo 'sos' — no hay PDVs con módulo activo. ETL abortado.
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ························································
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        WARNING (9)
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ························································
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     [DIRECTO] Módulo 'no_presencia': el filtro devolvió 0 filas (columna 'NO PRESENCIA' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     [ISM] Módulo 'no_presencia': el filtro devolvió 0 filas (columna 'NO PRESENCIA_FINAL' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     Módulo 'no_presencia': DataFrame final vacío (ambas fuentes sin datos) — el ETL correspondiente se ejecutará pero sin filas de PT
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     [ISM] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS_FINAL' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     Módulo 'precios': DataFrame final vacío (ambas fuentes sin datos) — el ETL correspondiente se ejecutará pero sin filas de PT
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     [DIRECTO] Módulo 'sos': el filtro devolvió 0 filas (columna 'ESPACIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     [ISM] Módulo 'sos': el filtro devolvió 0 filas (columna 'ESPACIOS_FINAL' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO        11:46:57  [shared_loader]     Módulo 'sos': DataFrame final vacío (ambas fuentes sin datos) — el ETL correspondiente se ejecutará pero sin filas de PT
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260503_114653.log
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      Fin: 2026-05-03 11:46:57
+2026-05-03 11:46:57  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

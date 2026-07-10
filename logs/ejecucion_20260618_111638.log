@@ -1,0 +1,6 @@
+2026-06-18 11:16:38  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260618_111638.log
+2026-06-18 11:16:38  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-06-18 11:16:52  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 05/2026 | gestores=166 supervisores=34 adjuntos=34
+2026-06-18 11:19:25  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=32 fallidos=2 sin_chat_id=0 prueba=False
+2026-06-18 11:19:25  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: CRISTHIAN CAMILO ENCISO VARGAS → ConnReset/error de conexión: ConnectionError (tras 3 intentos)
+2026-06-18 11:19:25  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: FREDDY ENRIQUE GUERRA SMITH → ConnReset/error de conexión: ConnectionError (tras 3 intentos)

@@ -1,0 +1,51 @@
+2026-06-17 23:02:09  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202605_20260617_230209.log
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260617T230209_bc8331
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-17 23:02:09
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      Run ID: 20260617T230209_bc8331
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      Periodo: Mayo_2026 (05/2026)
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['exhib_pagadas']
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      Skip si cached: True
+2026-06-17 23:02:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:02:09  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Mayo 2026.xlsx
+2026-06-17 23:02:09  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Mayo 2026.xlsx
+2026-06-17 23:02:09  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-17 23:02:09  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-17 23:02:09  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,755 filas PT  |  3,319 filas módulos cargadas
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      [ISM] 2,445 filas PT  |  859 filas módulos cargadas
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,200 filas totales
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 5 | Año 2026
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,182 filas retenidas
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 981 filas retenidas
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,152 filas retenidas
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 622 filas retenidas
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,165 filas retenidas
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 622 filas retenidas
+2026-06-17 23:02:12  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      shared_loader completado en 3.0s
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        ↳ ETL 'exhib_pagadas' SKIPPED (hash-coincide:36e51752)
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 0 ETLs en paralelo (1 skipped)
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        exhib_pagadas          ↷ SKIPPED          0.0s
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               3.0s
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                          3.0s
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                    3.0s
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  0 WARNING
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      Sin alertas — ejecución limpia ✓
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202605_20260617_230209.log
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      Fin: 2026-06-17 23:02:12
+2026-06-17 23:02:12  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

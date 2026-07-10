@@ -1,0 +1,61 @@
+2026-06-17 23:01:24  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202605_20260617_230124.log
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260617T230124_f5ed07
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-17 23:01:24
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      Run ID: 20260617T230124_f5ed07
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      Periodo: Mayo_2026 (05/2026)
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['exhib_pagadas']
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-06-17 23:01:24  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:01:24  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Mayo 2026.xlsx
+2026-06-17 23:01:24  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Mayo 2026.xlsx
+2026-06-17 23:01:24  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-17 23:01:24  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-17 23:01:24  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-17 23:01:26  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,755 filas PT  |  3,319 filas módulos cargadas
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      [ISM] 2,445 filas PT  |  859 filas módulos cargadas
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,200 filas totales
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 5 | Año 2026
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,182 filas retenidas
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 981 filas retenidas
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,152 filas retenidas
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 622 filas retenidas
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,165 filas retenidas
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 622 filas retenidas
+2026-06-17 23:01:27  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-17 23:01:27  [etl.orquestador]   ✓ INFO      shared_loader completado en 3.0s
+2026-06-17 23:01:27  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:01:27  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-06-17 23:01:27  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:01:27  [etl.exhib_pagadas]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:01:27  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — iniciando
+2026-06-17 23:01:27  [etl.exhib_pagadas]  · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas  (Mayo_2026)...
+2026-06-17 23:01:33  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.
+2026-06-17 23:01:33  [etl.exhib_pagadas]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Mayo_2026) ---
+2026-06-17 23:01:33  [etl.exhib_pagadas]  · DEBUG     [stdout] Leyendo: Resultado_exhibiciones_pagadas Mayo 2026.xlsx (2763 filas)
+2026-06-17 23:01:33  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Mes activo: 132 empleados → EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-06-17 23:01:33  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx
+2026-06-17 23:01:33  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — completado
+2026-06-17 23:01:33  [etl.exhib_pagadas]  ✓ INFO      Duración total: 6.5s
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      ETL 'exhib_pagadas' terminó — ✓ OK en 6.5s
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO        exhib_pagadas          ✓ OK               6.5s
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               3.0s
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                          9.5s
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                    9.5s
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  0 WARNING
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      Sin alertas — ejecución limpia ✓
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202605_20260617_230124.log
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      Fin: 2026-06-17 23:01:33
+2026-06-17 23:01:33  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

@@ -1,0 +1,156 @@
+2026-05-01 17:55:52  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_175552.log
+2026-05-01 17:55:52  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:55:52  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-05-01 17:55:52  [etl.orquestador]   ✓ INFO      Inicio: 2026-05-01 17:55:52
+2026-05-01 17:55:52  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['exhib_pagadas', 'exhib_gratis']
+2026-05-01 17:55:52  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-05-01 17:55:52  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:55:52  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-01 17:55:52  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-05-01 17:55:52  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-01 17:55:56  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      Periodo detectado en el PT: Mes 4 | Año 2026
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,192 filas retenidas
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,044 filas retenidas
+2026-05-01 17:55:57  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 810 filas retenidas
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,175 filas retenidas
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 750 filas retenidas
+2026-05-01 17:55:57  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-05-01 17:55:57  [etl.orquestador]   ✓ INFO      shared_loader completado en 4.9s
+2026-05-01 17:55:57  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:55:57  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 2 ETLs en paralelo
+2026-05-01 17:55:57  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:55:57  [etl.exhib_pagadas]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:55:57  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — iniciando
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] 🚀 Iniciando auditoría con asignación de 'No' a faltantes...
+2026-05-01 17:55:57  [etl.exhib_gratis]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:55:57  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — iniciando
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Descubriendo archivos fuente ─────────────────
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] ── Descubriendo archivos fuente ─────────────────
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] - Base Exhibiciones Informar Abril 2026.xlsx
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] - Base Exhibiciones Informar Abril 2026.xlsx
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] [planning] 2 archivo(s):
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] [planning] 2 archivo(s):
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] - Base Exhibiciones Planning Abril 2026.xlsx
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] - Base Exhibiciones Planning Abril 2026.xlsx
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] - PLANNING DE ABRIL 2026.V1 1.xlsx
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] - PLANNING DE ABRIL 2026.V1 1.xlsx
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] - Visitas realizadas Abril 2026.xlsx
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] - Visitas realizadas Abril 2026.xlsx
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-05-01 17:55:57  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-05-01 17:55:57  [etl.exhib_gratis]  · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-05-01 17:56:04  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Abril 2026.xlsx — 2,999 filas
+2026-05-01 17:56:04  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Abril 2026.xlsx — 2,999 filas
+2026-05-01 17:56:12  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Abril 2026.xlsx — 2,553 filas
+2026-05-01 17:56:12  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Abril 2026.xlsx — 2,553 filas
+2026-05-01 17:56:13  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ PLANNING DE ABRIL 2026.V1 1.xlsx — 2,763 filas
+2026-05-01 17:56:13  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ PLANNING DE ABRIL 2026.V1 1.xlsx — 2,763 filas
+2026-05-01 17:56:13  [etl.exhib_gratis]  ☠ CRITICAL  Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'Fecha de la encuesta'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\run_all.py", line 339, in _ejecutar_etl
+    fn()
+    ~~^^
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\run_all.py", line 255, in _run_exhibiciones_gratis
+    etl_exhibiciones_gratis.run()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\etl_exhibiciones_gratis.py", line 325, in run
+    df_enc = load_encuestas(files)
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\etl_exhibiciones_gratis.py", line 136, in load_encuestas
+    df[COL_FECHA] = pd.to_datetime(df[COL_FECHA], dayfirst=True, errors="coerce")
+                                   ~~^^^^^^^^^^^
+  File "C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\frame.py", line 4113, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Fecha de la encuesta'
+
+2026-05-01 17:56:13  [etl.exhib_gratis]  ✗ ERROR     Duración hasta fallo: 16.2s
+2026-05-01 17:56:13  [etl.orquestador]   ✓ INFO      ETL 'exhib_gratis' terminó — ✗ FALLÓ en 16.2s
+2026-05-01 17:56:15  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.
+2026-05-01 17:56:15  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — completado
+2026-05-01 17:56:15  [etl.exhib_pagadas]  ✓ INFO      Duración total: 18.1s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ETL 'exhib_pagadas' terminó — ✓ OK en 18.1s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        exhib_pagadas          ✓ OK              18.1s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        exhib_gratis           ✗ ERROR           16.2s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               4.9s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         23.1s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                   39.3s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        Ahorro estimado                          16.2s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      Eventos: 1 CRITICAL  |  1 ERROR  |  1 WARNING
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        CRITICAL (1)
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        17:56:13  [exhib_gratis]      Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'Fecha de la encuesta'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\run_all.py", line 339, in _ejecutar_etl
+    fn()
+    ~~^^
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\run_all.py", line 255, in _run_exhibiciones_gratis
+    etl_exhibiciones_gratis.run()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\etl_exhibiciones_gratis.py", line 325, in run
+    df_enc = load_encuestas(files)
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\etl_exhibiciones_gratis.py", line 136, in load_encuestas
+    df[COL_FECHA] = pd.to_datetime(df[COL_FECHA], dayfirst=True, errors="coerce")
+                                   ~~^^^^^^^^^^^
+  File "C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\frame.py", line 4113, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Fecha de la encuesta'
+
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        ERROR (1)
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        17:56:13  [exhib_gratis]      Duración hasta fallo: 16.2s
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO        17:55:57  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_175552.log
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      Fin: 2026-05-01 17:56:15
+2026-05-01 17:56:15  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

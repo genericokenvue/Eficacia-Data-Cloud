@@ -1,0 +1,61 @@
+2026-05-04 21:45:05  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260504_214505.log
+2026-05-04 21:45:05  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-04 21:45:05  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-05-04 21:45:05  [etl.orquestador]   ✓ INFO      Inicio: 2026-05-04 21:45:05
+2026-05-04 21:45:05  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['impactos_segmentos']
+2026-05-04 21:45:05  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-05-04 21:45:05  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-04 21:45:05  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-04 21:45:05  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-05-04 21:45:05  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-04 21:45:09  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      Periodo detectado en el PT: Mes 4 | Año 2026
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,192 filas retenidas
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,044 filas retenidas
+2026-05-04 21:45:10  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 810 filas retenidas
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,175 filas retenidas
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 750 filas retenidas
+2026-05-04 21:45:10  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      shared_loader completado en 5.1s
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-04 21:45:10  [etl.impactos_segmentos]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-04 21:45:10  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — iniciando
+2026-05-04 21:45:10  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-05-04 21:45:10  [etl.impactos_segmentos]  · DEBUG     [stdout] ETL — Impacto por Segmento
+2026-05-04 21:45:10  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-05-04 21:45:10  [etl.impactos_segmentos]  ✗ ERROR     [stdout] ❌ Falta el archivo de listas: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\Listas\listas_referencia.xlsx
+2026-05-04 21:45:10  [etl.impactos_segmentos]  · DEBUG     [stdout] Hojas requeridas: MSL, ListSant, DoyPackBaby, CremasBaby
+2026-05-04 21:45:10  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — completado
+2026-05-04 21:45:10  [etl.impactos_segmentos]  ✓ INFO      Duración total: 0.0s
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ETL 'impactos_segmentos' terminó — ✓ OK en 0.0s
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        impactos_segmentos     ✓ OK               0.0s
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               5.1s
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                          5.1s
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                    5.1s
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  1 ERROR  |  1 WARNING
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ························································
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        ERROR (1)
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ························································
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        21:45:10  [impactos_segmentos]  [stdout] ❌ Falta el archivo de listas: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\Listas\listas_referencia.xlsx
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ························································
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ························································
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO        21:45:10  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260504_214505.log
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      Fin: 2026-05-04 21:45:10
+2026-05-04 21:45:10  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

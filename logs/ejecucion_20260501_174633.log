@@ -1,0 +1,96 @@
+2026-05-01 17:46:33  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_174633.log
+2026-05-01 17:46:33  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:46:33  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-05-01 17:46:33  [etl.orquestador]   ✓ INFO      Inicio: 2026-05-01 17:46:33
+2026-05-01 17:46:33  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif']
+2026-05-01 17:46:33  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-05-01 17:46:33  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:46:33  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-01 17:46:33  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-05-01 17:46:33  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-01 17:46:37  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      Periodo detectado en el PT: Mes 4 | Año 2026
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,192 filas retenidas
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,044 filas retenidas
+2026-05-01 17:46:38  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 810 filas retenidas
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,175 filas retenidas
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 750 filas retenidas
+2026-05-01 17:46:38  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-05-01 17:46:38  [etl.orquestador]   ✓ INFO      shared_loader completado en 5.3s
+2026-05-01 17:46:38  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:46:38  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo
+2026-05-01 17:46:38  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:46:38  [etl.cif]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:46:38  [etl.cif]           ✓ INFO      ETL CIF — iniciando
+2026-05-01 17:46:38  [etl.cif]           ✓ INFO      Paso 1 — PT consolidado: 11,370 filas
+2026-05-01 17:46:38  [etl.cif]           ✓ INFO      Paso 2 — Agrupación SQL
+2026-05-01 17:46:38  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:46:38  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-05-01 17:46:38  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:46:39  [etl.cif]           ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\CIF\PLAN DE TRABAJO\Plan de trabajo consolidado_grupado.csv
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] Resumen agrupado (Primeros 5):
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] ACRONIMO ID_PDV_INVOLVES  TIEMPO_SERVICIO_HORAS
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] 0     None            None                    NaN
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] 1    LE001         10032,0                    NaN
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] 2    LE001         10033,0                    NaN
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] 3    LE001         10035,0                    NaN
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] 4    LE001         10036,0                    NaN
+2026-05-01 17:46:39  [etl.cif]           ✓ INFO      Paso 3 — Visitas Involves
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES (CRUCE PRIORIZANDO BASE VENTAS)
+2026-05-01 17:46:39  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:17  [etl.cif]           ✓ INFO      [stdout] ✅ Paso 3 finalizado. Condición de Checkout Manual obligatoria aplicada.
+2026-05-01 17:47:17  [etl.cif]           ✓ INFO      Paso 4 — Justificaciones
+2026-05-01 17:47:17  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:17  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 4: JUSTIFICACIONES (CRUCE PRIORIZANDO BASE VENTAS)
+2026-05-01 17:47:17  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:54  [etl.cif]           ✓ INFO      [stdout] ✅ Paso 4 finalizado: IDs unificados (Ventas > Plan) y justificaciones procesadas.
+2026-05-01 17:47:54  [etl.cif]           ✓ INFO      Paso 5 — Agrupación visitas (unificación gestores)
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 5: CONSOLIDACIÓN (CORRECCIÓN DE ID FORMATO .0)
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:54  [etl.cif]           ✓ INFO      [stdout] ✅ ¡Proceso Limpio! IDs corregidos y apoyos sumados al Gestor.
+2026-05-01 17:47:54  [etl.cif]           ✓ INFO      Paso 6 — Generación de alertas de tiempos inconsistentes
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 6: GENERACIÓN DE ALERTAS (RUTA CIF SALIDA)
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:54  [etl.cif]           ⚠ WARNING   [stdout] ⚠️ AUDITORÍA: Se detectaron 69 registros con tiempos > 9h.
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] 📁 Archivo de alertas generado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\CIF\ALERTAS_TIEMPOS_INCONSISTENTES.csv
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:54  [etl.cif]           ✓ INFO      Paso 7 — Resultado final Excel
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 7: ESTRUCTURACIÓN FINAL (SALIDA EXCEL - MES NUMÉRICO)
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:54  [etl.cif]           · DEBUG     [stdout] 📅 Fecha detectada en el Plan: Mes 4 | Año 2026
+2026-05-01 17:47:56  [etl.cif]           ✓ INFO      [stdout] ✅ ¡LISTO! Excel generado para el periodo 4/2026.
+2026-05-01 17:47:56  [etl.cif]           · DEBUG     [stdout] 📁 Ruta: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\CIF\Plan de trabajo.xlsx
+2026-05-01 17:47:56  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-05-01 17:47:56  [etl.cif]           ✓ INFO      ETL CIF — completado
+2026-05-01 17:47:56  [etl.cif]           ✓ INFO      Duración total: 77.9s
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      ETL 'cif' terminó — ✓ OK en 77.9s
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        cif                    ✓ OK              77.9s
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               5.3s
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         83.3s
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                   83.3s
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  2 WARNING
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        WARNING (2)
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        17:46:38  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO        17:47:54  [cif]               [stdout] ⚠️ AUDITORÍA: Se detectaron 69 registros con tiempos > 9h.
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_174633.log
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      Fin: 2026-05-01 17:47:56
+2026-05-01 17:47:56  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

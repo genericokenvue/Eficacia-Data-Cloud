@@ -1,0 +1,106 @@
+2026-05-01 17:49:36  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_174936.log
+2026-05-01 17:49:36  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:49:36  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-05-01 17:49:36  [etl.orquestador]   ✓ INFO      Inicio: 2026-05-01 17:49:36
+2026-05-01 17:49:36  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['nopresencia', 'precios', 'sos']
+2026-05-01 17:49:36  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-05-01 17:49:36  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:49:36  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-01 17:49:36  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-05-01 17:49:36  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-01 17:49:41  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      Periodo detectado en el PT: Mes 4 | Año 2026
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,192 filas retenidas
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,044 filas retenidas
+2026-05-01 17:49:42  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 810 filas retenidas
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,175 filas retenidas
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 750 filas retenidas
+2026-05-01 17:49:42  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-05-01 17:49:42  [etl.orquestador]   ✓ INFO      shared_loader completado en 5.5s
+2026-05-01 17:49:42  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:49:42  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 3 ETLs en paralelo
+2026-05-01 17:49:42  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:49:42  [etl.nopresencia]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:49:42  [etl.nopresencia]   ✓ INFO      ETL No Presencia — iniciando
+2026-05-01 17:49:42  [etl.precios]       ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:49:42  [etl.precios]       ✓ INFO      ETL Precios — iniciando
+2026-05-01 17:49:42  [etl.sos]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:49:42  [etl.sos]           ✓ INFO      ETL SOS — iniciando
+2026-05-01 17:49:44  [etl.precios]       ✓ INFO      PT filtrado persistido: 173 PDVs únicos — periodo ABRIL_2026
+2026-05-01 17:49:44  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (ABRIL_2026) ---
+2026-05-01 17:49:44  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (ABRIL_2026) ---
+2026-05-01 17:49:44  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (ABRIL_2026) ---
+2026-05-01 17:49:44  [etl.sos]           ✓ INFO      PT filtrado persistido: 497 PDVs únicos
+2026-05-01 17:49:44  [etl.sos]           ✓ INFO      2 archivo(s) de encuesta SOS encontrado(s)
+2026-05-01 17:49:44  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS ---
+2026-05-01 17:49:44  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS ---
+2026-05-01 17:49:44  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS ---
+2026-05-01 17:49:54  [etl.nopresencia]   ✓ INFO      PT filtrado persistido: 6,236 filas — periodo ABRIL_2026
+2026-05-01 17:49:54  [etl.nopresencia]   · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas) ---
+2026-05-01 17:49:54  [etl.precios]       · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas) ---
+2026-05-01 17:49:54  [etl.sos]           · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas) ---
+2026-05-01 17:49:54  [etl.nopresencia]   · DEBUG     [stdout] Archivo encuestas: Respuestas no presencia.xlsx
+2026-05-01 17:49:54  [etl.precios]       · DEBUG     [stdout] Archivo encuestas: Respuestas no presencia.xlsx
+2026-05-01 17:49:54  [etl.sos]           · DEBUG     [stdout] Archivo encuestas: Respuestas no presencia.xlsx
+2026-05-01 17:50:06  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-05-01 17:50:06  [etl.precios]       ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-05-01 17:50:06  [etl.sos]           ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-05-01 17:50:06  [etl.precios]       ✓ INFO      Reporte de captura de precios generado
+2026-05-01 17:50:06  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (ABRIL_2026) ---
+2026-05-01 17:50:06  [etl.precios]       · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (ABRIL_2026) ---
+2026-05-01 17:50:06  [etl.sos]           · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (ABRIL_2026) ---
+2026-05-01 17:50:53  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Análisis detallado guardado.
+2026-05-01 17:50:53  [etl.precios]       ✓ INFO      [stdout] ✅ Análisis detallado guardado.
+2026-05-01 17:50:53  [etl.sos]           ✓ INFO      [stdout] ✅ Análisis detallado guardado.
+2026-05-01 17:50:53  [etl.precios]       ✓ INFO      Análisis detallado de precios generado
+2026-05-01 17:50:53  [etl.precios]       ✓ INFO      ETL Precios — completado
+2026-05-01 17:50:53  [etl.precios]       ✓ INFO      Duración total: 71.0s
+2026-05-01 17:50:53  [etl.orquestador]   ✓ INFO      ETL 'precios' terminó — ✓ OK en 71.0s
+2026-05-01 17:52:10  [etl.nopresencia]   ✓ INFO      [stdout] EXITO: Encuestas creadas en C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\NO PRESENCIA\NO_PRESENCIA_PROCESADO_ABRIL_2026.xlsx
+2026-05-01 17:52:10  [etl.nopresencia]   ✓ INFO      Encuestas de No Presencia procesadas
+2026-05-01 17:52:10  [etl.nopresencia]   · DEBUG     [stdout] --- INICIANDO: Bloque Plan de Trabajo (Semanas) ---
+2026-05-01 17:52:13  [etl.nopresencia]   ✓ INFO      [stdout] EXITO: Plan Procesado creado en C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\NO PRESENCIA\PLAN_TRABAJO_PROCESADO_ABRIL_2026.xlsx
+2026-05-01 17:52:13  [etl.nopresencia]   ✓ INFO      Plan de Trabajo por semanas procesado
+2026-05-01 17:52:13  [etl.nopresencia]   · DEBUG     [stdout] --- GENERANDO MATRIZ COMPARATIVA FINAL ---
+2026-05-01 17:52:28  [etl.nopresencia]   · DEBUG     [stdout] 🏁 FINALIZADO: Reporte generado exitosamente en C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\NO PRESENCIA\REPORTE_NO_PRESENCIA_ABRIL_2026.xlsx
+2026-05-01 17:52:28  [etl.nopresencia]   ✓ INFO      Matriz de seguimiento generada
+2026-05-01 17:52:28  [etl.nopresencia]   · DEBUG     [stdout] --- GENERANDO ANÁLISIS DE AGOTADOS (INVOLVES) ---
+2026-05-01 17:52:49  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ÉXITO: Reporte de Agotados generado en C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\NO PRESENCIA\ANALISIS_AGOTADOS_ABRIL_2026.xlsx
+2026-05-01 17:52:49  [etl.nopresencia]   ✓ INFO      Análisis de agotados generado
+2026-05-01 17:52:49  [etl.nopresencia]   ✓ INFO      ETL No Presencia — completado
+2026-05-01 17:52:49  [etl.nopresencia]   ✓ INFO      Duración total: 187.0s
+2026-05-01 17:52:49  [etl.orquestador]   ✓ INFO      ETL 'nopresencia' terminó — ✓ OK en 187.0s
+2026-05-01 17:52:50  [etl.sos]           ✓ INFO      Encuestas SOS consolidadas
+2026-05-01 17:53:16  [etl.sos]           ✓ INFO      Cumplimiento de captura calculado
+2026-05-01 17:53:41  [etl.sos]           ✓ INFO      Target normalizado
+2026-05-01 17:54:06  [etl.sos]           ✓ INFO      Cruce triple y cálculo SOS completado
+2026-05-01 17:54:06  [etl.sos]           ✓ INFO      ETL SOS — completado
+2026-05-01 17:54:06  [etl.sos]           ✓ INFO      Duración total: 263.6s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      ETL 'sos' terminó — ✓ OK en 263.6s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        nopresencia            ✓ OK             187.0s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        precios                ✓ OK              71.0s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        sos                    ✓ OK             263.6s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               5.5s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        269.1s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  527.1s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        Ahorro estimado                         258.0s
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO        17:49:42  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_174936.log
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      Fin: 2026-05-01 17:54:06
+2026-05-01 17:54:06  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

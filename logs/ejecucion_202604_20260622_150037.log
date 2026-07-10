@@ -1,0 +1,85 @@
+2026-06-22 15:00:37  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202604_20260622_150037.log
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260622T150037_8933c5
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-22 15:00:37
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      Run ID: 20260622T150037_8933c5
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      Periodo: Abril_2026 (04/2026)
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['sos']
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-06-22 15:00:37  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 15:00:37  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Abril 2026.xlsx
+2026-06-22 15:00:37  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Abril 2026.xlsx
+2026-06-22 15:00:37  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-22 15:00:37  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-22 15:00:37  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-22 15:00:39  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 4 | Año 2026
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,192 filas retenidas
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,044 filas retenidas
+2026-06-22 15:00:40  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 810 filas retenidas
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,175 filas retenidas
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 750 filas retenidas
+2026-06-22 15:00:40  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-22 15:00:40  [etl.orquestador]   ✓ INFO      shared_loader completado en 3.0s
+2026-06-22 15:00:40  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 15:00:40  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-06-22 15:00:40  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 15:00:40  [etl.sos]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 15:00:40  [etl.sos]           ✓ INFO      ETL SOS — iniciando
+2026-06-22 15:00:40  [etl.sos]           ✓ INFO      PT filtrado persistido: 497 PDVs únicos
+2026-06-22 15:00:40  [etl.sos]           ✓ INFO      6 archivo(s) de encuesta SOS encontrado(s)
+2026-06-22 15:00:40  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS  (Abril_2026) ---
+2026-06-22 15:00:40  [etl.sos]           ✓ INFO      [stdout] ✓ Respuestas SOS Abril 2026.xlsx
+2026-06-22 15:00:40  [etl.sos]           ✓ INFO      [stdout] ✓ Respuestas SOS Baby Abril 2026.xlsx
+2026-06-22 15:01:14  [etl.sos]           ✓ INFO      [stdout] ✅ EXITO: Encuestas unidas (2 archivo(s)).
+2026-06-22 15:01:14  [etl.sos]           ✓ INFO      Encuestas SOS consolidadas
+2026-06-22 15:01:14  [etl.sos]           · DEBUG     [stdout] --- PASO 3: Generando Reporte de Cumplimiento  (Abril_2026) ---
+2026-06-22 15:01:23  [etl.sos]           ✓ INFO      [stdout] ✅ EXITO: Reporte de capturas generado con Captura Planeada, Fechas y periodo Abril_2026.
+2026-06-22 15:01:23  [etl.sos]           ✓ INFO      Cumplimiento de captura calculado
+2026-06-22 15:01:23  [etl.sos]           · DEBUG     [stdout] --- PASO 4: Normalizando Target  (Abril_2026) ---
+2026-06-22 15:01:23  [etl.sos]           · DEBUG     [stdout] 📂 Archivo detectado: Colombia-sos-target-202604.xlsx
+2026-06-22 15:01:33  [etl.sos]           ✓ INFO      [stdout] ✅ EXITO: Target normalizado guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\SOS\Colombia_sos_target_Normalizado.xlsx
+2026-06-22 15:01:33  [etl.sos]           ✓ INFO      Target normalizado
+2026-06-22 15:01:33  [etl.sos]           · DEBUG     [stdout] --- PASO 5: Generando Reporte Final (Cruce Triple y Cálculos)  (Abril_2026) ---
+2026-06-22 15:01:45  [etl.sos]           ✓ INFO      [stdout] ✅ EXITO: Reporte Final SOS (Abril_2026) generado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\SOS\Reporte_SOS_Final_Calculado.xlsx
+2026-06-22 15:01:45  [etl.sos]           ✓ INFO      Cruce triple y cálculo SOS completado
+2026-06-22 15:01:45  [etl.sos]           · DEBUG     [stdout] --- PASO 6 (V3): RESUMEN KPI SOS por gestor  (Abril_2026) ---
+2026-06-22 15:01:45  [etl.sos]           · DEBUG     [stdout] Leyendo: Cumplimiento_Captura_SOS.xlsx (497 filas)
+2026-06-22 15:01:45  [etl.sos]           ✓ INFO      [stdout] ✅ Mes activo: 121 gestores → SOS_KPIS.xlsx
+2026-06-22 15:01:45  [etl.sos]           ✓ INFO      [stdout] ✅ Histórico acumulado → SOS_KPIS_HISTORICO.xlsx
+2026-06-22 15:01:45  [etl.sos]           ✓ INFO      KPI SOS consolidado
+2026-06-22 15:01:45  [etl.sos]           ✓ INFO      ETL SOS — completado
+2026-06-22 15:01:46  [etl.sos]           ✓ INFO      Duración total: 65.6s
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ETL 'sos' terminó — ✓ OK en 65.6s
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        sos                    ✓ OK              65.6s
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               3.0s
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         68.6s
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                   68.6s
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ························································
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ························································
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO        15:00:40  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202604_20260622_150037.log
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      Fin: 2026-06-22 15:01:46
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      FASE FINAL — Regenerando capa GOLD
+2026-06-22 15:01:46  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-06-22 15:01:57  [etl.orquestador]   ✓ INFO      GOLD regenerado OK

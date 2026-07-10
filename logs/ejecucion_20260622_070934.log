@@ -1,0 +1,4 @@
+2026-06-22 07:09:34  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260622_070934.log
+2026-06-22 07:09:39  [etl.alertas_email]  ✓ INFO      [macro] 2026-06-22 07:09:37 | INFO | EnviarTodos: inicio
+2026-06-22 07:09:39  [etl.alertas_email]  ✓ INFO      [macro] 2026-06-22 07:09:38 | INFO | Resumen -- enviados=0 errores=0 total=37
+2026-06-22 07:09:40  [etl.alertas_email]  ✓ INFO      Email — enviados=37 errores=0 pendientes=0

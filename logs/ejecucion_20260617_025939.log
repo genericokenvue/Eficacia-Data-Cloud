@@ -1,0 +1,3 @@
+2026-06-17 02:59:39  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260617_025939.log
+2026-06-17 02:59:39  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Abril 2026.xlsx
+2026-06-17 02:59:39  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Abril 2026.xlsx

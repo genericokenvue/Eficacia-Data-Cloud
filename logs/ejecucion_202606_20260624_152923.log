@@ -1,0 +1,18 @@
+2026-06-24 15:29:23  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202606_20260624_152923.log
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260624T152923_d3dced
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-24 15:29:23
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      Run ID: 20260624T152923_d3dced
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      Periodo: Junio_2026 (06/2026)
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif', 'nopresencia', 'precios', 'sos', 'exhib_pagadas', 'exhib_gratis', 'ventas', 'impactos', 'impactos_segmentos']
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-06-24 15:29:23  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-24 15:29:23  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Junio 2026.xlsx
+2026-06-24 15:29:23  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Junio 2026.xlsx
+2026-06-24 15:29:23  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-24 15:29:23  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-24 15:29:23  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-24 15:29:25  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,647 filas PT  |  3,258 filas módulos cargadas
+2026-06-24 15:29:25  [etl.shared_loader]  ✗ ERROR     [ISM] Excepción al leer Plan de trabajo ISM Junio 2026.xlsx — esta fuente se excluye del pipeline

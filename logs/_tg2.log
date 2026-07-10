@@ -1,0 +1,1062 @@
+19:19:20  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260619_191920.log
+
+═══════════════════════════════════════════════════════
+  CALCULAR CUMPLIMIENTOS — Eficacia
+═══════════════════════════════════════════════════════
+19:19:21  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+
+Cargando archivos de detalle:
+  ✓ [CIF (Plan de trabajo.xlsx)] 5,065 filas cargadas
+  ✓ [No Presencia] 2,223 filas cargadas
+  ✓ [Precios] 477 filas cargadas
+  ✓ [SOS] 482 filas cargadas
+
+Cargando tabla maestra de personas (Base cupos):
+  ✓ Universo: 200 personas activas | 28 supervisores
+
+Verificando maestra de supervisores:
+  ⚠️  14 supervisor(es) en la maestra ya no figuran como activos en Base cupos:
+     · MARTHA DEL CARMEN PAREJA POLO
+     · VICTOR MANUEL YANALA VALENCIA
+     · LEONARDO CARRILLO HIGUITA
+     · DOLY MILENA MORALES CARRILLO
+     · DANIELA TAPASCO HIGUITA
+     (Se conservan en la maestra; revisa si fueron desactivados.)
+  ✓ Maestra al día: 42 supervisores
+
+Leyendo KPIs V3 pre-calculados por los ETLs:
+  ✓ CIF        — 148 personas
+  ✓ NP         — 148 personas
+  ✓ Precios    — 72 personas
+  ✓ SOS        — 74 personas
+  ✓ Exh PAG    — 132 empleados
+  ✓ Exh GRATIS — 108 empleados
+  Periodo activo: 05/2026
+
+Calculando KPIs D&P (Venta + Impactos + MSL + Prod Nuevos):
+  Cargando ventas D&P para Mayo-2026...
+  ✓ D&P — gestores con datos: 67 | supervisores: 9
+
+Ensamblando detalle consolidado:
+  Personas en detalle: 200 (gestores: 172 | supervisores: 28)
+
+Calculando resumen por supervisor:
+  Supervisores en resumen: 37
+
+Guardando archivos de salida:
+  ✅ Detalle guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\DETALLE_CUMPLIMIENTO_05_2026.xlsx
+  ✅ Resumen guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\RESUMEN_CUMPLIMIENTO_05_2026.xlsx
+
+Pre-cargando insumos D&P para hojas de productos nuevos:
+  ⚠️  Error cargando insumos de segmentos: 'ID ECOM'
+  ✅ 37 adjuntos generados (9 hojas c/u) en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\ADJUNTOS
+19:28:48  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 05/2026 | gestores=172 supervisores=28 adjuntos=37
+C:\Users\Usuario\AppData\Local\Programs\Python\Python314\Lib\site-packages\openpyxl\styles\stylesheet.py:237: UserWarning: Workbook contains no default style, apply openpyxl's default
+  warn("Workbook contains no default style, apply openpyxl's default")
+
+═══════════════════════════════════════════════════════
+  ✅ Proceso completado — 05/2026
+═══════════════════════════════════════════════════════
+
+
+  📆 Periodo de corte detectado: 2 al 31 de mayo | avance esperado del mes: 100%
+
+═══════════════════════════════════════════════════════
+  ALERTAS TELEGRAM — Eficacia
+═══════════════════════════════════════════════════════
+  ⚠️  MODO PRUEBA — los mensajes NO se enviarán
+
+  Perfiles PDV cargados: 16,647 IDs mapeados
+  Fecha de corte usada en mensajes: 18/06/2026
+  Enviando a 37 supervisor(es):
+
+  ── [ALEXANDER VARGAS LIZCANO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *ALEXANDER VARGAS LIZCANO*
+👥 Gestores a cargo: 7
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 65.4% ❌
+`CUMPLIMIENTO IMPACTOS        ` 53.2% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 17.5% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 95.1%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 45.4% ❌*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [ANA CAROLINA TEHERAN MAESTRE] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *ANA CAROLINA TEHERAN MAESTRE*
+👥 Gestores a cargo: 2
+
+📋 *Indicadores Directo*
+`CIF                              ` 105.7% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 90.0% ⚠️
+`EJECUCIÓN EXH. PAGADAS           ` 81.0% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 2 de 2 ✅
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 2 de 2 ✅
+
+📋 *Indicadores Proximity*
+`CIF                              ` 98.2% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EJECUCIÓN EXH. PAGADAS           ` N/D —
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 1 ✅
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 1 de 1 ✅
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 97.9% ✅*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [ANGELA MARIA HERNANDEZ LONDOÑO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *ANGELA MARIA HERNANDEZ LONDOÑO*
+👥 Gestores a cargo: 0
+
+
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: N/D —*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [CHRISTIAN ORLANDO CABRERA MENDEZ] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *CHRISTIAN ORLANDO CABRERA MENDEZ*
+👥 Gestores a cargo: 6
+
+📋 *Indicadores Directo*
+`CIF                              ` 124.2% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 78.0% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 3 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 1 de 3 ❌
+
+📋 *Indicadores Proximity*
+`CIF                              ` 106.4% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 83.3% ⚠️
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EJECUCIÓN EXH. PAGADAS           ` N/D —
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 3 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 1 de 3 ❌
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 100.4% ✅
+`CUMPLIMIENTO IMPACTOS        ` 52.3% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 13.9% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 98.6%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 72.8% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [CLAUDIA MARCELA RUBIANO HERNANDEZ] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *CLAUDIA MARCELA RUBIANO HERNANDEZ*
+👥 Gestores a cargo: 7
+
+📋 *Indicadores Directo*
+`CIF                              ` 103.9% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 98.8% ⚠️
+`EJECUCIÓN EXH. PAGADAS           ` 76.6% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 5 de 9 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 2 de 9 ❌
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 82.1% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [CRISTHIAN CAMILO ENCISO VARGAS] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *CRISTHIAN CAMILO ENCISO VARGAS*
+👥 Gestores a cargo: 9
+
+📋 *Indicadores Directo*
+`CIF                              ` 103.1% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 78.6% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 0 de 2 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 0 de 2 ❌
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 83.3% ⚠️
+`CUMPLIMIENTO IMPACTOS        ` 64.9% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 7.7% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 93.7%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 59.7% ❌*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [DANIELA TAPASCO HIGUITA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *DANIELA TAPASCO HIGUITA*
+👥 Gestores a cargo: 43
+
+📋 *Cumplimiento personal + 43 supervisor(es) a cargo*
+`CIF                              ` 100.7% ✅
+`NO PRESENCIA                     ` 83.8% ⚠️
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EXH. GRATIS (prom A+M)           ` 66.9% ❌
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 97.8% ✅
+`CUMPLIMIENTO IMPACTOS        ` 62.3% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 6.1% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 94.6%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 79.7% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [DANIELA TORO GOMEZ] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *DANIELA TORO GOMEZ*
+👥 Gestores a cargo: 7
+
+📋 *Indicadores Directo*
+`CIF                              ` 105.5% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 80.0% ⚠️
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 82.1% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 4 de 9 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 4 de 9 ❌
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 107.8% ✅
+`CUMPLIMIENTO IMPACTOS        ` 62.7% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 20.0% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 90.7%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 77.0% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [DAYANA JULIENTH DIAZ TORRES] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *DAYANA JULIENTH DIAZ TORRES*
+👥 Gestores a cargo: 5
+
+📋 *Indicadores Directo*
+`CIF                              ` 100.1% ✅
+`NO PRESENCIA                     ` 98.9% ⚠️
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 98.2% ⚠️
+`EJECUCIÓN EXH. PAGADAS           ` 82.1% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 4 de 7 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 5 de 7 ⚠️
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 88.5% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [DEISY DEL CARMEN PAEZ MIRANDA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *DEISY DEL CARMEN PAEZ MIRANDA*
+👥 Gestores a cargo: 5
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 92.3% ✅
+`CUMPLIMIENTO IMPACTOS        ` 56.1% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 6.7% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 95.9%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 51.7% ❌*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [DEISY MUNZA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *DEISY MUNZA*
+👥 Gestores a cargo: 8
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 70.7% ⚠️
+`CUMPLIMIENTO IMPACTOS        ` 61.2% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 16.1% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 96.7%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 49.3% ❌*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [DIEGO HUERTAS] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *DIEGO HUERTAS*
+👥 Gestores a cargo: 0
+
+
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: N/D —*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [DOLY MILENA MORALES CARRILLO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *DOLY MILENA MORALES CARRILLO*
+👥 Gestores a cargo: 0
+
+📋 *Cumplimiento personal*
+`CIF                              ` 50.1% ❌
+`NO PRESENCIA                     ` 66.7% ❌
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EXH. GRATIS (prom A+M)           ` N/D —
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 83.4% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [FERNANDA MILENA BURBANO SALAZAR] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *FERNANDA MILENA BURBANO SALAZAR*
+👥 Gestores a cargo: 2
+
+📋 *Indicadores Directo*
+`CIF                              ` 99.8% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 73.1% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 2 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 0 de 2 ❌
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 97.6% ✅
+`CUMPLIMIENTO IMPACTOS        ` 81.9% ⚠️
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 11.5% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 87.3%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 68.2% ❌*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [FREDDY ENRIQUE GUERRA SMITH] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *FREDDY ENRIQUE GUERRA SMITH*
+👥 Gestores a cargo: 0
+
+📋 *Cumplimiento personal*
+`CIF                              ` 0.0% ❌
+`NO PRESENCIA                     ` 0.0% ❌
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EXH. GRATIS (prom A+M)           ` N/D —
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 0.0% ❌*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [INGRID MENDOZA TRUJILLO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *INGRID MENDOZA TRUJILLO*
+👥 Gestores a cargo: 44
+
+📋 *Cumplimiento personal + 44 supervisor(es) a cargo*
+`CIF                              ` 97.5% ✅
+`NO PRESENCIA                     ` 77.1% ⚠️
+`PRECIOS                          ` 84.8% ⚠️
+`SOS                              ` 98.5% ⚠️
+`CAPTURA EXH. PAGADAS             ` 95.2% ⚠️
+`EXH. GRATIS (prom A+M)           ` 45.8% ❌
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 87.7% ⚠️
+`CUMPLIMIENTO IMPACTOS        ` 60.3% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 19.1% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 97.5%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 74.0% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [JIMENA GOMEZ GONZALEZ] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *JIMENA GOMEZ GONZALEZ*
+👥 Gestores a cargo: 7
+
+📋 *Indicadores Proximity*
+`CIF                              ` 112.2% ✅
+`NO PRESENCIA                     ` 97.1% ⚠️
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EJECUCIÓN EXH. PAGADAS           ` N/D —
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 2 de 7 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 2 de 7 ❌
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 77.7% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [JOHAN ERICSSON LOZANO FORERO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *JOHAN ERICSSON LOZANO FORERO*
+👥 Gestores a cargo: 6
+
+📋 *Indicadores Directo*
+`CIF                              ` 105.2% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 98.0% ⚠️
+`EJECUCIÓN EXH. PAGADAS           ` 81.1% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 4 de 7 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 6 de 7 ⚠️
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 90.9% ✅*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [JOHANA MONSALVE VALLE] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *JOHANA MONSALVE VALLE*
+👥 Gestores a cargo: 5
+
+📋 *Indicadores Directo*
+`CIF                              ` 102.8% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 82.0% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 4 de 7 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 4 de 7 ❌
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 87.4% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [JULIANA ANDREA GOMEZ GRAJALES] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *JULIANA ANDREA GOMEZ GRAJALES*
+👥 Gestores a cargo: 7
+
+📋 *Indicadores Directo*
+`CIF                              ` 105.9% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 87.9% ⚠️
+`EJECUCIÓN EXH. PAGADAS           ` 72.7% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 3 de 6 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 4 de 6 ❌
+
+📋 *Indicadores Proximity*
+`CIF                              ` 111.5% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EJECUCIÓN EXH. PAGADAS           ` N/D —
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 2 de 2 ✅
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 1 de 2 ❌
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 88.1% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [KATHERIN DANIELA RODRIGUEZ CABRERA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *KATHERIN DANIELA RODRIGUEZ CABRERA*
+👥 Gestores a cargo: 5
+
+📋 *Indicadores Directo*
+`CIF                              ` 104.2% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 98.9% ⚠️
+`EJECUCIÓN EXH. PAGADAS           ` 71.3% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 2 de 7 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 1 de 7 ❌
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 77.2% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [LAURA TATIANA ORTIZ GONZALEZ] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *LAURA TATIANA ORTIZ GONZALEZ*
+👥 Gestores a cargo: 4
+
+📋 *Indicadores Directo*
+`CIF                              ` 99.5% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 80.8% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 3 de 6 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 2 de 6 ❌
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 77.3% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [MARIA EDUDIGEN PEREZ TAMARA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *MARIA EDUDIGEN PEREZ TAMARA*
+👥 Gestores a cargo: 2
+
+📋 *Indicadores Directo*
+`CIF                              ` 114.9% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 84.6% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 2 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 2 de 2 ✅
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 91.6% ✅*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [MARLENE RODRIGUEZ PIRAGAUTA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *MARLENE RODRIGUEZ PIRAGAUTA*
+👥 Gestores a cargo: 3
+
+📋 *Indicadores Directo*
+`CIF                              ` 113.4% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 54.5% ❌
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 3 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 0 de 3 ❌
+
+📋 *Indicadores Proximity*
+`CIF                              ` 105.3% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EJECUCIÓN EXH. PAGADAS           ` N/D —
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 2 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 0 de 2 ❌
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 71.4% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [MARTHA DEL CARMEN PAREJA POLO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *MARTHA DEL CARMEN PAREJA POLO*
+👥 Gestores a cargo: 0
+
+📋 *Cumplimiento personal*
+`CIF                              ` 105.0% ✅
+`NO PRESENCIA                     ` 66.7% ❌
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EXH. GRATIS (prom A+M)           ` 100.0% ✅
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 92.9% ✅*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [MONICA JULIETH CASTAÑO VARGAS] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *MONICA JULIETH CASTAÑO VARGAS*
+👥 Gestores a cargo: 0
+
+
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: N/D —*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [MONICA PATRICIA HERNANDEZ CANO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *MONICA PATRICIA HERNANDEZ CANO*
+👥 Gestores a cargo: 8
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 103.3% ✅
+`CUMPLIMIENTO IMPACTOS        ` 68.6% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 5.4% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 93.3%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 59.1% ❌*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [REINALDO CASTELLANOS CABALLERO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *REINALDO CASTELLANOS CABALLERO*
+👥 Gestores a cargo: 8
+
+📋 *Indicadores Directo*
+`CIF                              ` 101.6% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 95.7% ⚠️
+`EJECUCIÓN EXH. PAGADAS           ` 56.4% ❌
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 4 de 5 ⚠️
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 4 de 5 ⚠️
+
+📋 *Indicadores Proximity*
+`CIF                              ` 98.2% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EJECUCIÓN EXH. PAGADAS           ` N/D —
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 4 de 4 ✅
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 4 de 4 ✅
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 93.7% ✅*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [ROSA ELENA PANTOJA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *ROSA ELENA PANTOJA*
+👥 Gestores a cargo: 49
+
+📋 *Cumplimiento personal + 49 supervisor(es) a cargo*
+`CIF                              ` 105.1% ✅
+`NO PRESENCIA                     ` 83.8% ⚠️
+`PRECIOS                          ` 98.3% ⚠️
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EXH. GRATIS (prom A+M)           ` 100.0% ✅
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 87.7% ⚠️
+`CUMPLIMIENTO IMPACTOS        ` 66.2% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 10.7% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 91.8%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 83.5% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [SORELIS DEL ROSARIO GONZALEZ PEREZ] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *SORELIS DEL ROSARIO GONZALEZ PEREZ*
+👥 Gestores a cargo: 4
+
+📋 *Indicadores Directo*
+`CIF                              ` 103.4% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` N/D —
+`SOS                              ` N/D —
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 76.1% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 4 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 3 de 4 ⚠️
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 114.6% ✅
+`CUMPLIMIENTO IMPACTOS        ` 68.1% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 0.0% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 96.0%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 73.6% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [STEVE OROZCO CARDONA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *STEVE OROZCO CARDONA*
+👥 Gestores a cargo: 0
+
+📋 *Cumplimiento personal*
+`CIF                              ` 97.8% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EXH. GRATIS (prom A+M)           ` N/D —
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 99.4% ✅*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [YALEINY LAMOS FORERO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *YALEINY LAMOS FORERO*
+👥 Gestores a cargo: 0
+
+
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: N/D —*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [YEIMI MARCELA ALDANA GUERRERO] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *YEIMI MARCELA ALDANA GUERRERO*
+👥 Gestores a cargo: 6
+
+📋 *Indicadores Directo*
+`CIF                              ` 113.0% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 89.1% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 2 de 8 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 3 de 8 ❌
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 83.1% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [YEIMI SOLORZANO GONZALEZ] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *YEIMI SOLORZANO GONZALEZ*
+👥 Gestores a cargo: 0
+
+
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: N/D —*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [YENNYS PATRICIA LOPEZ ESPAÑOL] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *YENNYS PATRICIA LOPEZ ESPAÑOL*
+👥 Gestores a cargo: 0
+
+
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: N/D —*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [YENUBY MILENA LEON LUNA] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *YENUBY MILENA LEON LUNA*
+👥 Gestores a cargo: 6
+
+📋 *Indicadores Directo*
+`CIF                              ` 102.5% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` 100.0% ✅
+`EJECUCIÓN EXH. PAGADAS           ` 80.0% ⚠️
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 1 de 2 ❌
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 1 de 2 ❌
+
+📋 *Indicadores Proximity*
+`CIF                              ` 105.2% ✅
+`NO PRESENCIA                     ` 100.0% ✅
+`PRECIOS                          ` 100.0% ✅
+`SOS                              ` 100.0% ✅
+`CAPTURA EXH. PAGADAS             ` N/D —
+`EJECUCIÓN EXH. PAGADAS           ` N/D —
+`EXH. GRATIS ALTO   (≥3/persona)  ` Cumplen 3 de 3 ✅
+`EXH. GRATIS MEDIO  (≥5/persona)  ` Cumplen 3 de 3 ✅
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 104.5% ✅
+`CUMPLIMIENTO IMPACTOS        ` 64.7% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 5.9% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 91.1%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 86.1% ⚠️*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+  ── [YULY ALARCON] — PREVIEW ──
+📊 *Cumplimiento Mayo 2026*
+Corte: 2 al 31 de mayo
+
+Equipo: *YULY ALARCON*
+👥 Gestores a cargo: 9
+
+💼 *Indicador D&P Ind*
+`CUMPLIMIENTO CUOTA           ` 91.9% ✅
+`CUMPLIMIENTO IMPACTOS        ` 67.5% ❌
+`CUMPLIMIENTO IMP. SKU NUEVOS ` 27.3% ❌
+
+📌 *Adicionales D&P Ind*
+`% IMPACTOS MSL ` 97.2%
+
+🎯 *CUMPLIMIENTO GENERAL EQUIPO: 62.3% ❌*
+
+_📖 Snapshot al día 31 de 31 — avance esperado del mes: 100%_
+
+_El detalle completo fue enviado a tu correo._
+
+
+  Enviados: 37
+19:29:19  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=37 fallidos=0 sin_chat_id=0 prueba=True
+═══════════════════════════════════════════════════════
+

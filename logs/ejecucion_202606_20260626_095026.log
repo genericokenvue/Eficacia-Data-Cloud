@@ -1,0 +1,167 @@
+2026-06-26 09:50:26  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202606_20260626_095026.log
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260626T095026_800ae1
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-26 09:50:26
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      Run ID: 20260626T095026_800ae1
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      Periodo: Junio_2026 (06/2026)
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif']
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-06-26 09:50:26  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-26 09:50:26  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Junio 2026.xlsx
+2026-06-26 09:50:26  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Junio 2026.xlsx
+2026-06-26 09:50:26  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-26 09:50:26  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-26 09:50:26  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-26 09:50:27  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,647 filas PT  |  3,258 filas módulos cargadas
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      [ISM] 2,497 filas PT  |  893 filas módulos cargadas
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,144 filas totales
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 6 | Año 2026
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,188 filas retenidas
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,008 filas retenidas
+2026-06-26 09:50:28  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 772 filas retenidas
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 4,035 filas retenidas
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 740 filas retenidas
+2026-06-26 09:50:28  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-26 09:50:28  [etl.orquestador]   ✓ INFO      shared_loader completado en 2.3s
+2026-06-26 09:50:28  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-26 09:50:28  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-06-26 09:50:28  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-26 09:50:28  [etl.cif]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-26 09:50:28  [etl.cif]           ✓ INFO      ETL CIF — iniciando
+2026-06-26 09:50:28  [etl.cif]           ✓ INFO      Paso 1 — PT consolidado: 11,144 filas
+2026-06-26 09:50:28  [etl.cif]           ✓ INFO      Paso 2 — Agrupación SQL
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:50:28  [etl.cif]           ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\CIF\PLAN DE TRABAJO\Plan de trabajo consolidado_grupado.csv
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] Resumen agrupado (Primeros 5):
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] ACRONIMO ID_PDV_INVOLVES  TIEMPO_SERVICIO_HORAS
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] 0    LE001           10032                    NaN
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] 1    LE001           10033                    NaN
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] 2    LE001           10035                    NaN
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] 3    LE001           10036                    NaN
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] 4    LE001           10069                    NaN
+2026-06-26 09:50:28  [etl.cif]           ✓ INFO      Paso 3 — Visitas Involves
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES (CRUCE PRIORIZANDO BASE VENTAS)  (Junio_2026)
+2026-06-26 09:50:28  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:52:11  [etl.cif]           ✓ INFO      [stdout] ✅ Paso 3 finalizado. Condición de Checkout Manual obligatoria aplicada.
+2026-06-26 09:52:12  [etl.cif]           ✓ INFO      Paso 4 — Justificaciones
+2026-06-26 09:52:12  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:52:12  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 4: JUSTIFICACIONES (CRUCE PRIORIZANDO BASE VENTAS)  (Junio_2026)
+2026-06-26 09:52:12  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:01  [etl.cif]           ✓ INFO      [stdout] ✅ Paso 4 finalizado: IDs unificados (Ventas > Plan) y justificaciones procesadas.
+2026-06-26 09:53:01  [etl.cif]           ✓ INFO      Paso 5 — Agrupación visitas (unificación gestores)
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 5: CONSOLIDACIÓN (CORRECCIÓN DE ID FORMATO .0)
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:01  [etl.cif]           ✓ INFO      [stdout] ✅ ¡Proceso Limpio! IDs corregidos y apoyos sumados al Gestor.
+2026-06-26 09:53:01  [etl.cif]           ✓ INFO      Paso 6 — Generación de alertas de tiempos inconsistentes
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 6: GENERACIÓN DE ALERTAS (RUTA CIF SALIDA)
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:01  [etl.cif]           ⚠ WARNING   [stdout] ⚠️ AUDITORÍA: Se detectaron 74 registros con tiempos > 9h.
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] 📁 Archivo de alertas generado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\CIF\ALERTAS_TIEMPOS_INCONSISTENTES.csv
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:01  [etl.cif]           ✓ INFO      Paso 7 — Resultado final Excel
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 7: ESTRUCTURACIÓN FINAL  (Junio_2026)
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:01  [etl.cif]           · DEBUG     [stdout] 📅 Periodo confirmado: 06/2026
+2026-06-26 09:53:02  [etl.cif]           · DEBUG     [stdout] 🔧 H4 fallback: 0 filas del plan rescatadas via CEDULA.
+2026-06-26 09:53:14  [etl.cif]           ✓ INFO      [stdout] ✅ ¡LISTO! Excel generado para el periodo 6/2026.
+2026-06-26 09:53:14  [etl.cif]           · DEBUG     [stdout] 📁 C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\CIF\CIF.xlsx
+2026-06-26 09:53:14  [etl.cif]           · DEBUG     [stdout] 📁 C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\CIF\Plan de trabajo.xlsx  (alias legacy)
+2026-06-26 09:53:14  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:14  [etl.cif]           ✓ INFO      Paso 8 — KPIs por gestor
+2026-06-26 09:53:14  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:14  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 8: RESUMEN KPIS POR GESTOR (V3)  (Junio_2026)
+2026-06-26 09:53:14  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-06-26 09:53:14  [etl.cif]           · DEBUG     [stdout] Leyendo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\CIF\CIF.xlsx
+2026-06-26 09:53:17  [etl.cif]           ☠ CRITICAL  Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 414, in _ejecutar_etl
+    fn(df_pt, spec.mes, spec.anio)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 102, in _run_cif
+    etl_cif.generar_resumen_kpis_8(spec)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\etl_cif.py", line 891, in generar_resumen_kpis_8
+    resumen_activo.to_excel(str(paths.CIF_OUT_KPIS), index=False, engine='openpyxl')
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\core\generic.py", line 2436, in to_excel
+    formatter.write(
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\formats\excel.py", line 943, in write
+    writer = ExcelWriter(
+             ^^^^^^^^^^^^
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\excel\_openpyxl.py", line 61, in __init__
+    super().__init__(
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\excel\_base.py", line 1246, in __init__
+    self._handles = get_handle(
+                    ^^^^^^^^^^^
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\1\\OneDrive - Eficacia\\Escritorio\\ETLS\\SALIDA\\CIF\\KPIS_CIF.xlsx'
+
+2026-06-26 09:53:17  [etl.cif]           ✗ ERROR     Duración hasta fallo: 169.0s
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ETL 'cif' terminó — ✗ FALLÓ en 169.0s
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        cif                    ✗ ERROR          169.0s
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               2.3s
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        171.4s
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  171.4s
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      Eventos: 1 CRITICAL  |  1 ERROR  |  2 WARNING
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ························································
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        CRITICAL (1)
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ························································
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        09:53:17  [cif]               Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 414, in _ejecutar_etl
+    fn(df_pt, spec.mes, spec.anio)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 102, in _run_cif
+    etl_cif.generar_resumen_kpis_8(spec)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\etl_cif.py", line 891, in generar_resumen_kpis_8
+    resumen_activo.to_excel(str(paths.CIF_OUT_KPIS), index=False, engine='openpyxl')
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\util\_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\core\generic.py", line 2436, in to_excel
+    formatter.write(
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\formats\excel.py", line 943, in write
+    writer = ExcelWriter(
+             ^^^^^^^^^^^^
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\excel\_openpyxl.py", line 61, in __init__
+    super().__init__(
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\excel\_base.py", line 1246, in __init__
+    self._handles = get_handle(
+                    ^^^^^^^^^^^
+  File "C:\Users\giovanny_restrepo\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\1\\OneDrive - Eficacia\\Escritorio\\ETLS\\SALIDA\\CIF\\KPIS_CIF.xlsx'
+
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ························································
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        ERROR (1)
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ························································
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        09:53:17  [cif]               Duración hasta fallo: 169.0s
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ························································
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        WARNING (2)
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ························································
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        09:50:28  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO        09:53:01  [cif]               [stdout] ⚠️ AUDITORÍA: Se detectaron 74 registros con tiempos > 9h.
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202606_20260626_095026.log
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      Fin: 2026-06-26 09:53:17
+2026-06-26 09:53:17  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

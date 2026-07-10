@@ -1,0 +1,82 @@
+2026-05-01 17:57:11  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_175711.log
+2026-05-01 17:57:11  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:57:11  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-05-01 17:57:11  [etl.orquestador]   ✓ INFO      Inicio: 2026-05-01 17:57:11
+2026-05-01 17:57:11  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['exhib_gratis']
+2026-05-01 17:57:11  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-05-01 17:57:11  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:57:11  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-01 17:57:11  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-05-01 17:57:11  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-01 17:57:15  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      Periodo detectado en el PT: Mes 4 | Año 2026
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,192 filas retenidas
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,044 filas retenidas
+2026-05-01 17:57:16  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 810 filas retenidas
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,175 filas retenidas
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 750 filas retenidas
+2026-05-01 17:57:16  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-05-01 17:57:16  [etl.orquestador]   ✓ INFO      shared_loader completado en 5.5s
+2026-05-01 17:57:16  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:57:16  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo
+2026-05-01 17:57:16  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:57:16  [etl.exhib_gratis]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:57:16  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — iniciando
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] ── Descubriendo archivos fuente ─────────────────
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] - Base Exhibiciones Informar Abril 2026.xlsx
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] - Base Exhibiciones Planning Abril 2026.xlsx
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] - Visitas realizadas Abril 2026.xlsx
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-05-01 17:57:16  [etl.exhib_gratis]  · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-05-01 17:57:19  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Abril 2026.xlsx — 2,999 filas
+2026-05-01 17:57:22  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Abril 2026.xlsx — 2,553 filas
+2026-05-01 17:57:23  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Plan de trabajo.xlsx — 3,764 gestores cargados
+2026-05-01 17:57:24  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Visitas realizadas Abril 2026.xlsx — 8,513 filas
+2026-05-01 17:57:24  [etl.exhib_gratis]  · DEBUG     [stdout] Encuestas consolidadas: 5,552 filas
+2026-05-01 17:57:24  [etl.exhib_gratis]  · DEBUG     [stdout] Plan de trabajo:         3,764 filas
+2026-05-01 17:57:24  [etl.exhib_gratis]  · DEBUG     [stdout] Visitas realizadas:      8,513 filas
+2026-05-01 17:57:24  [etl.exhib_gratis]  · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-05-01 17:57:24  [etl.exhib_gratis]  · DEBUG     [stdout] Implementadas pagadas:          1,934 filas
+2026-05-01 17:57:24  [etl.exhib_gratis]  · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] Implementadas gratis/concurso: 910 filas
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] ── Consolidando output ──────────────────────────
+2026-05-01 17:57:25  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Output escrito en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\EXHIBICIONES\Resultado exhibiciones gratis.xlsx
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resumen de Exhibiciones ──────────────────────
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones:                           3,438
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Gratis:                    1,086
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Pagadas:                   2,352
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Alto Impacto:              1,576
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Medio Impacto:             1,861
+2026-05-01 17:57:25  [etl.exhib_gratis]  · DEBUG     [stdout] ─────────────────────────────────────────────────
+2026-05-01 17:57:25  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — completado
+2026-05-01 17:57:25  [etl.exhib_gratis]  ✓ INFO      Duración total: 9.2s
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      ETL 'exhib_gratis' terminó — ✓ OK en 9.2s
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        exhib_gratis           ✓ OK               9.2s
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               5.5s
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         14.6s
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                   14.6s
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      ························································
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO        17:57:16  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260501_175711.log
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      Fin: 2026-05-01 17:57:25
+2026-05-01 17:57:25  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

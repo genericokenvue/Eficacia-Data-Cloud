@@ -1,0 +1,75 @@
+2026-05-06 12:21:31  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260506_122131.log
+2026-05-06 12:21:31  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-06 12:21:31  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-05-06 12:21:31  [etl.orquestador]   ✓ INFO      Inicio: 2026-05-06 12:21:31
+2026-05-06 12:21:31  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['ventas', 'impactos']
+2026-05-06 12:21:31  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-05-06 12:21:31  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-06 12:21:31  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-06 12:21:31  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-05-06 12:21:31  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-05-06 12:21:37  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-05-06 12:21:38  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-05-06 12:21:38  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-05-06 12:21:38  [etl.shared_loader]  ✓ INFO      Periodo detectado en el PT: Mes 4 | Año 2026
+2026-05-06 12:21:38  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-05-06 12:21:39  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,192 filas retenidas
+2026-05-06 12:21:39  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,044 filas retenidas
+2026-05-06 12:21:39  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-06 12:21:39  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 810 filas retenidas
+2026-05-06 12:21:39  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,175 filas retenidas
+2026-05-06 12:21:39  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 750 filas retenidas
+2026-05-06 12:21:39  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-05-06 12:21:39  [etl.orquestador]   ✓ INFO      shared_loader completado en 7.3s
+2026-05-06 12:21:39  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-06 12:21:39  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 2 ETLs en paralelo
+2026-05-06 12:21:39  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-06 12:21:39  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-06 12:21:39  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-05-06 12:21:39  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-05-06 12:21:39  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-05-06 12:21:39  [etl.impactos]      ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-06 12:21:39  [etl.impactos]      ✓ INFO      ETL Impactos D&P — iniciando
+2026-05-06 12:21:39  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-05-06 12:21:39  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-05-06 12:21:39  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-05-06 12:21:39  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-05-06 12:21:39  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 1
+2026-05-06 12:21:39  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 1
+2026-05-06 12:21:39  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 1
+2026-05-06 12:21:39  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 1
+2026-05-06 12:21:39  [etl.ventas]        · DEBUG     [stdout] → Procesando: 04. Abril base ventas.xlsx
+2026-05-06 12:21:39  [etl.impactos]      · DEBUG     [stdout] → Procesando: 04. Abril base ventas.xlsx
+2026-05-06 12:21:39  [etl.ventas]        · DEBUG     [stdout] → Procesando: 04. Abril base impactos - cuota.xlsx
+2026-05-06 12:21:39  [etl.impactos]      · DEBUG     [stdout] → Procesando: 04. Abril base impactos - cuota.xlsx
+2026-05-06 12:21:39  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (68 filas)
+2026-05-06 12:21:39  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (68 filas)
+2026-05-06 12:21:39  [etl.impactos]      ✓ INFO      ETL Impactos D&P — completado (68 filas en consolidado)
+2026-05-06 12:21:39  [etl.impactos]      ✓ INFO      Duración total: 0.6s
+2026-05-06 12:21:39  [etl.orquestador]   ✓ INFO      ETL 'impactos' terminó — ✓ OK en 0.6s
+2026-05-06 12:22:47  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (82,463 filas)
+2026-05-06 12:22:47  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (82,463 filas en consolidado)
+2026-05-06 12:22:47  [etl.ventas]        ✓ INFO      Duración total: 68.3s
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 68.3s
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK              68.3s
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        impactos               ✓ OK               0.6s
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               7.3s
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         75.6s
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                   76.2s
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        Ahorro estimado                           0.6s
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      ························································
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      ························································
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO        12:21:39  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260506_122131.log
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      Fin: 2026-05-06 12:22:47
+2026-05-06 12:22:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

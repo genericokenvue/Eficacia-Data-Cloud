@@ -1,0 +1,4 @@
+2026-06-17 01:43:10  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260617_014310.log
+2026-06-17 01:43:10  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Mayo 2026.xlsx
+2026-06-17 01:43:10  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Mayo 2026.xlsx
+2026-06-17 01:43:54  [etl.shared_loader]  ⚠ WARNING   Histórico 'PRECIOS_KPIS_HISTORICO.xlsx': se descartan 87 filas con MES/AÑO inválido.

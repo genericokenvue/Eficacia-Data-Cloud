@@ -1,0 +1,80 @@
+2026-06-17 23:00:17  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202605_20260617_230017.log
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260617T230017_8a30b6
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-17 23:00:17
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      Run ID: 20260617T230017_8a30b6
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      Periodo: Mayo_2026 (05/2026)
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['exhib_pagadas']
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-06-17 23:00:17  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:00:17  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Mayo 2026.xlsx
+2026-06-17 23:00:17  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Mayo 2026.xlsx
+2026-06-17 23:00:17  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-17 23:00:17  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-17 23:00:17  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,755 filas PT  |  3,319 filas módulos cargadas
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      [ISM] 2,445 filas PT  |  859 filas módulos cargadas
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,200 filas totales
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 5 | Año 2026
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,182 filas retenidas
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 981 filas retenidas
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,152 filas retenidas
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 622 filas retenidas
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,165 filas retenidas
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 622 filas retenidas
+2026-06-17 23:00:20  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      shared_loader completado en 2.9s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:00:20  [etl.exhib_pagadas]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:00:20  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — iniciando
+2026-06-17 23:00:20  [etl.exhib_pagadas]  ☠ CRITICAL  Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\run_all.py", line 389, in _ejecutar_etl
+    fn()
+    ~~^^
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\run_all.py", line 255, in _run_exhibiciones_pagadas
+    etl_exhibiciones_pagadas.ejecutar_proceso()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: ejecutar_proceso() missing 1 required positional argument: 'spec'
+
+2026-06-17 23:00:20  [etl.exhib_pagadas]  ✗ ERROR     Duración hasta fallo: 0.0s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ETL 'exhib_pagadas' terminó — ✗ FALLÓ en 0.0s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        exhib_pagadas          ✗ ERROR            0.0s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               2.9s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                          2.9s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                    2.9s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      Eventos: 1 CRITICAL  |  1 ERROR  |  0 WARNING
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ························································
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        CRITICAL (1)
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ························································
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        23:00:20  [exhib_pagadas]     Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\run_all.py", line 389, in _ejecutar_etl
+    fn()
+    ~~^^
+  File "C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\run_all.py", line 255, in _run_exhibiciones_pagadas
+    etl_exhibiciones_pagadas.ejecutar_proceso()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+TypeError: ejecutar_proceso() missing 1 required positional argument: 'spec'
+
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ························································
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        ERROR (1)
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ························································
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO        23:00:20  [exhib_pagadas]     Duración hasta fallo: 0.0s
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202605_20260617_230017.log
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      Fin: 2026-06-17 23:00:20
+2026-06-17 23:00:20  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

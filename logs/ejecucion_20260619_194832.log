@@ -1,0 +1,5 @@
+2026-06-19 19:48:32  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260619_194832.log
+2026-06-19 19:48:33  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-06-19 19:54:31  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 05/2026 | gestores=172 supervisores=28 adjuntos=37
+2026-06-19 19:56:54  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=36 fallidos=1 sin_chat_id=0 prueba=False
+2026-06-19 19:56:54  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: YALEINY LAMOS FORERO → ConnReset/error de conexión: ConnectionError (tras 3 intentos)

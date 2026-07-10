@@ -1,0 +1,3 @@
+2026-06-22 06:55:58  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_20260622_065558.log
+2026-06-22 06:56:03  [etl.alertas_email]  ⚠ WARNING   No se encontró logs/macro_envio.log — la macro no produjo log.
+2026-06-22 06:56:03  [etl.alertas_email]  ✓ INFO      Email — enviados=37 errores=0 pendientes=0

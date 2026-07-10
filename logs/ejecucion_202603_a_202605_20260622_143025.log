@@ -1,0 +1,798 @@
+2026-06-22 14:30:25  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202603_a_202605_20260622_143025.log
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      MULTI-PERIODO: 3 periodos a procesar — Marzo_2026, Abril_2026, Mayo_2026
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260622T143025_76bc94
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      ▶ PERIODO 1/3: Marzo_2026
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-22 14:30:25
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      Run ID: 20260622T143025_76bc94
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      Periodo: Marzo_2026 (03/2026)
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif', 'nopresencia', 'precios', 'sos', 'exhib_pagadas', 'exhib_gratis', 'ventas', 'impactos', 'impactos_segmentos']
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      Skip si cached: True
+2026-06-22 14:30:25  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:30:25  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Marzo 2026.xlsx
+2026-06-22 14:30:25  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Marzo 2026.xlsx
+2026-06-22 14:30:25  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-22 14:30:25  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-22 14:30:25  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,913 filas PT  |  3,319 filas módulos cargadas
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      [ISM] 2,685 filas PT  |  912 filas módulos cargadas
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,598 filas totales
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 3 | Año 2026
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,206 filas retenidas
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,030 filas retenidas
+2026-06-22 14:30:28  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 936 filas retenidas
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,242 filas retenidas
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 879 filas retenidas
+2026-06-22 14:30:28  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-22 14:30:28  [etl.orquestador]   ✓ INFO      shared_loader completado en 3.4s
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO        ↳ ETL 'cif' SKIPPED (hash-coincide:45302666)
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO        ↳ ETL 'nopresencia' SKIPPED (hash-coincide:6b01f5a8)
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO        ↳ ETL 'precios' SKIPPED (hash-coincide:b9871bd9)
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO        ↳ ETL 'sos' SKIPPED (hash-coincide:89b6e70c)
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO        ↳ ETL 'exhib_pagadas' SKIPPED (hash-coincide:cffbe4cb)
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO        ↳ ETL 'exhib_gratis' SKIPPED (hash-coincide:d9eb436e)
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 3 ETLs en paralelo (6 skipped)
+2026-06-22 14:30:29  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:30:29  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:30:29  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-06-22 14:30:29  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:30:29  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:30:29  [etl.impactos]      ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:30:29  [etl.impactos]      ✓ INFO      ETL Impactos D&P — iniciando
+2026-06-22 14:30:29  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:30:29  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:30:29  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:30:29  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:30:29  [etl.impactos_segmentos]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:30:29  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — iniciando
+2026-06-22 14:30:29  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:30:29  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:30:29  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-06-22 14:30:29  [etl.ventas]        · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:30:29  [etl.impactos]      · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:30:29  [etl.impactos_segmentos]  · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:30:29  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:30:29  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:30:29  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-06-22 14:30:29  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:30:29  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:30:29  [etl.impactos_segmentos]  · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:30:29  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:30:29  [etl.ventas]        · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:30:29  [etl.impactos]      · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:30:29  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:30:29  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:30:29  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:30:30  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:30:30  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:30:30  [etl.impactos_segmentos]  · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:30:30  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:30:30  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:30:30  [etl.impactos_segmentos]  · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:30:30  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:30:30  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:30:30  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:30:30  [etl.impactos]      ✓ INFO      ETL Impactos D&P — completado (136 filas en consolidado)
+2026-06-22 14:30:30  [etl.impactos]      ✓ INFO      Duración total: 0.6s
+2026-06-22 14:30:30  [etl.orquestador]   ✓ INFO      ETL 'impactos' terminó — ✓ OK en 0.6s
+2026-06-22 14:30:32  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:30:33  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:30:43  [etl.ventas]        · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:30:43  [etl.ventas]        · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:30:44  [etl.ventas]        · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:30:44  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:30:44  [etl.ventas]        · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:30:44  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:30:44  [etl.ventas]        · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:30:44  [etl.ventas]        · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:30:44  [etl.ventas]        · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:30:49  [etl.ventas]        · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:30:49  [etl.ventas]        · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:30:54  [etl.ventas]        · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:30:54  [etl.ventas]        · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:30:54  [etl.ventas]        · DEBUG     [stdout] → MustStock...
+2026-06-22 14:31:01  [etl.ventas]        · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:31:03  [etl.ventas]        · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:31:03  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-06-22 14:31:04  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-06-22 14:31:04  [etl.ventas]        · DEBUG     [stdout] → Liserine_Kids...
+2026-06-22 14:31:05  [etl.ventas]        · DEBUG     [stdout] → Visine...
+2026-06-22 14:31:05  [etl.ventas]        · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard...
+2026-06-22 14:32:04  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:32:04  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (146,841 filas en consolidado)
+2026-06-22 14:32:10  [etl.ventas]        ✓ INFO      Duración total: 94.7s
+2026-06-22 14:32:10  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 94.7s
+2026-06-22 14:32:26  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — completado
+2026-06-22 14:32:26  [etl.impactos_segmentos]  ✓ INFO      Duración total: 116.4s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ETL 'impactos_segmentos' terminó — ✓ OK en 116.4s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        cif                    ↷ SKIPPED          0.0s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        nopresencia            ↷ SKIPPED          0.0s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        precios                ↷ SKIPPED          0.0s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        sos                    ↷ SKIPPED          0.0s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        exhib_pagadas          ↷ SKIPPED          0.0s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        exhib_gratis           ↷ SKIPPED          0.0s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK              94.7s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        impactos               ✓ OK               0.6s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        impactos_segmentos     ✓ OK             116.4s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               3.4s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        120.7s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  215.1s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        Ahorro estimado                          94.3s
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ························································
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ························································
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO        14:30:28  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202603_a_202605_20260622_143025.log
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      Fin: 2026-06-22 14:32:26
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ▶ PERIODO 2/3: Abril_2026
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-22 14:32:26
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      Run ID: 20260622T143025_76bc94
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      Periodo: Abril_2026 (04/2026)
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif', 'nopresencia', 'precios', 'sos', 'exhib_pagadas', 'exhib_gratis', 'ventas', 'impactos', 'impactos_segmentos']
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      Skip si cached: True
+2026-06-22 14:32:26  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:32:26  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Abril 2026.xlsx
+2026-06-22 14:32:26  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Abril 2026.xlsx
+2026-06-22 14:32:26  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-22 14:32:26  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-22 14:32:26  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-22 14:32:32  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 4 | Año 2026
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,192 filas retenidas
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 1,044 filas retenidas
+2026-06-22 14:32:33  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 810 filas retenidas
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,175 filas retenidas
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 750 filas retenidas
+2026-06-22 14:32:33  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-22 14:32:33  [etl.orquestador]   ✓ INFO      shared_loader completado en 7.4s
+2026-06-22 14:32:33  [etl.orquestador]   ✓ INFO        ↳ ETL 'cif' SKIPPED (hash-coincide:717d71c7)
+2026-06-22 14:32:34  [etl.orquestador]   ✓ INFO        ↳ ETL 'nopresencia' SKIPPED (hash-coincide:27f34bfd)
+2026-06-22 14:32:34  [etl.orquestador]   ✓ INFO        ↳ ETL 'precios' SKIPPED (hash-coincide:b8d5068c)
+2026-06-22 14:32:34  [etl.orquestador]   ✓ INFO        ↳ ETL 'sos' SKIPPED (hash-coincide:04b9b6f5)
+2026-06-22 14:32:34  [etl.orquestador]   ✓ INFO        ↳ ETL 'exhib_pagadas' SKIPPED (hash-coincide:7460d6d7)
+2026-06-22 14:32:34  [etl.orquestador]   ✓ INFO        ↳ ETL 'exhib_gratis' SKIPPED (hash-coincide:a78899d4)
+2026-06-22 14:32:34  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:32:34  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 3 ETLs en paralelo (6 skipped)
+2026-06-22 14:32:34  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:32:34  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:32:34  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:32:34  [etl.impactos_segmentos]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:32:34  [etl.impactos]      ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:32:34  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — iniciando
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:32:34  [etl.impactos_segmentos]  · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-06-22 14:32:34  [etl.impactos]      ✓ INFO      ETL Impactos D&P — iniciando
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:32:34  [etl.impactos_segmentos]  · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:32:34  [etl.impactos_segmentos]  · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:32:34  [etl.ventas]        · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:32:34  [etl.impactos]      · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:32:34  [etl.impactos_segmentos]  · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:32:34  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:34  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:32:35  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.impactos_segmentos]  · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.impactos_segmentos]  · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:32:35  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:32:35  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:32:35  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:32:35  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:32:35  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:32:35  [etl.impactos]      ✓ INFO      ETL Impactos D&P — completado (136 filas en consolidado)
+2026-06-22 14:32:35  [etl.impactos]      ✓ INFO      Duración total: 0.9s
+2026-06-22 14:32:35  [etl.orquestador]   ✓ INFO      ETL 'impactos' terminó — ✓ OK en 0.9s
+2026-06-22 14:32:38  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:32:38  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:32:38  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:32:38  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:32:38  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:32:38  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:32:49  [etl.ventas]        · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:32:49  [etl.impactos]      · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:32:49  [etl.ventas]        · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:32:49  [etl.ventas]        · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:32:49  [etl.impactos]      · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:32:49  [etl.ventas]        · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:32:50  [etl.impactos]      · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:32:50  [etl.impactos]      · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:32:50  [etl.impactos]      · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:32:50  [etl.impactos]      · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:32:50  [etl.impactos]      · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:32:50  [etl.impactos]      · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:32:50  [etl.impactos]      · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:32:50  [etl.ventas]        · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:32:56  [etl.ventas]        · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:32:56  [etl.impactos]      · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:32:56  [etl.ventas]        · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:32:56  [etl.ventas]        · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:32:56  [etl.impactos]      · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:32:56  [etl.ventas]        · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:32:58  [etl.ventas]        · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:32:58  [etl.impactos]      · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:32:58  [etl.ventas]        · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:32:58  [etl.ventas]        · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:32:58  [etl.impactos]      · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:32:58  [etl.ventas]        · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:32:58  [etl.ventas]        · DEBUG     [stdout] → MustStock...
+2026-06-22 14:32:58  [etl.impactos]      · DEBUG     [stdout] → MustStock...
+2026-06-22 14:32:58  [etl.ventas]        · DEBUG     [stdout] → MustStock...
+2026-06-22 14:33:05  [etl.ventas]        · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:33:05  [etl.impactos]      · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:33:05  [etl.ventas]        · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:33:06  [etl.ventas]        · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:33:06  [etl.impactos]      · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:33:06  [etl.ventas]        · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:33:06  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-06-22 14:33:06  [etl.impactos]      · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-06-22 14:33:06  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-06-22 14:33:06  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-06-22 14:33:06  [etl.impactos]      · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-06-22 14:33:06  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-06-22 14:33:07  [etl.ventas]        · DEBUG     [stdout] → Liserine_Kids...
+2026-06-22 14:33:07  [etl.impactos]      · DEBUG     [stdout] → Liserine_Kids...
+2026-06-22 14:33:07  [etl.ventas]        · DEBUG     [stdout] → Liserine_Kids...
+2026-06-22 14:33:07  [etl.ventas]        · DEBUG     [stdout] → Visine...
+2026-06-22 14:33:07  [etl.impactos]      · DEBUG     [stdout] → Visine...
+2026-06-22 14:33:07  [etl.ventas]        · DEBUG     [stdout] → Visine...
+2026-06-22 14:33:08  [etl.ventas]        · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard...
+2026-06-22 14:33:08  [etl.impactos]      · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard...
+2026-06-22 14:33:08  [etl.ventas]        · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard...
+2026-06-22 14:34:02  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:34:02  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:34:02  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:34:02  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (146,841 filas en consolidado)
+2026-06-22 14:34:06  [etl.ventas]        ✓ INFO      Duración total: 88.2s
+2026-06-22 14:34:06  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 88.2s
+2026-06-22 14:34:08  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivo generado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\impacto_segmentos.xlsx
+2026-06-22 14:34:08  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivo generado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\impacto_segmentos.xlsx
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] Resumen por pestaña (período Mayo-2026):
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] Resumen por pestaña (período Mayo-2026):
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] MustStock                          11,842         5,630         6,212
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] MustStock                          11,842         5,630         6,212
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia                      868           227           641
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] Listerine_Sandia                      868           227           641
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,497            32         1,465
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,497            32         1,465
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,497            29         1,468
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,497            29         1,468
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids                         342            63           279
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] Liserine_Kids                         342            63           279
+2026-06-22 14:34:08  [etl.ventas]        · DEBUG     [stdout] Visine                                819           115           704
+2026-06-22 14:34:08  [etl.impactos]      · DEBUG     [stdout] Visine                                819           115           704
+2026-06-22 14:34:08  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — completado
+2026-06-22 14:34:09  [etl.impactos_segmentos]  ✓ INFO      Duración total: 94.2s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ETL 'impactos_segmentos' terminó — ✓ OK en 94.2s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        cif                    ↷ SKIPPED          0.0s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        nopresencia            ↷ SKIPPED          0.0s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        precios                ↷ SKIPPED          0.0s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        sos                    ↷ SKIPPED          0.0s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        exhib_pagadas          ↷ SKIPPED          0.0s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        exhib_gratis           ↷ SKIPPED          0.0s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK              88.2s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        impactos               ✓ OK               0.9s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        impactos_segmentos     ✓ OK              94.2s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               7.4s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        102.8s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  190.8s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        Ahorro estimado                          88.0s
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  2 WARNING
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ························································
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        WARNING (2)
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ························································
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        14:30:28  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO        14:32:33  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202603_a_202605_20260622_143025.log
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      Fin: 2026-06-22 14:34:09
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ▶ PERIODO 3/3: Mayo_2026
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      Inicio: 2026-06-22 14:34:09
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      Run ID: 20260622T143025_76bc94
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      Periodo: Mayo_2026 (05/2026)
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif', 'nopresencia', 'precios', 'sos', 'exhib_pagadas', 'exhib_gratis', 'ventas', 'impactos', 'impactos_segmentos']
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      Skip si cached: True
+2026-06-22 14:34:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:34:09  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Mayo 2026.xlsx
+2026-06-22 14:34:09  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Mayo 2026.xlsx
+2026-06-22 14:34:09  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-22 14:34:09  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-06-22 14:34:09  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,755 filas PT  |  3,319 filas módulos cargadas
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      [ISM] 2,445 filas PT  |  859 filas módulos cargadas
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,200 filas totales
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 5 | Año 2026
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,182 filas retenidas
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 981 filas retenidas
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,152 filas retenidas
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 622 filas retenidas
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,165 filas retenidas
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 622 filas retenidas
+2026-06-22 14:34:13  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-06-22 14:34:13  [etl.orquestador]   ✓ INFO      shared_loader completado en 4.8s
+2026-06-22 14:34:13  [etl.orquestador]   ✓ INFO        ↳ ETL 'cif' SKIPPED (hash-coincide:935cd18d)
+2026-06-22 14:34:14  [etl.orquestador]   ✓ INFO        ↳ ETL 'nopresencia' SKIPPED (hash-coincide:64db2aec)
+2026-06-22 14:34:14  [etl.orquestador]   ✓ INFO        ↳ ETL 'precios' SKIPPED (hash-coincide:d60d37ea)
+2026-06-22 14:34:14  [etl.orquestador]   ✓ INFO        ↳ ETL 'sos' SKIPPED (hash-coincide:ee34474c)
+2026-06-22 14:34:14  [etl.orquestador]   ✓ INFO        ↳ ETL 'exhib_pagadas' SKIPPED (hash-coincide:36e51752)
+2026-06-22 14:34:14  [etl.orquestador]   ✓ INFO        ↳ ETL 'exhib_gratis' SKIPPED (hash-coincide:a7681e69)
+2026-06-22 14:34:14  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:34:14  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 3 ETLs en paralelo (6 skipped)
+2026-06-22 14:34:14  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:34:14  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:34:14  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\01. Ventas
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:14  [etl.impactos_segmentos]  · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:14  [etl.impactos_segmentos]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:34:14  [etl.impactos]      ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:34:14  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — iniciando
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:34:14  [etl.impactos_segmentos]  · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-06-22 14:34:14  [etl.impactos]      ✓ INFO      ETL Impactos D&P — iniciando
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:34:14  [etl.impactos_segmentos]  · DEBUG     [stdout] 📍 Origen: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\BASES\D&P\02. Impactos
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:34:14  [etl.impactos_segmentos]  · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:34:14  [etl.ventas]        · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:34:14  [etl.impactos]      · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:34:14  [etl.impactos_segmentos]  · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-06-22 14:34:14  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:14  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 3
+2026-06-22 14:34:15  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.impactos_segmentos]  · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.impactos_segmentos]  · DEBUG     [stdout] → Procesando: 05. Mayo base impactos - cuota.xlsx
+2026-06-22 14:34:15  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:34:15  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:34:15  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:34:15  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:34:15  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:34:15  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:34:15  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Impactos.csv  (136 filas)
+2026-06-22 14:34:15  [etl.impactos]      ✓ INFO      ETL Impactos D&P — completado (136 filas en consolidado)
+2026-06-22 14:34:15  [etl.impactos]      ✓ INFO      Duración total: 0.8s
+2026-06-22 14:34:15  [etl.orquestador]   ✓ INFO      ETL 'impactos' terminó — ✓ OK en 0.8s
+2026-06-22 14:34:19  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.impactos]      · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:19  [etl.ventas]        · DEBUG     [stdout] → Procesando: 05. Mayo base ventas.xlsx
+2026-06-22 14:34:32  [etl.ventas]        · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:34:32  [etl.impactos]      · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:34:32  [etl.ventas]        · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:34:32  [etl.impactos]      · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:34:32  [etl.ventas]        · DEBUG     [stdout] 11,842 PDVs en el rutero
+2026-06-22 14:34:32  [etl.ventas]        · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:34:32  [etl.impactos]      · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:34:32  [etl.ventas]        · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:34:32  [etl.impactos]      · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:34:32  [etl.ventas]        · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:33  [etl.impactos]      · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:33  [etl.ventas]        · DEBUG     [stdout] Leyendo consolidado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv
+2026-06-22 14:34:38  [etl.ventas]        · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:34:38  [etl.impactos]      · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:34:38  [etl.ventas]        · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:34:38  [etl.impactos]      · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:34:38  [etl.ventas]        · DEBUG     [stdout] 145,740 registros (PDV × EAN × periodo)
+2026-06-22 14:34:38  [etl.ventas]        · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:34:38  [etl.impactos]      · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:34:38  [etl.ventas]        · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:34:38  [etl.impactos]      · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:34:38  [etl.ventas]        · DEBUG     [stdout] 260 descripciones de producto capturadas
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:34:39  [etl.impactos]      · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:34:39  [etl.impactos]      · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] Período más reciente: Mayo-2026
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:34:39  [etl.impactos]      · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:34:39  [etl.impactos]      · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] [4/5] Construyendo BDs de impacto...
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] → MustStock...
+2026-06-22 14:34:39  [etl.impactos]      · DEBUG     [stdout] → MustStock...
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] → MustStock...
+2026-06-22 14:34:39  [etl.impactos]      · DEBUG     [stdout] → MustStock...
+2026-06-22 14:34:39  [etl.ventas]        · DEBUG     [stdout] → MustStock...
+2026-06-22 14:34:49  [etl.ventas]        · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:34:49  [etl.impactos]      · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:34:49  [etl.ventas]        · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:34:49  [etl.impactos]      · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:34:49  [etl.ventas]        · DEBUG     [stdout] → Listerine_Sandia...
+2026-06-22 14:34:50  [etl.ventas]        · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:34:50  [etl.impactos]      · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:34:50  [etl.ventas]        · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:34:50  [etl.impactos]      · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:34:50  [etl.ventas]        · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-06-22 14:34:51  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:34:51  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:34:51  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:34:51  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:34:51  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado guardado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\Consolidado_Ventas.csv  (146,841 filas)
+2026-06-22 14:34:51  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (146,841 filas en consolidado)
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] → Liserine_Kids...
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] → Liserine_Kids...
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] → Liserine_Kids...
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] → Liserine_Kids...
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] → Visine...
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] → Visine...
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] → Visine...
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] → Visine...
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard...
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard...
+2026-06-22 14:34:51  [etl.ventas]        · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard...
+2026-06-22 14:34:51  [etl.impactos]      · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard...
+2026-06-22 14:34:52  [etl.ventas]        ✓ INFO      Duración total: 36.5s
+2026-06-22 14:34:52  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 36.5s
+2026-06-22 14:35:47  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivo generado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\impacto_segmentos.xlsx
+2026-06-22 14:35:47  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivo generado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\impacto_segmentos.xlsx
+2026-06-22 14:35:47  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivo generado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\impacto_segmentos.xlsx
+2026-06-22 14:35:47  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivo generado: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\D&P\impacto_segmentos.xlsx
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Resumen por pestaña (período Mayo-2026):
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Resumen por pestaña (período Mayo-2026):
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Resumen por pestaña (período Mayo-2026):
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Resumen por pestaña (período Mayo-2026):
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] MustStock                          11,842         5,630         6,212
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] MustStock                          11,842         5,630         6,212
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] MustStock                          11,842         5,630         6,212
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] MustStock                          11,842         5,630         6,212
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia                      868           227           641
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Listerine_Sandia                      868           227           641
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Listerine_Sandia                      868           227           641
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Listerine_Sandia                      868           227           641
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,497            32         1,465
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,497            32         1,465
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,497            32         1,465
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,497            32         1,465
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,497            29         1,468
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,497            29         1,468
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,497            29         1,468
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,497            29         1,468
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids                         342            63           279
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Liserine_Kids                         342            63           279
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Liserine_Kids                         342            63           279
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Liserine_Kids                         342            63           279
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Visine                                819           115           704
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Visine                                819           115           704
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] Visine                                819           115           704
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] Visine                                819           115           704
+2026-06-22 14:35:47  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — completado
+2026-06-22 14:35:47  [etl.impactos_segmentos]  ✓ INFO      Duración total: 92.9s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ETL 'impactos_segmentos' terminó — ✓ OK en 92.9s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        cif                    ↷ SKIPPED          0.0s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        nopresencia            ↷ SKIPPED          0.0s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        precios                ↷ SKIPPED          0.0s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        sos                    ↷ SKIPPED          0.0s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        exhib_pagadas          ↷ SKIPPED          0.0s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        exhib_gratis           ↷ SKIPPED          0.0s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK              36.5s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        impactos               ✓ OK               0.8s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        impactos_segmentos     ✓ OK              92.9s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               4.8s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         98.6s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  135.2s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        Ahorro estimado                          36.5s
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  2 WARNING
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ························································
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        WARNING (2)
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ························································
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        14:30:28  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO        14:32:33  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SCRIPTS\logs\ejecucion_202603_a_202605_20260622_143025.log
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      Fin: 2026-06-22 14:35:47
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      FASE FINAL — Regenerando capa GOLD
+2026-06-22 14:35:47  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] 📁 Output: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\GOLD
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] 📁 Output: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\GOLD
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] 📁 Output: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\GOLD
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] 📁 Output: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\GOLD
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] 📁 Output: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\GOLD
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] 📁 Output: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\SALIDA\GOLD
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] 🔍 Filtrando a periodos: Marzo_2026, Abril_2026, Mayo_2026
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] 🔍 Filtrando a periodos: Marzo_2026, Abril_2026, Mayo_2026
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] 🔍 Filtrando a periodos: Marzo_2026, Abril_2026, Mayo_2026
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] 🔍 Filtrando a periodos: Marzo_2026, Abril_2026, Mayo_2026
+2026-06-22 14:35:47  [etl.ventas]        · DEBUG     [stdout] 🔍 Filtrando a periodos: Marzo_2026, Abril_2026, Mayo_2026
+2026-06-22 14:35:47  [etl.impactos]      · DEBUG     [stdout] 🔍 Filtrando a periodos: Marzo_2026, Abril_2026, Mayo_2026
+2026-06-22 14:35:48  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          484 filas → fact_cumplimientos_gestor.csv
+2026-06-22 14:35:48  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          484 filas → fact_cumplimientos_gestor.csv
+2026-06-22 14:35:48  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          484 filas → fact_cumplimientos_gestor.csv
+2026-06-22 14:35:48  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          484 filas → fact_cumplimientos_gestor.csv
+2026-06-22 14:35:48  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          484 filas → fact_cumplimientos_gestor.csv
+2026-06-22 14:35:48  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          484 filas → fact_cumplimientos_gestor.csv
+2026-06-22 14:35:54  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_cif_pdv                    10,258 filas → fact_cif_pdv.csv
+2026-06-22 14:35:54  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_cif_pdv                    10,258 filas → fact_cif_pdv.csv
+2026-06-22 14:35:54  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_cif_pdv                    10,258 filas → fact_cif_pdv.csv
+2026-06-22 14:35:54  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_cif_pdv                    10,258 filas → fact_cif_pdv.csv
+2026-06-22 14:35:54  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_cif_pdv                    10,258 filas → fact_cif_pdv.csv
+2026-06-22 14:35:54  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_cif_pdv                    10,258 filas → fact_cif_pdv.csv
+2026-06-22 14:35:55  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_np_reporte                  6,605 filas → fact_np_reporte.csv
+2026-06-22 14:35:55  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_np_reporte                  6,605 filas → fact_np_reporte.csv
+2026-06-22 14:35:55  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_np_reporte                  6,605 filas → fact_np_reporte.csv
+2026-06-22 14:35:55  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_np_reporte                  6,605 filas → fact_np_reporte.csv
+2026-06-22 14:35:55  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_np_reporte                  6,605 filas → fact_np_reporte.csv
+2026-06-22 14:35:55  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_np_reporte                  6,605 filas → fact_np_reporte.csv
+2026-06-22 14:35:58  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_np_agotados                34,246 filas → fact_np_agotados.csv
+2026-06-22 14:35:58  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_np_agotados                34,246 filas → fact_np_agotados.csv
+2026-06-22 14:35:58  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_np_agotados                34,246 filas → fact_np_agotados.csv
+2026-06-22 14:35:58  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_np_agotados                34,246 filas → fact_np_agotados.csv
+2026-06-22 14:35:58  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_np_agotados                34,246 filas → fact_np_agotados.csv
+2026-06-22 14:35:58  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_np_agotados                34,246 filas → fact_np_agotados.csv
+2026-06-22 14:35:59  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_precios_captura               861 filas → fact_precios_captura.csv
+2026-06-22 14:35:59  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_precios_captura               861 filas → fact_precios_captura.csv
+2026-06-22 14:35:59  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_precios_captura               861 filas → fact_precios_captura.csv
+2026-06-22 14:35:59  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_precios_captura               861 filas → fact_precios_captura.csv
+2026-06-22 14:35:59  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_precios_captura               861 filas → fact_precios_captura.csv
+2026-06-22 14:35:59  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_precios_captura               861 filas → fact_precios_captura.csv
+2026-06-22 14:36:09  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_precios_analisis           66,441 filas → fact_precios_analisis.csv
+2026-06-22 14:36:09  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_precios_analisis           66,441 filas → fact_precios_analisis.csv
+2026-06-22 14:36:09  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_precios_analisis           66,441 filas → fact_precios_analisis.csv
+2026-06-22 14:36:09  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_precios_analisis           66,441 filas → fact_precios_analisis.csv
+2026-06-22 14:36:09  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_precios_analisis           66,441 filas → fact_precios_analisis.csv
+2026-06-22 14:36:09  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_precios_analisis           66,441 filas → fact_precios_analisis.csv
+2026-06-22 14:36:10  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_sos_pdv                     8,375 filas → fact_sos_pdv.csv
+2026-06-22 14:36:10  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_sos_pdv                     8,375 filas → fact_sos_pdv.csv
+2026-06-22 14:36:10  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_sos_pdv                     8,375 filas → fact_sos_pdv.csv
+2026-06-22 14:36:10  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_sos_pdv                     8,375 filas → fact_sos_pdv.csv
+2026-06-22 14:36:10  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_sos_pdv                     8,375 filas → fact_sos_pdv.csv
+2026-06-22 14:36:10  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_sos_pdv                     8,375 filas → fact_sos_pdv.csv
+2026-06-22 14:36:12  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_exh_pagadas                 8,289 filas → fact_exh_pagadas.csv
+2026-06-22 14:36:12  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_exh_pagadas                 8,289 filas → fact_exh_pagadas.csv
+2026-06-22 14:36:12  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_exh_pagadas                 8,289 filas → fact_exh_pagadas.csv
+2026-06-22 14:36:12  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_exh_pagadas                 8,289 filas → fact_exh_pagadas.csv
+2026-06-22 14:36:12  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_exh_pagadas                 8,289 filas → fact_exh_pagadas.csv
+2026-06-22 14:36:12  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_exh_pagadas                 8,289 filas → fact_exh_pagadas.csv
+2026-06-22 14:36:13  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_exh_gratis                  6,692 filas → fact_exh_gratis.csv
+2026-06-22 14:36:13  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_exh_gratis                  6,692 filas → fact_exh_gratis.csv
+2026-06-22 14:36:13  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_exh_gratis                  6,692 filas → fact_exh_gratis.csv
+2026-06-22 14:36:13  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_exh_gratis                  6,692 filas → fact_exh_gratis.csv
+2026-06-22 14:36:13  [etl.ventas]        ✓ INFO      [stdout] ✓ fact_exh_gratis                  6,692 filas → fact_exh_gratis.csv
+2026-06-22 14:36:13  [etl.impactos]      ✓ INFO      [stdout] ✓ fact_exh_gratis                  6,692 filas → fact_exh_gratis.csv
+2026-06-22 14:36:14  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_personas                       212 filas → dim_personas.csv
+2026-06-22 14:36:14  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_personas                       212 filas → dim_personas.csv
+2026-06-22 14:36:14  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_personas                       212 filas → dim_personas.csv
+2026-06-22 14:36:14  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_personas                       212 filas → dim_personas.csv
+2026-06-22 14:36:14  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_personas                       212 filas → dim_personas.csv
+2026-06-22 14:36:14  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_personas                       212 filas → dim_personas.csv
+2026-06-22 14:36:18  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_pdv                          4,251 filas → dim_pdv.csv
+2026-06-22 14:36:18  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_pdv                          4,251 filas → dim_pdv.csv
+2026-06-22 14:36:18  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_pdv                          4,251 filas → dim_pdv.csv
+2026-06-22 14:36:18  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_pdv                          4,251 filas → dim_pdv.csv
+2026-06-22 14:36:18  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_pdv                          4,251 filas → dim_pdv.csv
+2026-06-22 14:36:18  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_pdv                          4,251 filas → dim_pdv.csv
+2026-06-22 14:36:19  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_periodo                          3 filas → dim_periodo.csv
+2026-06-22 14:36:19  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_periodo                          3 filas → dim_periodo.csv
+2026-06-22 14:36:19  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_periodo                          3 filas → dim_periodo.csv
+2026-06-22 14:36:19  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_periodo                          3 filas → dim_periodo.csv
+2026-06-22 14:36:19  [etl.ventas]        ✓ INFO      [stdout] ✓ dim_periodo                          3 filas → dim_periodo.csv
+2026-06-22 14:36:19  [etl.impactos]      ✓ INFO      [stdout] ✓ dim_periodo                          3 filas → dim_periodo.csv
+2026-06-22 14:36:19  [etl.orquestador]   ✓ INFO      GOLD regenerado OK
