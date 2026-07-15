@@ -46,19 +46,9 @@ En PROD inputs van a `BASE/MODULE/BASES/...` y outputs a `BASE/MODULE/SALIDA/...
 """
 
 import os
-import datetime
 import re
 import glob
 from pathlib import Path
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# CONFIGURACIÓN CLOUD - SHAREPOINT
-# ─────────────────────────────────────────────────────────────────────────────
-SHAREPOINT_SITE_NAME = "JJ451"
-RUTA_CARPETA_PT      = "Equipo Información/BI/INVOLVES/PLAN DE TRABAJO"
-RUTA_CARPETA_BASES   = f"Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/PRECIOS/{datetime.datetime.now().year}"
-RUTA_CARPETA_SALIDAS = "Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -203,9 +193,18 @@ EXHIB_GRA_OUT_KPIS              = EXHIB_SALIDA / "EXHIBICIONES_GRATIS_KPIS.xlsx"
 EXHIB_GRA_OUT_KPIS_HISTORICO    = EXHIB_SALIDA / "EXHIBICIONES_GRATIS_KPIS_HISTORICO.xlsx"
 
 # ── D&P  (Ventas + Impactos + Segmentos) ─────────────────────────────────────
+# Inputs:
+#   <BASE>/D&P/01. Ventas/<año>/<mes>/<archivo>.xlsx     (uno por corte mensual)
+#   <BASE>/D&P/02. Impactos/<año>/<mes>/<archivo>.xlsx
+#   <BASE>/D&P/Listas/listas_referencia.xlsx             (hojas MSL, ListSant,
+#                                                         DoyPackBaby, CremasBaby)
+#   <BASE>/D&P/Rutero/Rutero_Droguerias.xlsx             (hoja "PLAN DE TRABAJO")
 DYP_BASES        = _input_root("D&P")
 DYP_VENTAS_DIR   = DYP_BASES / "01. Ventas"
 DYP_IMPACTOS_DIR = DYP_BASES / "02. Impactos"
+# Sprint 14.2: nuevos nombres V2.
+#   • MSL & Listas Target Catman.xlsx (4 segmentos nuevos + MSL)
+#   • RUTERO <MES> <AÑO> D&P.xlsx (nombre cambia mes a mes; glob detecta el reciente)
 DYP_LISTAS_FILE  = DYP_BASES / "Listas" / "MSL & Listas Target Catman.xlsx"
 
 def _resolver_rutero_dyp() -> Path:
@@ -213,14 +212,18 @@ def _resolver_rutero_dyp() -> Path:
     se encuentra ninguno, cae al nombre legacy 'Rutero_Droguerias.xlsx'."""
     rutero_dir = DYP_BASES / "Rutero"
     if rutero_dir.is_dir():
+        # Patrones aceptables (mes a mes el nombre cambia)
         candidatos = list(rutero_dir.glob("RUTERO*.xlsx")) \
                    + list(rutero_dir.glob("Rutero*.xlsx"))
+        # Excluir archivos temporales de Excel
         candidatos = [p for p in candidatos if not p.name.startswith("~$")]
         if candidatos:
             return max(candidatos, key=lambda p: p.stat().st_mtime)
     return rutero_dir / "Rutero_Droguerias.xlsx"
 
 DYP_RUTERO_FILE  = _resolver_rutero_dyp()
+# Tabla maestra de personas (ACRONIMO, CEDULA, COD_ASESOR_ECOM, NOMBRE, ROL, CANAL).
+# Es la fuente de verdad para resolver identidades entre PT y D&P.
 DYP_BASE_CUPOS   = DYP_BASES / "Base_cupos.xlsx"
 
 DYP_SALIDA           = _output_root("D&P")
@@ -262,7 +265,7 @@ def descubrir_archivos_pt() -> tuple[str, str]:
 
 
 def info() -> str:
-    """Resumen de la resolución de paths para diagnóstico, incluyendo SharePoint."""
+    """Resumen de la resolución de paths para diagnóstico."""
     lineas = [
         f"BASE   : {BASE}",
         f"LAYOUT : {LAYOUT}",
@@ -279,11 +282,6 @@ def info() -> str:
         f"  D&P      → in: {DYP_BASES}",
         f"             out: {DYP_SALIDA}",
         f"  ALERTAS  → {ALERTAS_DIR}",
-        f"  CLOUD SHAREPOINT:",
-        f"    SITE NAME: {SHAREPOINT_SITE_NAME}",
-        f"    DIR PT   : {RUTA_CARPETA_PT}",
-        f"    DIR BASES: {RUTA_CARPETA_BASES}",
-        f"    DIR OUTS : {RUTA_CARPETA_SALIDAS}",
     ]
     return "\n".join(lineas)
 

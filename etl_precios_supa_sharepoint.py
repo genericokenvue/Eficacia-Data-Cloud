@@ -9,6 +9,10 @@ import pandas as pd
 from datetime import datetime
 from dotenv import load_dotenv
 
+# --- LIBRERÍAS PROPIAS Y RESOLUCIÓN DE RUTAS ---
+import paths
+import periodo_resolver as pr
+
 # --- LIBRERÍAS REQUERIDAS PARA SUPABASE ---
 from supabase import create_client
 
@@ -34,12 +38,7 @@ if not all([TENANT_ID, CLIENT_ID, CLIENT_SECRET, SUPABASE_URL, SUPABASE_KEY]):
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 📂 Configuración del SharePoint de la empresa:
-SHAREPOINT_SITE_NAME = "JJ451"  
-RUTA_CARPETA_PT = "Equipo Información/BI/INVOLVES/Plan_De_Trabajo"
-RUTA_CARPETA_BASES = "Equipo Información/BI/INVOLVES/Precios_Bases"
-RUTA_CARPETA_SALIDAS = "Equipo Información/BI/INVOLVES/Salidas"
-
+# Las configuraciones de SharePoint ahora se consumen centralizadamente desde paths.py
 LISTA_CATEGORIAS_PRECIOS = [
     "PROTECCION FEMENINA", "JABONES DE TOCADOR", "ASEO DEL BEBE",
     "CREMAS CORPORALES", "CUIDADO FACIAL", "ENJUAGUE BUCAL", "CREMAS DENTALES"
@@ -50,10 +49,6 @@ MESES_ESPANOL = {
     5: "MAYO", 6: "JUNIO", 7: "JULIO", 8: "AGOSTO",
     9: "SEPTIEMBRE", 10: "OCTUBRE", 11: "NOVIEMBRE", 12: "DICIEMBRE"
 }
-
-# --- RUTAS locales o resueltas para archivos temporales/históricos ---
-import paths
-import periodo_resolver as pr
 
 # Patrón relajado para soportar "Respuestas de encuestas..." y "Respuestas Precios"
 CLAVE_ARCHIVO_ENCUESTA = "Respuestas"
@@ -71,10 +66,10 @@ def obtener_token_azure():
     raise Exception(f"Error de autenticación en Azure: {result.get('error_description')}")
 
 def obtener_site_id(headers):
-    url = f"https://graph.microsoft.com/v1.0/sites/root:/sites/{SHAREPOINT_SITE_NAME}"
+    url = f"https://graph.microsoft.com/v1.0/sites/root:/sites/{paths.SHAREPOINT_SITE_NAME}"
     res = requests.get(url, headers=headers).json()
     if "id" not in res:
-        raise Exception(f"No se encontró el sitio SharePoint '{SHAREPOINT_SITE_NAME}'.")
+        raise Exception(f"No se encontró el sitio SharePoint '{paths.SHAREPOINT_SITE_NAME}'.")
     return res["id"]
 
 def obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_carpeta):
@@ -130,7 +125,7 @@ def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
         "REPORTA GENERADOR DE DEMANDA":"GENERADOR DE DEMANDA",
     }
 
-    archivos_en_carpeta = obtener_archivos_carpeta_sharepoint(headers, site_id, RUTA_CARPETA_PT)
+    archivos_en_carpeta = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_PT)
     
     num_mes = f"{spec.mes:02d}"                  
     nombre_mes = MESES_ESPANOL[spec.mes].upper()  
@@ -155,7 +150,7 @@ def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
         url_ism = next((a["@microsoft.graph.downloadUrl"] for a in archivos_en_carpeta if "ISM" in a["name"].upper()), None)
 
     if not url_directo or not url_ism:
-        raise FileNotFoundError(f"No se localizaron los archivos base en la carpeta cloud {RUTA_CARPETA_PT}")
+        raise FileNotFoundError(f"No se localizaron los archivos base en la carpeta cloud {paths.RUTA_CARPETA_PT}")
 
     def leer_y_normalizar_cloud(url_download, hoja, fuente):
         content = requests.get(url_download).content
@@ -218,7 +213,7 @@ def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
         ).reset_index(drop=True)
 
         nombre_pt_final = f"Plan_Trabajo_Precios_{periodo}.xlsx"
-        subir_archivo_a_sharepoint(headers, site_id, RUTA_CARPETA_BASES, nombre_pt_final, df_total_unificado)
+        subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES, nombre_pt_final, df_total_unificado)
 
         print(f"✅ EXITO: Plan unificado guardado en SharePoint: {nombre_pt_final}")
         return df_total_unificado, periodo
@@ -228,14 +223,14 @@ def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
 def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO 2: Cruzando Capturas por Categorías ({periodo_nom}) ---")
     
-    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, RUTA_CARPETA_BASES)
+    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES)
     url_encuesta = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if CLAVE_ARCHIVO_ENCUESTA in a["name"] and periodo_nom in a["name"].upper()), None)
     
     if not url_encuesta:
         url_encuesta = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if CLAVE_ARCHIVO_ENCUESTA in a["name"]), None)
         
     if not url_encuesta:
-        raise FileNotFoundError(f"No se encontró el archivo cloud de encuestas en: {RUTA_CARPETA_BASES}")
+        raise FileNotFoundError(f"No se encontró el archivo cloud de encuestas en: {paths.RUTA_CARPETA_BASES}")
 
     content_enc = requests.get(url_encuesta).content
     df_enc = pd.read_excel(io.BytesIO(content_enc))
@@ -305,13 +300,13 @@ def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec, he
     ]
     
     nombre_matriz = f"REPORTE_CAPTURA_PRECIOS_{periodo_nom}.xlsx"
-    subir_archivo_a_sharepoint(headers, site_id, RUTA_CARPETA_SALIDAS, nombre_matriz, df_final[cols_out])
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_matriz, df_final[cols_out])
     print(f"✅ Reporte capturas unificado generado en SharePoint.")
 
 def generar_analisis_precios(periodo_nom, spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO 3: Generando Análisis Detallado ({periodo_nom}) ---")
     
-    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, RUTA_CARPETA_BASES)
+    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES)
     url_encuesta = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if CLAVE_ARCHIVO_ENCUESTA in a["name"] and periodo_nom in a["name"].upper()), None)
     if not url_encuesta:
         url_encuesta = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if CLAVE_ARCHIVO_ENCUESTA in a["name"]), None)
@@ -337,7 +332,7 @@ def generar_analisis_precios(periodo_nom, spec: pr.PeriodoSpec, headers, site_id
                     "LABEL_UBICADO", "HAY_PROMO", "PRECIO_PROMO", "TIPO_PROMO"]
     
     nombre_analisis = f"ANALISIS_PRECIOS_{periodo_nom}.xlsx"
-    subir_archivo_a_sharepoint(headers, site_id, RUTA_CARPETA_SALIDAS, nombre_analisis, df[cols_finales])
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_analisis, df[cols_finales])
     print(f"✅ Análisis detallado guardado en SharePoint.")
 
 # =============================================================================
@@ -346,10 +341,9 @@ def generar_analisis_precios(periodo_nom, spec: pr.PeriodoSpec, headers, site_id
 
 def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO KPI (V3): RESUMEN PRECIOS por gestor  ({spec.etiqueta}) ---")
-    import paths as _paths
     periodo_nom = f"{MESES_ESPANOL[spec.mes]}_{spec.anio}"
     
-    archivos_salida = obtener_archivos_carpeta_sharepoint(headers, site_id, RUTA_CARPETA_SALIDAS)
+    archivos_salida = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS)
     url_reporte = next((a["@microsoft.graph.downloadUrl"] for a in archivos_salida if f"REPORTE_CAPTURA_PRECIOS_{periodo_nom}" in a["name"]), None)
     
     if not url_reporte:
@@ -365,21 +359,21 @@ def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
         df_origen=df,
         col_planeado="CAPTURA_PLANEADA",
         col_ejecutado="CAPTURA_EJECUTADA",
-        ruta_kpi_mes=str(_paths.PR_OUT_KPIS),
-        ruta_kpi_historico=str(_paths.PR_OUT_KPIS_HISTORICO),
+        ruta_kpi_mes=str(paths.PR_OUT_KPIS),
+        ruta_kpi_historico=str(paths.PR_OUT_KPIS_HISTORICO),
         nombre_cumplimiento="CUMPLIMIENTO",
         nombres_renombre=("PLANEADO", "EJECUTADO"),
     )
     print(f"  ✅ Mes activo: {n} gestores.")
 
-    if os.path.exists(str(_paths.PR_OUT_KPIS)):
-        df_kpi_local = pd.read_excel(str(_paths.PR_OUT_KPIS))
-        subir_archivo_a_sharepoint(headers, site_id, RUTA_CARPETA_SALIDAS, _paths.PR_OUT_KPIS.name, df_kpi_local)
+    if os.path.exists(str(paths.PR_OUT_KPIS)):
+        df_kpi_local = pd.read_excel(str(paths.PR_OUT_KPIS))
+        subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, paths.PR_OUT_KPIS.name, df_kpi_local)
 
     try:
-        if os.path.exists(str(_paths.PR_OUT_KPIS)):
+        if os.path.exists(str(paths.PR_OUT_KPIS)):
             print(f"  🚀 Preparando cargue del KPI de Precios consolidado a Supabase...")
-            df_kpi = pd.read_excel(str(_paths.PR_OUT_KPIS))
+            df_kpi = pd.read_excel(str(paths.PR_OUT_KPIS))
             
             df_kpi.columns = df_kpi.columns.str.strip().str.lower()
             if 'año' in df_kpi.columns:
@@ -401,7 +395,7 @@ def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="ETL PRECIOS — Eficacia (Sprint 16.1: multi-periodo a SharePoint con Rutas Quemadas)")
+    parser = argparse.ArgumentParser(description="ETL PRECIOS — Eficacia (Sprint 16.1: multi-periodo a SharePoint con Rutas Unificadas)")
     parser.add_argument("--solo", nargs="+", choices=["full", "kpi"],
                         help="Por default: corre todo + kpi. Usa --solo kpi para solo KPI.")
     pr.cli_add_periodos_arg(parser)
@@ -431,7 +425,7 @@ if __name__ == "__main__":
                 df_pt, periodo_final = ejecutar_paso_1_consolidar_pt(spec, headers, site_id)
 
                 if df_pt.empty:
-                    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, RUTA_CARPETA_BASES)
+                    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES)
                     nombre_buscado = f"Plan_Trabajo_Precios_{periodo_final}.xlsx"
                     url_pt_periodo = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if a["name"] == nombre_buscado), None)
                     
