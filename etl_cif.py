@@ -272,10 +272,10 @@ def ejecutar_paso_3(spec: pr.PeriodoSpec, headers, site_id):
     url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if nombre_inv_file.lower() in a["name"].lower()), None)
     
     if not url_inv:
-        # Buscar en la carpeta general de Plan de Trabajo en SharePoint si no está en bases
-        ruta_pt_sharepoint = getattr(paths, 'RUTA_CARPETA_PT_CIF', getattr(paths, 'CIF_PT_DIR', "Equipo Información/BI/INVOLVES/PLAN DE TRABAJO"))
-        archivos_gen = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_pt_sharepoint)
-        url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_gen if nombre_inv_file.lower() in a["name"].lower()), None)
+        # Buscar en la carpeta específica de bases de respuestas del periodo en SharePoint
+        ruta_bases_respuestas_cif = f"Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/{spec.anio}"
+        archivos_gen = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_bases_respuestas_cif)
+        url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_gen if nombre_inv_file.lower() in a["name"].lower() or "informe-gerencial-visitas" in a["name"].lower()), None)
 
     if not all([url_plan, url_colab, url_ventas, url_inv]):
         print("❌ ERROR: Faltan archivos requeridos en SharePoint para el Paso 3.")
