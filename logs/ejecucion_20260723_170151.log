@@ -1,0 +1,3 @@
+2026-07-23 17:01:51  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260723_170151.log
+2026-07-23 17:01:51  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-07-23 17:01:51  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx

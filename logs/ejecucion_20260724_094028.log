@@ -1,0 +1,2 @@
+2026-07-24 09:40:28  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260724_094028.log
+2026-07-24 09:40:28  [etl.shared_loader]  ☠ CRITICAL  Directorio de PT no existe: C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO — el pipeline no puede continuar

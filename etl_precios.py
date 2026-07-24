@@ -1,18 +1,39 @@
-import sys
-try:
-    sys.stdout.reconfigure(encoding="utf-8")
-except AttributeError:
-    pass
-
-import pandas as pd
-import os
-import glob
 import re
+import io
+import os
+import urllib.parse
+import requests
+import msal
+import numpy as np  
+import pandas as pd
 from datetime import datetime
+from dotenv import load_dotenv
+
+# --- LIBRERÍAS PROPIAS Y RESOLUCIÓN DE RUTAS ---
+import paths
+import periodo_resolver as pr
+
+# --- LIBRERÍAS REQUERIDAS PARA SUPABASE ---
+from supabase import create_client
+
+# --- CARGAR CREDENCIALES DESDE EL ARCHIVO EXTERNO .ENV (Solo Local) ---
+load_dotenv()
 
 # =============================================================================
-# 1. CONFIGURACIÓN GLOBAL
+# 1. CONFIGURACIÓN GLOBAL & AZURE API
 # =============================================================================
+
+TENANT_ID = os.environ.get("AZURE_TENANT_ID")
+CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
+CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET")
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+
+if not all([TENANT_ID, CLIENT_ID, CLIENT_SECRET, SUPABASE_URL, SUPABASE_KEY]):
+    raise ValueError("❌ ERROR: Faltan credenciales esenciales. Verifica tu archivo .env o tus GitHub Secrets.")
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 LISTA_CATEGORIAS_PRECIOS = [
     "PROTECCION FEMENINA", "JABONES DE TOCADOR", "ASEO DEL BEBE",
@@ -25,161 +46,190 @@ MESES_ESPANOL = {
     9: "SEPTIEMBRE", 10: "OCTUBRE", 11: "NOVIEMBRE", 12: "DICIEMBRE"
 }
 
-# --- RUTAS resueltas vía paths.py ---
-import paths
-import periodo_resolver as pr
-
-_DIR_PT = str(paths.CIF_PT_DIR)
-
-RUTA_ORIGEN_PRECIOS = str(paths.PR_BASES)
-RUTA_SALIDA_PRECIOS = str(paths.PR_SALIDA)
-
-if not os.path.exists(RUTA_SALIDA_PRECIOS):
-    os.makedirs(RUTA_SALIDA_PRECIOS)
-
-# Patrón relajado para soportar "Respuestas de encuestas..." y "Respuestas Precios"
 CLAVE_ARCHIVO_ENCUESTA = "Respuestas"
+
+# =============================================================================
+# FUNCIONES AUXILIARES DE MICROSOFT GRAPH API
+# =============================================================================
+def obtener_token_azure():
+    authority = f"https://login.microsoftonline.com/{TENANT_ID}"
+    scopes = ["https://graph.microsoft.com/.default"]
+    app = msal.ConfidentialClientApplication(CLIENT_ID, authority=authority, client_credential=CLIENT_SECRET)
+    result = app.acquire_token_for_client(scopes=scopes)
+    if "access_token" in result:
+        return result["access_token"]
+    raise Exception(f"Error de autenticación en Azure: {result.get('error_description')}")
+
+def obtener_site_id(headers):
+    url = f"https://graph.microsoft.com/v1.0/sites/root:/sites/{paths.SHAREPOINT_SITE_NAME}"
+    res = requests.get(url, headers=headers).json()
+    if "id" not in res:
+        raise Exception(f"No se encontró el sitio SharePoint '{paths.SHAREPOINT_SITE_NAME}'.")
+    return res["id"]
+
+def obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_carpeta):
+    ruta_formateada = urllib.parse.quote(ruta_carpeta)
+    url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/{ruta_formateada}:/children"
+    
+    response = requests.get(url, headers=headers)
+    res_json = response.json()
+    
+    if response.status_code != 200:
+        print(f"❌ Error de la API de Graph ({response.status_code}): {res_json.get('error', {}).get('message')}")
+        print("\n🔍 Listando carpetas disponibles en la raíz del sitio para verificar nombres:")
+        url_raiz = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root/children"
+        raiz_json = requests.get(url_raiz, headers=headers).json()
+        for item in raiz_json.get('value', []):
+            print(f" -> [{item.get('name')}] (Tipo: {item.get('folder', 'Archivo')})")
+    
+    return res_json.get("value", [])
+
+def subir_archivo_a_sharepoint(headers, site_id, ruta_carpeta, nombre_archivo, dataframe):
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        dataframe.to_excel(writer, index=False)
+    buffer.seek(0)
+    
+    url_subida = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/{ruta_carpeta}/{nombre_archivo}:/content"
+    headers_subida = {**headers, "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
+    
+    response = requests.put(url_subida, headers=headers_subida, data=buffer.getvalue())
+    if response.status_code in [200, 201]:
+        print(f"  ✅ SHAREPOINT: Archivo guardado con éxito -> {ruta_carpeta}/{nombre_archivo}")
+    else:
+        print(f"  ❌ Error al subir a SharePoint ({nombre_archivo}): {response.text}")
 
 # =============================================================================
 # 2. FUNCIONES DE PROCESAMIENTO
 # =============================================================================
 
-def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec):
+def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO 1: Consolidando Plan de Trabajo  ({spec.etiqueta}) ---")
 
     from shared_loader import COLUMNAS_ESTANDAR_UNIFICADO as COLUMNAS_ESTANDAR
 
-    # Sprint 15.9 (Fix H4 final) — agregamos OBSERVACION para filtrar por
-    # responsable real. La columna OBSERVACIÓN de "Captura de modulos" indica
-    # qué ROL debe capturar el módulo en ese PDV (REPORTA GESTOR / REPORTA
-    # SUPERVISOR / REPORTA GENERADOR DE DEMANDA). Sin este filtro, líderes
-    # como INGRID quedaban incluidos por estar en el plan, aunque su rol no
-    # sea capturar Precios.
     COLUMNAS_FINALES_PT = [
         "ID_PDV_INVOLVES", "NOMBRE_PDV", "VENTAS_PROMEDIO_MES", "ACRONIMO",
         "CEDULA", "NOMBRE", "COD_MERCADERISTA", "ROL", "SUPERVISOR_LIDER", "FUENTE",
         "OBSERVACION",
     ]
 
-    # Mapeo OBSERVACIÓN → ROL esperado del responsable de captura
     OBS_A_ROL = {
         "REPORTA GESTOR":              "GESTOR",
         "REPORTA SUPERVISOR":          "SUPERVISOR",
         "REPORTA GENERADOR DE DEMANDA":"GENERADOR DE DEMANDA",
     }
 
-    def leer_y_normalizar(ruta, hoja, fuente):
-        if not os.path.exists(ruta): return pd.DataFrame()
-        try:
-            with pd.ExcelFile(ruta) as xls:
-                df_val = pd.read_excel(xls, sheet_name="Captura de modulos")
-                df_val.columns = df_val.columns.str.strip().str.upper()
-                col_filtro = "PRECIOS_FINAL" if fuente == "ISM" else "PRECIOS"
-                if col_filtro not in df_val.columns: return pd.DataFrame()
+    # 🔄 CORRECCIÓN: Se leen los archivos base del Plan de Trabajo desde paths.RUTA_CARPETA_PT
+    archivos_en_carpeta = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_PT)
+    
+    num_mes = f"{spec.mes:02d}"                  
+    nombre_mes = MESES_ESPANOL[spec.mes].upper()  
 
-                # PDVs target Precios + su observación (rol responsable)
-                obs_col = next((c for c in df_val.columns if c.startswith('OBSERVAC')), None)
-                if obs_col is None:
-                    print(f"⚠ {fuente}: hoja Captura de modulos sin columna OBSERVACIÓN")
-                    return pd.DataFrame()
-                # Sprint 15.9 (D10) — excluir PDVs subcanal DISCOUNTER (no se miden)
-                df_val_filtrado = df_val[df_val[col_filtro] == 1].copy()
-                if "SUB CANAL" in df_val_filtrado.columns:
-                    n_antes_dc = len(df_val_filtrado)
-                    df_val_filtrado = df_val_filtrado[
-                        df_val_filtrado["SUB CANAL"].astype(str).str.strip().str.upper() != "DISCOUNTER"
-                    ]
-                    n_dc = n_antes_dc - len(df_val_filtrado)
-                    if n_dc > 0:
-                        print(f"  {fuente}: filtro DISCOUNTER → {n_dc} PDVs excluidos")
-                pdvs_obs = (
-                    df_val_filtrado[["ID PDV INVOLVES", obs_col]]
-                    .rename(columns={obs_col: "OBSERVACION"})
-                )
-                pdvs_obs["OBSERVACION"] = pdvs_obs["OBSERVACION"].astype(str).str.strip().str.upper()
-                pdvs_obs["ROL_ESPERADO"] = pdvs_obs["OBSERVACION"].map(OBS_A_ROL).fillna("")
+    url_directo = None
+    url_ism = None
 
-                df = pd.read_excel(xls, sheet_name=hoja)
-                df.columns = df.columns.str.strip().str.upper()
+    for archivo in archivos_en_carpeta:
+        nombre_archivo_upper = archivo["name"].upper()
+        
+        if "DIRECTO" in nombre_archivo_upper and (num_mes in nombre_archivo_upper or nombre_mes in nombre_archivo_upper):
+            url_directo = archivo["@microsoft.graph.downloadUrl"]
+            print(f"  📂 Archivo DIRECTO detectado en RUTA_CARPETA_PT: {archivo['name']}")
+            
+        if "ISM" in nombre_archivo_upper and (num_mes in nombre_archivo_upper or nombre_mes in nombre_archivo_upper):
+            url_ism = archivo["@microsoft.graph.downloadUrl"]
+            print(f"  📂 Archivo ISM detectado en RUTA_CARPETA_PT: {archivo['name']}")
 
-                # Filtro 1: PDVs target del módulo
-                df = df[df["ID PDV INVOLVES"].isin(pdvs_obs["ID PDV INVOLVES"])].copy()
-                df.rename(columns={col: COLUMNAS_ESTANDAR[col] for col in df.columns if col in COLUMNAS_ESTANDAR}, inplace=True)
+    if not url_directo:
+        url_directo = next((a["@microsoft.graph.downloadUrl"] for a in archivos_en_carpeta if "DIRECTO" in a["name"].upper()), None)
+    if not url_ism:
+        url_ism = next((a["@microsoft.graph.downloadUrl"] for a in archivos_en_carpeta if "ISM" in a["name"].upper()), None)
 
-                # Anexar OBSERVACIÓN + ROL_ESPERADO por PDV
-                df = df.merge(pdvs_obs, left_on="ID_PDV_INVOLVES", right_on="ID PDV INVOLVES", how="left")
+    if not url_directo or not url_ism:
+        raise FileNotFoundError(f"No se localizaron los archivos base en la carpeta cloud: {paths.RUTA_CARPETA_PT}")
 
-                # Filtro 2 (Sprint 15.9 fix H4 final): solo personas cuyo ROL
-                # coincide con el responsable indicado en OBSERVACIÓN del PDV.
-                df["ROL"] = df["ROL"].astype(str).str.strip().str.upper()
-                mask_responsable = df["ROL"] == df["ROL_ESPERADO"]
-                n_antes = len(df)
-                df = df[mask_responsable].copy()
-                print(f"  {fuente}: filtro OBSERVACIÓN → {n_antes} → {len(df)} filas (responsables reales)")
+    def leer_y_normalizar_cloud(url_download, hoja, fuente):
+        content = requests.get(url_download).content
+        with pd.ExcelFile(io.BytesIO(content)) as xls:
+            df_val = pd.read_excel(xls, sheet_name="Captura de modulos")
+            df_val.columns = df_val.columns.str.strip().str.upper()
+            col_filtro = "PRECIOS_FINAL" if fuente == "ISM" else "PRECIOS"
+            if col_filtro not in df_val.columns: return pd.DataFrame()
 
-                df["FUENTE"] = fuente
-                df["OBSERVACION"] = df["OBSERVACION"]
+            obs_col = next((c for c in df_val.columns if c.startswith('OBSERVAC')), None)
+            if obs_col is None:
+                print(f"⚠ {fuente}: hoja Captura de modulos sin columna OBSERVACIÓN")
+                return pd.DataFrame()
 
-                for col in COLUMNAS_FINALES_PT:
-                    if col not in df.columns: df[col] = ""
+            df_val_filtrado = df_val[df_val[col_filtro] == 1].copy()
+            if "SUB CANAL" in df_val_filtrado.columns:
+                n_antes_dc = len(df_val_filtrado)
+                df_val_filtrado = df_val_filtrado[
+                    df_val_filtrado["SUB CANAL"].astype(str).str.strip().str.upper() != "DISCOUNTER"
+                ]
+                n_dc = n_antes_dc - len(df_val_filtrado)
+                if n_dc > 0:
+                    print(f"  {fuente}: filtro DISCOUNTER → {n_dc} PDVs excluidos")
 
-                return df[COLUMNAS_FINALES_PT]
-        except PermissionError as e:
-            raise PermissionError(
-                f"No se puede leer {fuente} (archivo abierto en Excel?): {ruta}. "
-                f"Cierra el archivo y vuelve a correr."
-            ) from e
-        except Exception as e:
-            print(f"❌ Error leyendo {fuente}: {e}")
-            raise
+            pdvs_obs = df_val_filtrado[["ID PDV INVOLVES", obs_col]].rename(columns={obs_col: "OBSERVACION"})
+            pdvs_obs["OBSERVACION"] = pdvs_obs["OBSERVACION"].astype(str).str.strip().str.upper()
+            pdvs_obs["ROL_ESPERADO"] = pdvs_obs["OBSERVACION"].map(OBS_A_ROL).fillna("")
 
-    from shared_loader import descubrir_archivos_pt
-    ruta_directo, ruta_ism = descubrir_archivos_pt(_DIR_PT, periodo=spec)
-    if not ruta_directo or not ruta_ism:
-        raise FileNotFoundError(
-            f"Precios ({spec.etiqueta}): faltan PT del periodo. "
-            f"Directo={ruta_directo or 'N/D'} | ISM={ruta_ism or 'N/D'}"
-        )
-    df_dir = leer_y_normalizar(ruta_directo, "Plan de trabajo", "DIRECTO")
-    df_ism = leer_y_normalizar(ruta_ism, "Plan de trabajo CIF", "ISM")
+            df = pd.read_excel(xls, sheet_name=hoja)
+            df.columns = df.columns.str.strip().str.upper()
 
-    # Sprint 15.5.5: periodo viene del spec, no se detecta del archivo.
+            df = df[df["ID PDV INVOLVES"].isin(pdvs_obs["ID PDV INVOLVES"])].copy()
+            df.rename(columns={col: COLUMNAS_ESTANDAR[col] for col in df.columns if col in COLUMNAS_ESTANDAR}, inplace=True)
+
+            df = df.merge(pdvs_obs, left_on="ID_PDV_INVOLVES", right_on="ID PDV INVOLVES", how="left")
+
+            df["ROL"] = df["ROL"].astype(str).str.strip().str.upper()
+            mask_responsable = df["ROL"] == df["ROL_ESPERADO"]
+            n_antes = len(df)
+            df = df[mask_responsable].copy()
+            print(f"  {fuente}: filtro OBSERVACIÓN → {n_antes} → {len(df)} filas (responsables reales)")
+
+            df["FUENTE"] = fuente
+            for col in COLUMNAS_FINALES_PT:
+                if col not in df.columns: df[col] = ""
+
+            return df[COLUMNAS_FINALES_PT]
+
+    df_dir = leer_y_normalizar_cloud(url_directo, "Plan de trabajo", "DIRECTO")
+    df_ism = leer_y_normalizar_cloud(url_ism, "Plan de trabajo CIF", "ISM")
+
     periodo = f"{MESES_ESPANOL[spec.mes]}_{spec.anio}"
 
     if not df_dir.empty or not df_ism.empty:
         df_total = pd.concat([df_dir, df_ism], ignore_index=True)
         df_total['ID_PDV_INVOLVES'] = df_total['ID_PDV_INVOLVES'].astype(str).str.strip()
 
-        # Sprint 15.7 (Fix H2) — D7: mantenemos UNA fila por (PDV, persona).
-        # Antes: groupby('ID_PDV_INVOLVES').first() dejaba sólo UNA persona
-        # por PDV. Cuando varias personas tenían el mismo PDV (típico cuando
-        # el PDV lo visita un gestor + su líder/supervisor) el groupby
-        # descartaba todas menos una. Eso provocaba que gestores como MARIA
-        # ANGELICA CASALLAS quedaran fuera de Precios aunque sí tenían PDVs
-        # target.
-        #
-        # Ahora: dedup por (PDV, NOMBRE) — cada combinación cuenta una vez.
         df_total_unificado = df_total.drop_duplicates(
             subset=['ID_PDV_INVOLVES', 'NOMBRE'],
         ).reset_index(drop=True)
 
-        ruta_pt_final = os.path.join(RUTA_ORIGEN_PRECIOS, f"Plan_Trabajo_Precios_{periodo}.xlsx")
-        df_total_unificado.to_excel(ruta_pt_final, index=False)
+        nombre_pt_final = f"Plan_Trabajo_Precios_{periodo}.xlsx"
+        subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES, nombre_pt_final, df_total_unificado)
 
-        print(
-            f"✅ EXITO: Plan unificado guardado en: Plan_Trabajo_Precios_{periodo}.xlsx "
-            f"({len(df_total_unificado)} filas, {df_total_unificado['ID_PDV_INVOLVES'].nunique()} PDVs únicos)"
-        )
+        print(f"✅ EXITO: Plan unificado guardado en SharePoint: {nombre_pt_final}")
         return df_total_unificado, periodo
     
     return pd.DataFrame(), periodo
 
-def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec):
+def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO 2: Cruzando Capturas por Categorías ({periodo_nom}) ---")
-    # Sprint 15.5.5: encuestas del periodo solicitado, no glob por mtime.
-    archivo_encuesta = pr.precios_respuestas(spec)
-    print(f"   Encuestas: {archivo_encuesta.name}")
-    df_enc = pd.read_excel(archivo_encuesta)
+    
+    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES)
+    url_encuesta = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if CLAVE_ARCHIVO_ENCUESTA in a["name"] and periodo_nom in a["name"].upper()), None)
+    
+    if not url_encuesta:
+        url_encuesta = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if CLAVE_ARCHIVO_ENCUESTA in a["name"]), None)
+        
+    if not url_encuesta:
+        raise FileNotFoundError(f"No se encontró el archivo cloud de encuestas en: {paths.RUTA_CARPETA_BASES}")
+
+    content_enc = requests.get(url_encuesta).content
+    df_enc = pd.read_excel(io.BytesIO(content_enc))
 
     def extraer_cat(texto):
         if pd.isna(texto): return None
@@ -192,21 +242,16 @@ def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec):
     df_enc['CATEGORIA_LIMPIA'] = df_enc['Rótulo de la encuesta'].apply(extraer_cat)
     df_enc_valida = df_enc.dropna(subset=['CATEGORIA_LIMPIA']).copy()
     
-    # Normalizar ambos IDs con el helper canónico
     from shared_loader import id_a_str
     df_pt['ID_PDV_INVOLVES'] = id_a_str(df_pt['ID_PDV_INVOLVES'])
     df_enc_valida['ID del PDV'] = id_a_str(df_enc_valida['ID del PDV'])
 
-    # --- NUEVA LÓGICA: IDENTIFICAR PDVs QUE PERTENECEN A MAYORISTAS ---
-    # Convertimos a string y mayúsculas para buscar coincidencias de forma segura
     df_enc_valida['ROTULO_UPPER'] = df_enc_valida['Rótulo de la encuesta'].astype(str).str.upper()
     
-    # Agrupamos por PDV para mapear si alguna de sus encuestas contiene la palabra "MAYORISTA"
     pdvs_mayoristas = df_enc_valida.groupby('ID del PDV')['ROTULO_UPPER'].apply(
         lambda x: any('MAYORISTA' in r for r in x)
     ).to_dict()
 
-    # Agrupar las categorías únicas capturadas por cada Punto de Venta
     dict_enc = df_enc_valida.groupby('ID del PDV')['CATEGORIA_LIMPIA'].unique().to_dict()
     set_oficial_estandar = set(LISTA_CATEGORIAS_PRECIOS)
     res = []
@@ -215,16 +260,10 @@ def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec):
         cats = dict_enc.get(id_pdv, [])
         set_cats = set(cats)
         
-        # Evaluar si el PDV actual fue identificado como Mayorista
         es_mayorista = pdvs_mayoristas.get(id_pdv, False)
-        
-        # Definir la meta de categorías según el tipo de canal
-        # Si es mayorista la meta es 1 categoría capturada; de lo contrario, se requieren las 7 estándar
         categorias_requeridas = 1 if es_mayorista else len(set_oficial_estandar)
         
-        # Calcular faltantes con respecto al catálogo oficial completo (solo aplica lógico para los regulares)
         if es_mayorista:
-            # Para mayoristas, si ya capturó al menos 1, no tiene faltantes críticas para su canal
             faltantes = [] if len(set_cats) >= 1 else ["AL MENOS 1 CATEGORÍA"]
             conteo = len(set_cats)
             msg_faltantes = "NINGUNA" if len(set_cats) >= 1 else "REQUIERE 1 CATEGORÍA"
@@ -241,7 +280,6 @@ def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec):
             'CAPTURA_PLANEADA': 1, 
             'CONTEO_CATEGORIAS': conteo, 
             'CATEGORIAS_FALTANTES': msg_faltantes,
-            # Se marca ejecutado (1) si cumple la meta de su canal (>=1 para mayorista, ==7 para regular)
             'CAPTURA_EJECUTADA': 1 if conteo >= categorias_requeridas else 0
         })
     
@@ -249,7 +287,6 @@ def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec):
     df_final['CAPTURA_PLANEADA'] = df_final['CAPTURA_PLANEADA'].fillna(1).astype(int)
     df_final['CAPTURA_EJECUTADA'] = df_final['CAPTURA_EJECUTADA'].fillna(0).astype(int)
 
-    # Sprint 15.5.5 — Fix F3: propagar MES/AÑO al reporte intermedio
     df_final['MES'] = spec.mes
     df_final['AÑO'] = spec.anio
 
@@ -257,14 +294,21 @@ def generar_reporte_captura_precios(df_pt, periodo_nom, spec: pr.PeriodoSpec):
         'CAPTURA_PLANEADA', 'CONTEO_CATEGORIAS', 'CATEGORIAS_FALTANTES',
         'CAPTURA_EJECUTADA', 'MES', 'AÑO',
     ]
-    ruta_matriz = os.path.join(RUTA_SALIDA_PRECIOS, f"REPORTE_CAPTURA_PRECIOS_{periodo_nom}.xlsx")
-    df_final[cols_out].to_excel(ruta_matriz, index=False)
-    print(f"✅ Reporte capturas generado.")
+    
+    nombre_matriz = f"REPORTE_CAPTURA_PRECIOS_{periodo_nom}.xlsx"
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_matriz, df_final[cols_out])
+    print(f"✅ Reporte capturas unificado generado en SharePoint.")
 
-def generar_analisis_precios(periodo_nom, spec: pr.PeriodoSpec):
+def generar_analisis_precios(periodo_nom, spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO 3: Generando Análisis Detallado ({periodo_nom}) ---")
-    archivo_encuesta = pr.precios_respuestas(spec)
-    df = pd.read_excel(archivo_encuesta)
+    
+    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES)
+    url_encuesta = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if CLAVE_ARCHIVO_ENCUESTA in a["name"] and periodo_nom in a["name"].upper()), None)
+    if not url_encuesta:
+        url_encuesta = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if CLAVE_ARCHIVO_ENCUESTA in a["name"]), None)
+
+    content_enc = requests.get(url_encuesta).content
+    df = pd.read_excel(io.BytesIO(content_enc))
     mapeo_binario = {'SI': 1, 'SÍ': 1, 'NO': 0, 'no': 0, 'si': 1, 'sí': 1}
 
     if "Producto (SKU)" in df.columns:
@@ -283,55 +327,79 @@ def generar_analisis_precios(periodo_nom, spec: pr.PeriodoSpec):
                     "CODIGO_SKU", "NOMBRE_PRODUCTO", "PRESENCIA", "PRECIO_REGULAR", 
                     "LABEL_UBICADO", "HAY_PROMO", "PRECIO_PROMO", "TIPO_PROMO"]
     
-    ruta_analisis = os.path.join(RUTA_SALIDA_PRECIOS, f"ANALISIS_PRECIOS_{periodo_nom}.xlsx")
-    df[cols_finales].to_excel(ruta_analisis, index=False)
-    print(f"✅ Análisis detallado guardado.")
+    nombre_analisis = f"ANALISIS_PRECIOS_{periodo_nom}.xlsx"
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_analisis, df[cols_finales])
+    print(f"✅ Análisis detallado guardado en SharePoint.")
 
 # =============================================================================
-# 3. EJECUCIÓN PRINCIPAL
+# 3. EJECUCIÓN PRINCIPAL Y INTEGRACIÓN CON CLOUD
 # =============================================================================
 
-def generar_resumen_kpi_precios(spec: pr.PeriodoSpec):
-    """Lee el reporte de captura del periodo solicitado y produce
-    PRECIOS_KPIS.xlsx + histórico acumulado (V3).
-
-    Sprint 15.5.5: ya no toma el más reciente; toma el del periodo solicitado.
-    El reporte ahora trae MES/AÑO (Fix F3) → shared_loader valida y no degrada
-    a (0,0).
-    """
+def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO KPI (V3): RESUMEN PRECIOS por gestor  ({spec.etiqueta}) ---")
-    import paths as _paths
     periodo_nom = f"{MESES_ESPANOL[spec.mes]}_{spec.anio}"
-    ruta = _paths.PR_SALIDA / f"REPORTE_CAPTURA_PRECIOS_{periodo_nom}.xlsx"
-    if not ruta.is_file():
-        print(f"❌ No existe el reporte del periodo: {ruta}")
+    
+    archivos_salida = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS)
+    url_reporte = next((a["@microsoft.graph.downloadUrl"] for a in archivos_salida if f"REPORTE_CAPTURA_PRECIOS_{periodo_nom}" in a["name"]), None)
+    
+    if not url_reporte:
+        print(f"❌ No existe el reporte del periodo en SharePoint: REPORTE_CAPTURA_PRECIOS_{periodo_nom}")
         return
-    df = pd.read_excel(ruta, engine='openpyxl')
-    print(f"  Leyendo: {ruta.name} ({len(df)} filas)")
+        
+    content_rep = requests.get(url_reporte).content
+    df = pd.read_excel(io.BytesIO(content_rep), engine='openpyxl')
+    print(f"  Leyendo desde cloud: REPORTE_CAPTURA_PRECIOS_{periodo_nom}.xlsx ({len(df)} filas)")
 
     from shared_loader import calcular_kpi_simple_y_escribir
     n = calcular_kpi_simple_y_escribir(
         df_origen=df,
         col_planeado="CAPTURA_PLANEADA",
         col_ejecutado="CAPTURA_EJECUTADA",
-        ruta_kpi_mes=str(_paths.PR_OUT_KPIS),
-        ruta_kpi_historico=str(_paths.PR_OUT_KPIS_HISTORICO),
+        ruta_kpi_mes=str(paths.PR_OUT_KPIS),
+        ruta_kpi_historico=str(paths.PR_OUT_KPIS_HISTORICO),
         nombre_cumplimiento="CUMPLIMIENTO",
         nombres_renombre=("PLANEADO", "EJECUTADO"),
     )
-    print(f"  ✅ Mes activo: {n} gestores → {_paths.PR_OUT_KPIS.name}")
-    print(f"  ✅ Histórico acumulado → {_paths.PR_OUT_KPIS_HISTORICO.name}")
+    print(f"  ✅ Mes activo: {n} gestores.")
+
+    if os.path.exists(str(paths.PR_OUT_KPIS)):
+        df_kpi_local = pd.read_excel(str(paths.PR_OUT_KPIS))
+        subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, paths.PR_OUT_KPIS.name, df_kpi_local)
+
+    try:
+        if os.path.exists(str(paths.PR_OUT_KPIS)):
+            print(f"  🚀 Preparando cargue del KPI de Precios consolidado a Supabase...")
+            df_kpi = pd.read_excel(str(paths.PR_OUT_KPIS))
+            
+            df_kpi.columns = df_kpi.columns.str.strip().str.lower()
+            if 'año' in df_kpi.columns:
+                df_kpi = df_kpi.rename(columns={'año': 'anio'})
+            
+            df_kpi = df_kpi.replace([np.inf, -np.inf], 0)
+            df_kpi_limpio = df_kpi.astype(object).where(pd.notnull(df_kpi), None)
+            
+            registros_json = df_kpi_limpio.to_dict(orient="records")
+            
+            supabase.table("precios_kpis").upsert(registros_json).execute()
+            print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} filas subidas de forma exitosa a Supabase.")
+    except Exception as ex_cloud:
+        print(f"  ⚠ ADVERTENCIA EN CARGA CLOUD (Los archivos Excel locales se generaron bien): {ex_cloud}")
 
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="ETL PRECIOS — Eficacia (Sprint 16.1: multi-periodo)")
+    parser = argparse.ArgumentParser(description="ETL PRECIOS — Eficacia (Sprint 16.1: multi-periodo a SharePoint con Rutas Unificadas)")
     parser.add_argument("--solo", nargs="+", choices=["full", "kpi"],
                         help="Por default: corre todo + kpi. Usa --solo kpi para solo KPI.")
     pr.cli_add_periodos_arg(parser)
     args = parser.parse_args()
     pasos = args.solo or ["full", "kpi"]
     specs = pr.periodos_de_args(args)
+
+    print("🔒 Autenticando con Microsoft Graph API...")
+    token = obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    site_id = obtener_site_id(headers)
 
     if len(specs) > 1:
         print(f"🎯 ETL PRECIOS — multi-periodo: {len(specs)} meses → "
@@ -347,23 +415,24 @@ if __name__ == "__main__":
 
         try:
             if "full" in pasos:
-                df_pt, periodo_final = ejecutar_paso_1_consolidar_pt(spec)
+                df_pt, periodo_final = ejecutar_paso_1_consolidar_pt(spec, headers, site_id)
 
                 if df_pt.empty:
-                    ruta_pt_periodo = os.path.join(
-                        RUTA_ORIGEN_PRECIOS,
-                        f"Plan_Trabajo_Precios_{periodo_final}.xlsx",
-                    )
-                    if os.path.isfile(ruta_pt_periodo):
-                        df_pt = pd.read_excel(ruta_pt_periodo)
-                        print(f"📂 Cargado PT del periodo: {os.path.basename(ruta_pt_periodo)}")
+                    archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES)
+                    nombre_buscado = f"Plan_Trabajo_Precios_{periodo_final}.xlsx"
+                    url_pt_periodo = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if a["name"] == nombre_buscado), None)
+                    
+                    if url_pt_periodo:
+                        content_pt = requests.get(url_pt_periodo).content
+                        df_pt = pd.read_excel(io.BytesIO(content_pt))
+                        print(f"📂 Cargado PT del periodo desde SharePoint: {nombre_buscado}")
 
                 if not df_pt.empty:
-                    generar_reporte_captura_precios(df_pt, periodo_final, spec)
-                generar_analisis_precios(periodo_final, spec)
+                    generar_reporte_captura_precios(df_pt, periodo_final, spec, headers, site_id)
+                generar_analisis_precios(periodo_final, spec, headers, site_id)
 
             if "kpi" in pasos:
-                generar_resumen_kpi_precios(spec)
+                generar_resumen_kpi_precios(spec, headers, site_id)
 
             print(f"\n🏁 PROCESO TERMINADO  ({spec.etiqueta})")
 

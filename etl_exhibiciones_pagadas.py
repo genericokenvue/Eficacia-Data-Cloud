@@ -1,88 +1,94 @@
+import re
+import io
 import os
-import glob
+import urllib.parse
+import requests
+import msal
+import numpy as np  
 import pandas as pd
-import numpy as np
+from datetime import datetime
+from dotenv import load_dotenv
 
+# --- LIBRERÍAS PROPIAS Y RESOLUCIÓN DE RUTAS ---
 import paths
 import periodo_resolver as pr
 
-# ==============================================================================
-# 1. CONFIGURACIÓN DE RUTAS Y PALABRAS CLAVE
-# ==============================================================================
-BASE_DIR   = str(paths.EXHIB_DATA_DIR)   # auto: subcarpeta del mes (prod) o BASES/EXHIBICIONES (dev)
-OUTPUT_DIR = str(paths.EXHIB_SALIDA)
+# --- LIBRERÍAS REQUERIDAS PARA SUPABASE ---
+from supabase import create_client
 
-KEYS_PLANNING = ["planning"]
-KEYS_INVOLVES = ["base", "exhibiciones", "planning"]
-KEYS_MAESTRO  = ["plan", "de", "trabajo"]
+# --- CARGAR CREDENCIALES DESDE EL ARCHIVO EXTERNO .ENV (Solo Local) ---
+load_dotenv()
+
+# =============================================================================
+# 1. CONFIGURACIÓN GLOBAL & AZURE API
+# =============================================================================
+
+TENANT_ID = os.environ.get("AZURE_TENANT_ID")
+CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
+CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET")
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+
+if not all([TENANT_ID, CLIENT_ID, CLIENT_SECRET, SUPABASE_URL, SUPABASE_KEY]):
+    raise ValueError("❌ ERROR: Faltan credenciales esenciales. Verifica tu archivo .env o tus GitHub Secrets.")
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+MESES_ESPANOL = {
+    1: "ENERO", 2: "FEBRERO", 3: "MARZO", 4: "ABRIL",
+    5: "MAYO", 6: "JUNIO", 7: "JULIO", 8: "AGOSTO",
+    9: "SEPTIEMBRE", 10: "OCTUBRE", 11: "NOVIEMBRE", 12: "DICIEMBRE"
+}
 
 BASE_NAME_DETALLE  = "Resultado_exhibiciones_pagadas"
 BASE_NAME_AGRUPADO = "Rexhibiciones_pagadas_agrupado"
 
-# ==============================================================================
-# 2. DEFINICIÓN DE COLUMNAS
-# ==============================================================================
-COL_ID_INVOLVES  = "ID_PDV_INVOLVES"
-COL_PDV_PLANNING = "*PUNTO DE VENTA"
-COL_TIPO_PLAN    = "*TIPO - PAGADAS"
-COL_MARCA_PLAN   = "*MARCA - PAGADAS"
+# =============================================================================
+# FUNCIONES AUXILIARES DE MICROSOFT GRAPH API
+# =============================================================================
+def obtener_token_azure():
+    authority = f"https://login.microsoftonline.com/{TENANT_ID}"
+    scopes = ["https://graph.microsoft.com/.default"]
+    app = msal.ConfidentialClientApplication(CLIENT_ID, authority=authority, client_credential=CLIENT_SECRET)
+    result = app.acquire_token_for_client(scopes=scopes)
+    if "access_token" in result:
+        return result["access_token"]
+    raise Exception(f"Error de autenticación en Azure: {result.get('error_description')}")
 
-COL_CANT_PAGADA  = "*PAGADAS - *DIGITE EL NUMERO DE EXHIBICIONES ADICIONALES PARA ESTE TIPO."
-COL_CANT_CONTRA  = "*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN"
+def obtener_site_id(headers):
+    url = f"https://graph.microsoft.com/v1.0/sites/root:/sites/{paths.SHAREPOINT_SITE_NAME}"
+    res = requests.get(url, headers=headers).json()
+    if "id" not in res:
+        raise Exception(f"No se encontró el sitio SharePoint '{paths.SHAREPOINT_SITE_NAME}'.")
+    return res["id"]
 
-COL_FECHA_ENCUESTA = "Fecha de la encuesta" 
-COL_IMP_OK      = "La Exhibicion esta implementada de acuerdo con el planning?"
-COL_CAUSAL      = "Indique las causales:"
-COL_TIPO_CONTRA = "Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN"
-COL_MAR_CONTRA  = "MARCA - CONTRAPRESTACIÓN"
+def obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_carpeta):
+    ruta_formateada = urllib.parse.quote(ruta_carpeta)
+    url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/{ruta_formateada}:/children"
+    
+    response = requests.get(url, headers=headers)
+    res_json = response.json()
+    
+    if response.status_code != 200:
+        print(f"❌ Error de la API de Graph ({response.status_code}): {res_json.get('error', {}).get('message')}")
+    
+    return res_json.get("value", [])
 
-COL_CANT_PLANEADA = "CANTIDAD_PLANEADA"
-COL_CANT_EJECUTADA = "CANTIDAD_EJECUTADA"
-
-# ==============================================================================
-# 3. FUNCIONES DE APOYO
-# ==============================================================================
-
-import sys
-try:
-    sys.stdout.reconfigure(encoding="utf-8")
-except AttributeError:
-    pass
-
-
-def buscar_archivo_por_keys(lista_keys, ignorar=None, preferir=None):
-    """
-    Busca el primer .xlsx en BASE_DIR cuyo nombre contiene TODAS las keys
-    y NINGUNA de las ignoradas. Si `preferir` está dado, devuelve primero
-    cualquier match que también contenga alguna de esas substrings.
-    Esto desambigua casos donde aparecen varios candidatos (ej. PT Directo
-    vs PT ISM).
-    """
-    if ignorar is None:
-        ignorar = []
-    archivos = glob.glob(os.path.join(BASE_DIR, "*.xlsx"))
-    matches = [
-        f for f in archivos
-        if all(k in os.path.basename(f).lower() for k in lista_keys)
-        and not any(i in os.path.basename(f).lower() for i in ignorar)
-    ]
-    if not matches:
-        return None
-    if preferir:
-        for f in matches:
-            nombre = os.path.basename(f).lower()
-            if any(p in nombre for p in preferir):
-                return f
-    return matches[0]
-
-def obtener_periodo_dinamico(df):
-    try:
-        f = pd.to_datetime(df[COL_FECHA_ENCUESTA]).dropna().iloc[0]
-        meses = {1:"Enero", 2:"Febrero", 3:"Marzo", 4:"Abril", 5:"Mayo", 6:"Junio",
-                 7:"Julio", 8:"Agosto", 9:"Septiembre", 10:"Octubre", 11:"Noviembre", 12:"Diciembre"}
-        return f"{meses[f.month]} {f.year}"
-    except:
-        return "Periodo_Desconocido"
+def subir_archivo_a_sharepoint(headers, site_id, ruta_carpeta, nombre_archivo, dataframe):
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        dataframe.to_excel(writer, index=False)
+    buffer.seek(0)
+    
+    url_subida = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/{ruta_carpeta}/{nombre_archivo}:/content"
+    headers_subida = {**headers, "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
+    
+    response = requests.put(url_subida, headers=headers_subida, data=buffer.getvalue())
+    if response.status_code in [200, 201]:
+        print(f"  ✅ SHAREPOINT: Archivo guardado con éxito -> {ruta_carpeta}/{nombre_archivo}")
+    else:
+        print(f"  ❌ Error al subir a SharePoint ({nombre_archivo}): {response.text}")
 
 def limpiar_texto_llave(serie):
     return (serie.astype(str).str.replace(r'\.0$', '', regex=True)
@@ -92,154 +98,142 @@ def limpiar_texto_llave(serie):
             .replace('NAN', ''))
 
 # ==============================================================================
-# 4. LÓGICA DE NEGOCIO (Planeado vs Ejecutado)
+# 3. LÓGICA DE NEGOCIO (Planeado vs Ejecutado)
 # ==============================================================================
 
-def preparar_datos_agrupado(df):
-    # 1. Cantidad Planeada
-    df[COL_CANT_PLANEADA] = pd.to_numeric(df[COL_CANT_PAGADA], errors='coerce').fillna(0)
+def preparar_datos_agrupado(df, col_cant_pagada, col_imp_ok, col_marca_plan, col_tipo_plan, col_causal, col_mar_contra, col_tipo_contra, col_cant_contra):
+    df["CANTIDAD_PLANEADA"] = pd.to_numeric(df[col_cant_pagada], errors='coerce').fillna(0)
+    df[col_imp_ok] = df[col_imp_ok].fillna("No")
     
-    # 2. ASIGNACIÓN DE "NO" A LOS QUE NO CRUZAN
-    # Si la columna de implementación está vacía tras el merge, ponemos "No"
-    df[COL_IMP_OK] = df[COL_IMP_OK].fillna("No")
-    
-    # 3. Inicializar campos finales
-    df['MARCA_FINAL'] = df[COL_MARCA_PLAN]
-    df['TIPO_FINAL']  = df[COL_TIPO_PLAN]
-    
-    # Por defecto, ejecutada = planeada (solo si cruzó y no es contraprestación)
-    df[COL_CANT_EJECUTADA] = df[COL_CANT_PLANEADA]
+    df['MARCA_FINAL'] = df[col_marca_plan]
+    df['TIPO_FINAL']  = df[col_tipo_plan]
+    df['CANTIDAD_EJECUTADA'] = df["CANTIDAD_PLANEADA"]
 
-    # 4. Caso Contraprestación
-    causal_std = limpiar_texto_llave(df[COL_CAUSAL])
+    causal_std = limpiar_texto_llave(df[col_causal])
     es_contra = causal_std.str.contains("CONTRAPRESTACION A LA NEGOCIACION", na=False)
 
-    df.loc[es_contra, 'MARCA_FINAL'] = df.loc[es_contra, COL_MAR_CONTRA]
-    df.loc[es_contra, 'TIPO_FINAL']  = df.loc[es_contra, COL_TIPO_CONTRA]
-    df.loc[es_contra, COL_CANT_EJECUTADA] = pd.to_numeric(df.loc[es_contra, COL_CANT_CONTRA], errors='coerce').fillna(0)
-    df.loc[es_contra, COL_IMP_OK] = "Si"
+    df.loc[es_contra, 'MARCA_FINAL'] = df.loc[es_contra, col_mar_contra]
+    df.loc[es_contra, 'TIPO_FINAL']  = df.loc[es_contra, col_tipo_contra]
+    df.loc[es_contra, 'CANTIDAD_EJECUTADA'] = pd.to_numeric(df.loc[es_contra, col_cant_contra], errors='coerce').fillna(0)
+    df.loc[es_contra, col_imp_ok] = "Si"
 
-    # 5. REGLA DE ORO: Si Implementación es No (incluyendo los que no cruzaron), Ejecutado es 0
-    imp_final = df[COL_IMP_OK].astype(str).str.strip().str.upper()
-    df.loc[imp_final == "NO", COL_CANT_EJECUTADA] = 0
+    imp_final = df[col_imp_ok].astype(str).str.strip().str.upper()
+    df.loc[imp_final == "NO", 'CANTIDAD_EJECUTADA'] = 0
     
     return df
 
 # ==============================================================================
-# 5. ORQUESTADOR
+# 4. ORQUESTADOR CLOUD
 # ==============================================================================
 
-def ejecutar_proceso(spec: pr.PeriodoSpec):
-    print(f"🚀 Iniciando auditoría exhibiciones pagadas  ({spec.etiqueta})...")
+def ejecutar_proceso(spec: pr.PeriodoSpec, headers, site_id):
+    print(f"🚀 Iniciando auditoría exhibiciones pagadas ({spec.etiqueta})...")
 
-    if not BASE_DIR or not os.path.isdir(BASE_DIR):
-        print(f"❌ Error: No se encontró el directorio de exhibiciones: {BASE_DIR}"); return
+    periodo_nom = f"{MESES_ESPANOL[spec.mes]}_{spec.anio}"
+    periodo_str = f"{MESES_ESPANOL[spec.mes].capitalize()} {spec.anio}"
 
-    # Sprint 15.5.7 — Fix F5: resolución por periodo, no glob ni mtime.
-    # 'planning' real (asterisco): PLANNING DE <MES> <AÑO>.xlsx
-    # 'involves' (encuestas):       Base Exhibiciones Planning <Mes> <Año>.xlsx
-    ruta_p = str(pr.exh_planning_master(spec))
-    ruta_i = str(pr.exh_base_planning(spec))
-
-    # PT del periodo: vía periodo_resolver (en CIF/PLAN DE TRABAJO).
-    ruta_m = str(pr.cif_pt_directo(spec))
-
-    # Cargas — el PT trae las columnas con espacios ("Nombre Punto de Venta",
-    # "ID PDV INVOLVES"); las normalizamos con el rename canónico.
-    from shared_loader import COLUMNAS_ESTANDAR_UNIFICADO
-    df_m = pd.read_excel(ruta_m, sheet_name="Plan de trabajo")
-    df_m.columns = df_m.columns.str.strip()
-    df_m.rename(columns={
-        c: COLUMNAS_ESTANDAR_UNIFICADO[c]
-        for c in df_m.columns if c in COLUMNAS_ESTANDAR_UNIFICADO
-    }, inplace=True)
-    maestro = df_m[["NOMBRE_PDV", COL_ID_INVOLVES]].drop_duplicates()
-
-    df_p = pd.read_excel(ruta_p, sheet_name=0)
-    df_p.columns = [str(c).strip().upper() for c in df_p.columns]
-    df_p["_JOIN_"] = df_p[COL_PDV_PLANNING].astype(str).str.strip().str.upper()
-    df_detalle = df_p.merge(maestro, left_on="_JOIN_", right_on="NOMBRE_PDV", how="left")
+    archivos_exhib = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES_EXHIB)
     
-    df_inv = pd.read_excel(ruta_i)
-    serie_marca_inv = df_inv.iloc[:, 61] # Columna BJ
+    # Búsqueda estricta separando Planning de la Base de Involves
+    url_p = next((a["@microsoft.graph.downloadUrl"] for a in archivos_exhib if "PLANNING" in a["name"].upper() and not "BASE" in a["name"].upper() and (str(spec.mes) in a["name"] or MESES_ESPANOL[spec.mes] in a["name"].upper())), None)
+    if not url_p:
+        url_p = next((a["@microsoft.graph.downloadUrl"] for a in archivos_exhib if "PLANNING" in a["name"].upper() and not "BASE" in a["name"].upper()), None)
+
+    url_i = next((a["@microsoft.graph.downloadUrl"] for a in archivos_exhib if ("BASE" in a["name"].upper() or "RESPUESTA" in a["name"].upper()) and not "PLANNING" in a["name"].upper() and (str(spec.mes) in a["name"] or MESES_ESPANOL[spec.mes] in a["name"].upper())), None)
+    if not url_i:
+        url_i = next((a["@microsoft.graph.downloadUrl"] for a in archivos_exhib if ("BASE" in a["name"].upper() or "RESPUESTA" in a["name"].upper()) and not "PLANNING" in a["name"].upper()), None)
+
+    if not url_p or not url_i:
+        raise FileNotFoundError(f"No se encontraron los archivos correctos de Planning o Base en {paths.RUTA_CARPETA_BASES_EXHIB}")
+
+    # Lectura robusta de la cabecera del Planning
+    content_p = requests.get(url_p).content
+    df_raw = pd.read_excel(io.BytesIO(content_p), header=None)
+    header_row_idx = 0
+    
+    for idx, row in df_raw.iterrows():
+        fila_str = " ".join([str(val).upper() for val in row.values if pd.notna(val)])
+        if any(keyword in fila_str for keyword in ["NOMBRE", "PUNTO DE VENTA", "PDV", "*PUNTO DE VENTA"]):
+            header_row_idx = idx
+            break
+
+    df_p = pd.read_excel(io.BytesIO(content_p), header=header_row_idx)
+    df_p.columns = [str(c).strip() for c in df_p.columns]
+    
+    # Búsqueda exacta y flexible de columnas clave en el Planning
+    col_pdv = next((c for c in df_p.columns if "PUNTO DE VENTA" in c.upper() or "PDV" in c.upper()), None)
+    col_tipo = next((c for c in df_p.columns if c.strip() == "*Tipo - Pagadas" or ("TIPO" in c.upper() and "PAGADA" in c.upper())), None)
+    col_marca = next((c for c in df_p.columns if "MARCA" in c.upper() and "PAGADA" in c.upper()), None)
+    col_cant = next((c for c in df_p.columns if "*DIGITE EL NUMERO DE EXHIBICIONES ADICIONALES PARA ESTE TIPO" in c.upper() or ("PAGADA" in c.upper() and ("NUMERO" in c.upper() or "DIGITE" in c.upper() or "CANTIDAD" in c.upper()))), None)
+
+    if not all([col_pdv, col_tipo, col_marca, col_cant]):
+        raise KeyError(f"❌ Faltan columnas requeridas en el Planning. Disponibles: {list(df_p.columns)}")
+
+    df_p["_JOIN_"] = df_p[col_pdv].astype(str).str.strip().str.upper()
+
+    # Leemos la Base de Respuestas de Involves
+    df_inv = pd.read_excel(io.BytesIO(requests.get(url_i).content))
+    serie_marca_inv = df_inv.iloc[:, 61] if df_inv.shape[1] > 61 else pd.Series([""] * len(df_inv))
     df_inv.columns = [str(c).strip() for c in df_inv.columns]
-    # Sprint 15.5.7: el periodo es el solicitado, no detectado del archivo.
-    periodo = f"{spec.mes_str} {spec.anio}"
 
-    # Llaves
-    df_detalle["_LL_"] = (limpiar_texto_llave(df_detalle[COL_ID_INVOLVES]) + "_" + 
-                          limpiar_texto_llave(df_detalle[COL_TIPO_PLAN]) + "_" + 
-                          limpiar_texto_llave(df_detalle[COL_MARCA_PLAN]))
+    col_imp_ok = next((c for c in df_inv.columns if "IMPLEMENTADA" in c.upper() or "ACUERDO" in c.upper()), "La Exhibicion esta implementada de acuerdo con el planning?")
+    col_causal = next((c for c in df_inv.columns if "CAUSAL" in c.upper()), "Indique las causales:")
+    col_tipo_contra = next((c for c in df_inv.columns if "TIPO" in c.upper() and "CONTRAPRESTACION" in c.upper()), "Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN")
+    col_mar_contra = next((c for c in df_inv.columns if "MARCA" in c.upper() and "CONTRAPRESTACION" in c.upper()), "MARCA - CONTRAPRESTACIÓN")
+    col_cant_contra = next((c for c in df_inv.columns if "CONTRAPRESTACION" in c.upper() and ("NUMERO" in c.upper() or "DIGITE" in c.upper())), "*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN")
+    col_id_inv = next((c for c in df_inv.columns if "ID" in c.upper() and "PDV" in c.upper()), "ID del PDV" if "ID del PDV" in df_inv.columns else "PDV")
+    col_tipo_inv = next((c for c in df_inv.columns if "TIPO" in c.upper() and "PAGADA" in c.upper()), "Seleccionar el Tipo de la exhibicion (Pagadas)")
+
+    df_detalle = df_p.copy()
     
-    col_id_inv = "ID del PDV" if "ID del PDV" in df_inv.columns else "PDV"
+    df_detalle["_LL_"] = (limpiar_texto_llave(df_detalle["_JOIN_"]) + "_" + 
+                          limpiar_texto_llave(df_detalle[col_tipo]) + "_" + 
+                          limpiar_texto_llave(df_detalle[col_marca]))
+    
     df_inv["_LL_"] = (limpiar_texto_llave(df_inv[col_id_inv]) + "_" + 
-                      limpiar_texto_llave(df_inv["Seleccionar el Tipo de la exhibicion (Pagadas)"]) + "_" + 
+                      limpiar_texto_llave(df_inv[col_tipo_inv]) + "_" + 
                       limpiar_texto_llave(serie_marca_inv))
     
-    # Cruce
-    campos_auditoria = [COL_IMP_OK, COL_CAUSAL, COL_TIPO_CONTRA, COL_MAR_CONTRA, COL_CANT_CONTRA]
+    campos_auditoria = [col_imp_ok, col_causal, col_tipo_contra, col_mar_contra, col_cant_contra]
     df_inv_sub = df_inv[["_LL_"] + [c for c in campos_auditoria if c in df_inv.columns]].drop_duplicates(subset=["_LL_"])
     
-    # Unimos y aplicamos lógica
     df_final = df_detalle.merge(df_inv_sub, on="_LL_", how="left")
-    df_final = preparar_datos_agrupado(df_final)
+    df_final = preparar_datos_agrupado(df_final, col_cant, col_imp_ok, col_marca, col_tipo, col_causal, col_mar_contra, col_tipo_contra, col_cant_contra)
 
-    # Agrupado
-    dim_agrupar = [COL_ID_INVOLVES, 'TIPO_FINAL', 'MARCA_FINAL', COL_IMP_OK, COL_CAUSAL]
-    df_agrupado = df_final.groupby(dim_agrupar, dropna=False)[[COL_CANT_PLANEADA, COL_CANT_EJECUTADA]].sum().reset_index()
+    dim_agrupar = [col_pdv, 'TIPO_FINAL', 'MARCA_FINAL', col_imp_ok, col_causal]
+    df_agrupado = df_final.groupby(dim_agrupar, dropna=False)[['CANTIDAD_PLANEADA', 'CANTIDAD_EJECUTADA']].sum().reset_index()
 
-    # Guardado
-    if not os.path.exists(OUTPUT_DIR): os.makedirs(OUTPUT_DIR)
+    df_final_clean = df_final.drop(columns=["_LL_", "_JOIN_"], errors='ignore')
     
-    df_final.drop(columns=["_LL_", "_JOIN_", "NOMBRE_PDV"], errors='ignore').to_excel(
-        os.path.join(OUTPUT_DIR, f"{BASE_NAME_DETALLE} {periodo}.xlsx"), index=False)
-    
-    df_agrupado.to_excel(os.path.join(OUTPUT_DIR, f"{BASE_NAME_AGRUPADO} {periodo}.xlsx"), index=False)
+    nombre_detalle = f"{BASE_NAME_DETALLE} {periodo_str}.xlsx"
+    nombre_agrupado = f"{BASE_NAME_AGRUPADO} {periodo_str}.xlsx"
 
-    print(f"✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.")
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_EXHIB, nombre_detalle, df_final_clean)
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_EXHIB, nombre_agrupado, df_agrupado)
 
-def _calcular_captura_planning(spec: pr.PeriodoSpec) -> "pd.DataFrame":
-    """
-    Sprint 17 — cumplimiento de captura del módulo PLANNING por gestor.
+    print(f"✅ ¡Hecho! Archivos subidos a SharePoint en {paths.RUTA_CARPETA_SALIDAS_EXHIB}")
 
-    Cruza:
-      • PLANNING master  (BASES/EXHIBICIONES/PLANNING DE {Mes} {Año}.xlsx)
-        — qué (PDV, Empleado) tenía que capturar.
-      • Encuestas         (BASES/EXHIBICIONES/Base Exhibiciones Planning ...)
-        — qué PDVs respondieron el formulario.
-
-    Devuelve un DataFrame con columnas:
-        MES, AÑO, EMPLEADO, CAPTURA_PLANEADA, CAPTURA_EJECUTADA, CUMPLIMIENTO_CAPTURA
-    Granularidad: 1 fila por gestor con sus PDVs únicos del planning.
-    """
-    import paths as _paths
+def _calcular_captura_planning(spec: pr.PeriodoSpec, headers, site_id) -> pd.DataFrame:
     try:
-        ruta_planning  = pr.exh_planning_master(spec)
-        ruta_encuestas = pr.exh_base_planning(spec)
-    except FileNotFoundError as e:
-        print(f"  ⚠️  Captura planning: {e} — KPI capturada omitido")
-        return pd.DataFrame(columns=['MES','AÑO','EMPLEADO',
-                                     'CAPTURA_PLANEADA','CAPTURA_EJECUTADA',
-                                     'CUMPLIMIENTO_CAPTURA'])
+        archivos_exhib = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES_EXHIB)
+        url_p = next((a["@microsoft.graph.downloadUrl"] for a in archivos_exhib if "PLANNING" in a["name"].upper() and not "BASE" in a["name"].upper() and (str(spec.mes) in a["name"] or MESES_ESPANOL[spec.mes] in a["name"].upper())), None)
+        url_i = next((a["@microsoft.graph.downloadUrl"] for a in archivos_exhib if ("BASE" in a["name"].upper() or "RESPUESTA" in a["name"].upper()) and not "PLANNING" in a["name"].upper() and (str(spec.mes) in a["name"] or MESES_ESPANOL[spec.mes] in a["name"].upper())), None)
 
-    df_plan = pd.read_excel(ruta_planning, engine='openpyxl')
-    df_enc  = pd.read_excel(ruta_encuestas, engine='openpyxl')
+        if not url_p or not url_i:
+            return pd.DataFrame(columns=['MES','AÑO','EMPLEADO','CAPTURA_PLANEADA','CAPTURA_EJECUTADA','CUMPLIMIENTO_CAPTURA'])
 
-    col_pdv_p = '*Punto de venta' if '*Punto de venta' in df_plan.columns else (
-                '*PUNTO DE VENTA' if '*PUNTO DE VENTA' in df_plan.columns else None)
-    col_emp_p = '*Empleado'       if '*Empleado'       in df_plan.columns else (
-                '*EMPLEADO'       if '*EMPLEADO'       in df_plan.columns else None)
-    if not (col_pdv_p and col_emp_p):
-        print("  ❌ Captura planning: PLANNING master sin columnas '*Punto de venta'/'*Empleado'")
-        return pd.DataFrame(columns=['MES','AÑO','EMPLEADO',
-                                     'CAPTURA_PLANEADA','CAPTURA_EJECUTADA',
-                                     'CUMPLIMIENTO_CAPTURA'])
+        df_plan = pd.read_excel(io.BytesIO(requests.get(url_p).content), engine='openpyxl')
+        df_enc = pd.read_excel(io.BytesIO(requests.get(url_i).content), engine='openpyxl')
+    except Exception as e:
+        print(f"  ⚠️ Captura planning error: {e}")
+        return pd.DataFrame(columns=['MES','AÑO','EMPLEADO','CAPTURA_PLANEADA','CAPTURA_EJECUTADA','CUMPLIMIENTO_CAPTURA'])
+
+    col_pdv_p = next((c for c in df_plan.columns if "PUNTO DE VENTA" in str(c).upper() or "PDV" in str(c).upper()), None)
+    col_emp_p = next((c for c in df_plan.columns if "EMPLEADO" in str(c).upper() or "SUPERVISOR" in str(c).upper()), None)
     col_pdv_e = 'PDV' if 'PDV' in df_enc.columns else None
-    if not col_pdv_e:
-        print("  ❌ Captura planning: encuesta sin columna 'PDV'")
-        return pd.DataFrame(columns=['MES','AÑO','EMPLEADO',
-                                     'CAPTURA_PLANEADA','CAPTURA_EJECUTADA',
-                                     'CUMPLIMIENTO_CAPTURA'])
+
+    if not (col_pdv_p and col_emp_p and col_pdv_e):
+        return pd.DataFrame(columns=['MES','AÑO','EMPLEADO','CAPTURA_PLANEADA','CAPTURA_EJECUTADA','CUMPLIMIENTO_CAPTURA'])
 
     def _norm(s): return s.astype(str).str.strip().str.upper()
     df_plan['_PDV_K']  = _norm(df_plan[col_pdv_p])
@@ -248,7 +242,6 @@ def _calcular_captura_planning(spec: pr.PeriodoSpec) -> "pd.DataFrame":
 
     pdvs_capturados = set(df_enc['_PDV_K'].dropna().unique())
 
-    # 1 fila por (gestor, PDV) del planning
     asign = df_plan[['EMPLEADO', '_PDV_K']].drop_duplicates()
     asign['CAPTURA_PLANEADA']  = 1
     asign['CAPTURA_EJECUTADA'] = asign['_PDV_K'].isin(pdvs_capturados).astype(int)
@@ -261,48 +254,36 @@ def _calcular_captura_planning(spec: pr.PeriodoSpec) -> "pd.DataFrame":
     ).where(agg['CAPTURA_PLANEADA'] != 0, 0)
     agg['MES'] = spec.mes
     agg['AÑO'] = spec.anio
-    return agg[['MES','AÑO','EMPLEADO',
-                'CAPTURA_PLANEADA','CAPTURA_EJECUTADA','CUMPLIMIENTO_CAPTURA']]
+    return agg[['MES','AÑO','EMPLEADO','CAPTURA_PLANEADA','CAPTURA_EJECUTADA','CUMPLIMIENTO_CAPTURA']]
 
-
-def generar_resumen_kpi_exhibiciones_pagadas(spec: pr.PeriodoSpec):
-    """Resumen V3: cumplió/no cumplió por empleado, agrupado por mes.
-
-    Sprint 15.5.7: lee el archivo del periodo solicitado (no glob).
-    Sprint 17: agrega CAPTURA_PLANEADA / CAPTURA_EJECUTADA / CUMPLIMIENTO_CAPTURA.
-    """
+def generar_resumen_kpi_exhibiciones_pagadas(spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  ({spec.etiqueta}) ---")
-    import paths as _paths
-    import sys as _sys
-    _SCR = str(__import__('pathlib').Path(__file__).resolve().parent)
-    if _SCR not in _sys.path:
-        _sys.path.insert(0, _SCR)
+    periodo_str = f"{MESES_ESPANOL[spec.mes].capitalize()} {spec.anio}"
+    nombre = f"{BASE_NAME_DETALLE} {periodo_str}.xlsx"
 
-    nombre = f"{BASE_NAME_DETALLE} {spec.mes_str} {spec.anio}.xlsx"
-    ruta = _paths.EXHIB_SALIDA / nombre
-    if not ruta.is_file():
-        print(f"❌ No existe: {ruta} — corre primero ejecutar_proceso(spec)")
+    archivos_salida = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_EXHIB)
+    url_reporte = next((a["@microsoft.graph.downloadUrl"] for a in archivos_salida if nombre in a["name"]), None)
+
+    if not url_reporte:
+        print(f"❌ No existe en SharePoint: {nombre}")
         return
-    df = pd.read_excel(ruta, engine='openpyxl')
-    print(f"  Leyendo: {ruta.name} ({len(df)} filas)")
 
-    # Normalización
+    df = pd.read_excel(io.BytesIO(requests.get(url_reporte).content), engine='openpyxl')
+    print(f"  Leyendo desde nube: {nombre} ({len(df)} filas)")
+
     df['CANTIDAD_PLANEADA']  = pd.to_numeric(df.get('CANTIDAD_PLANEADA'),  errors='coerce').fillna(0)
     df['CANTIDAD_EJECUTADA'] = pd.to_numeric(df.get('CANTIDAD_EJECUTADA'), errors='coerce').fillna(0)
     df['PLANEADO_REC']  = (df['CANTIDAD_PLANEADA']  > 0).astype(int)
     df['EJECUTADO_REC'] = (df['CANTIDAD_EJECUTADA'] > 0).astype(int)
 
-    # Empleado: la columna se llama '*EMPLEADO' en el reporte detallado
-    col_empleado = '*EMPLEADO' if '*EMPLEADO' in df.columns else 'EMPLEADO'
-    if col_empleado not in df.columns:
-        print(f"❌ Falta la columna {col_empleado}")
+    col_empleado = next((c for c in df.columns if "EMPLEADO" in str(c).upper() or "SUPERVISOR" in str(c).upper()), None)
+    if not col_empleado:
+        print(f"❌ No se encontró la columna de empleado en el reporte procesado.")
         return
 
-    # Sprint 15.5.7: el periodo es el solicitado. No detección por fecha.
     df['MES'] = spec.mes
     df['AÑO'] = spec.anio
 
-    # Agrupar por (MES, AÑO, EMPLEADO)
     resumen = (
         df.groupby(['MES', 'AÑO', col_empleado], dropna=False)
           .agg(PLANEADO=('PLANEADO_REC',  'sum'),
@@ -315,12 +296,9 @@ def generar_resumen_kpi_exhibiciones_pagadas(spec: pr.PeriodoSpec):
     resumen = resumen.rename(columns={col_empleado: 'EMPLEADO'})
     resumen['EMPLEADO'] = resumen['EMPLEADO'].astype(str).str.strip().str.upper()
 
-    # Sprint 17 — agregar cumplimiento de captura del PLANNING.
-    cap = _calcular_captura_planning(spec)
+    cap = _calcular_captura_planning(spec, headers, site_id)
     if not cap.empty:
         resumen = resumen.merge(cap, on=['MES','AÑO','EMPLEADO'], how='outer')
-        # Si quedó EMPLEADO sin ejecución (capturó pero sin exhibición planeada
-        # en el detalle), llenar las cols de ejecución con 0.
         for c in ('PLANEADO', 'EJECUTADO', 'CUMPLIMIENTO'):
             if c in resumen.columns:
                 resumen[c] = resumen[c].fillna(0)
@@ -336,73 +314,50 @@ def generar_resumen_kpi_exhibiciones_pagadas(spec: pr.PeriodoSpec):
     cols_orden = [c for c in cols_orden if c in resumen.columns]
     resumen = resumen[cols_orden].sort_values(['AÑO', 'MES', 'EMPLEADO']).reset_index(drop=True)
 
-    # Mes activo
-    if not resumen.empty:
-        anio_max = int(resumen['AÑO'].max())
-        mes_max  = int(resumen[resumen['AÑO'] == anio_max]['MES'].max())
-        mask = (resumen['AÑO'] == anio_max) & (resumen['MES'] == mes_max)
-        resumen_activo = resumen[mask].copy()
-    else:
-        resumen_activo = resumen.copy()
+    nombre_kpi = paths.EXHIB_PAG_OUT_KPIS.name
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_EXHIB, nombre_kpi, resumen)
 
-    os.makedirs(os.path.dirname(str(_paths.EXHIB_PAG_OUT_KPIS)), exist_ok=True)
-    resumen_activo.to_excel(str(_paths.EXHIB_PAG_OUT_KPIS), index=False, engine='openpyxl')
-    print(f"  ✅ Mes activo: {len(resumen_activo)} empleados → {_paths.EXHIB_PAG_OUT_KPIS.name}")
+    try:
+        print(f"  🚀 Preparando cargue del KPI de Exhibiciones Pagadas a Supabase...")
+        df_kpi = resumen.copy()
+        df_kpi.columns = df_kpi.columns.str.strip().str.lower()
+        if 'año' in df_kpi.columns:
+            df_kpi = df_kpi.rename(columns={'año': 'anio'})
+        
+        df_kpi = df_kpi.replace([np.inf, -np.inf], 0)
+        df_kpi_limpio = df_kpi.astype(object).where(pd.notnull(df_kpi), None)
+        
+        registros_json = df_kpi_limpio.to_dict(orient="records")
+        supabase.table("exhibiciones_pagadas_kpis").upsert(registros_json).execute()
+        print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} filas subidas de forma exitosa a Supabase.")
+    except Exception as ex_cloud:
+        print(f"  ⚠ ADVERTENCIA EN CARGA CLOUD: {ex_cloud}")
 
-    # Histórico con upsert por (MES, AÑO, EMPLEADO)
-    ruta_hist = str(_paths.EXHIB_PAG_OUT_KPIS_HISTORICO)
-    cols_final = list(resumen.columns)
-    if os.path.exists(ruta_hist):
-        try:
-            hist_prev = pd.read_excel(ruta_hist, engine='openpyxl')
-            hist_prev['MES'] = pd.to_numeric(hist_prev.get('MES'), errors='coerce').fillna(0).astype(int)
-            hist_prev['AÑO'] = pd.to_numeric(hist_prev.get('AÑO'), errors='coerce').fillna(0).astype(int)
-        except Exception:
-            hist_prev = pd.DataFrame(columns=cols_final)
-    else:
-        hist_prev = pd.DataFrame(columns=cols_final)
-
-    # Sprint 15.9 (final fix) — upsert por periodo completo.
-    if not hist_prev.empty and not resumen.empty:
-        periodos_nuevos = set(map(tuple,
-            resumen[['MES', 'AÑO']].drop_duplicates().values.tolist()))
-        mask_keep = ~hist_prev.apply(
-            lambda r: (int(r['MES']), int(r['AÑO'])) in periodos_nuevos,
-            axis=1,
-        )
-        hist_prev = hist_prev[mask_keep]
-
-    hist_final = pd.concat([hist_prev, resumen], ignore_index=True)
-    hist_final = hist_final.sort_values(['AÑO', 'MES', 'EMPLEADO'])
-    hist_final.to_excel(ruta_hist, index=False, engine='openpyxl')
-    print(f"  ✅ Histórico → {_paths.EXHIB_PAG_OUT_KPIS_HISTORICO.name}")
-
+# =============================================================================
+# 5. EJECUCIÓN PRINCIPAL
+# =============================================================================
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="ETL Exhibiciones Pagadas — Sprint 16.1: multi-periodo")
-    parser.add_argument("--solo", nargs="+", choices=["full", "kpi"],
-                        help="Default: corre todo + kpi.")
+    parser = argparse.ArgumentParser(description="ETL Exhibiciones Pagadas — Cloud Only")
+    parser.add_argument("--solo", nargs="+", choices=["full", "kpi"], help="Default: corre todo + kpi.")
     pr.cli_add_periodos_arg(parser)
     args = parser.parse_args()
     pasos = args.solo or ["full", "kpi"]
     specs = pr.periodos_de_args(args)
 
-    if len(specs) > 1:
-        print(f"🎯 ETL Exh Pagadas — multi-periodo: {len(specs)} meses → "
-              f"{', '.join(s.etiqueta for s in specs)}")
+    print("🔒 Autenticando con Microsoft Graph API...")
+    token = obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    site_id = obtener_site_id(headers)
 
     for i, spec in enumerate(specs, 1):
-        if len(specs) > 1:
-            print(f"\n▶ Periodo {i}/{len(specs)}: {spec.etiqueta}")
-        print(f"\n🎯 ETL Exh Pagadas — procesando periodo {spec.etiqueta} ({spec})")
-
+        print(f"\n🎯 ETL Exh Pagadas — procesando periodo {spec.etiqueta}")
         try:
-            if "full" in pasos: ejecutar_proceso(spec)
-            if "kpi"  in pasos: generar_resumen_kpi_exhibiciones_pagadas(spec)
+            if "full" in pasos:
+                ejecutar_proceso(spec, headers, site_id)
+            if "kpi" in pasos:
+                generar_resumen_kpi_exhibiciones_pagadas(spec, headers, site_id)
         except Exception as e:
             print(f"\n❌ ERROR en {spec.etiqueta}: {e}")
-            if len(specs) > 1:
-                print(f"   Continuando con siguientes periodos...")
-            else:
-                raise
+            raise

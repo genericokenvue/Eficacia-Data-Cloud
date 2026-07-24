@@ -1,77 +1,112 @@
-"""
-paths.py
-────────
-Resolución central de rutas para Fase 1 y Fase 2.
-
-Soporta DOS layouts:
-
-  • PROD (operación real en OneDrive de Eficacia):
-      <BASE>/CIF/BASES/{PLAN DE TRABAJO,INVOLVES,EMPLEADOS,...}/
-      <BASE>/CIF/SALIDA/
-      <BASE>/NO PRESENCIA/{BASES,SALIDA}/
-      <BASE>/PRECIOS/{BASES,SALIDA}/
-      <BASE>/SOS/{BASES,SALIDA}/
-      <BASE>/EXHIBICIONES/<NN. Mes>/    (subcarpeta del mes)
-      <BASE>/EXHIBICIONES/SALIDA/
-      <BASE>/ALERTAS/
-
-  • DEV (checkout del proyecto sin estructura de OneDrive):
-      <BASE>/BASES/CIF/{PLAN DE TRABAJO,INVOLVES,EMPLEADOS,...}/
-      <BASE>/BASES/NO PRESENCIA/
-      <BASE>/BASES/PRECIOS/
-      <BASE>/BASES/SOS/
-      <BASE>/BASES/EXHIBICIONES/        (plano, sin subcarpeta de mes)
-      <BASE>/SALIDA/CIF/...              (auto-creadas si no existen)
-      <BASE>/SALIDA/NO PRESENCIA/
-      <BASE>/SALIDA/PRECIOS/
-      <BASE>/SALIDA/SOS/
-      <BASE>/SALIDA/EXHIBICIONES/
-      <BASE>/ALERTAS/
-
-Resolución de BASE
-──────────────────
-Orden de prioridad:
-  1. Variable de entorno EFICACIA_BASE (override explícito).
-  2. Archivo `EFICACIA_BASE.txt` en la raíz del proyecto, con la ruta como
-     única línea (forma recomendada para el analista — no requiere tocar
-     código ni variables de entorno del sistema).
-  3. Ruta de PROD (`C:\\1\\OneDrive - Eficacia\\Escritorio\\ETLS`) si existe.
-  4. Ruta de DEV (raíz del checkout = parent de SCRIPTS/).
-
-Detección de layout
-───────────────────
-Se considera DEV si dentro de BASE existe una carpeta `BASES/`. En ese caso
-los inputs se leen de `BASE/BASES/...` y los outputs van a `BASE/SALIDA/...`.
-En PROD inputs van a `BASE/MODULE/BASES/...` y outputs a `BASE/MODULE/SALIDA/...`.
-"""
-
 import os
 import datetime
 import re
 import glob
 from pathlib import Path
 
+# Librerías para autenticación y servicios cloud
+from dotenv import load_dotenv  # pip install python-dotenv
+import msal                     # pip install msal requests
+# from supabase import create_client, Client  # pip install supabase (descomentar si la usas)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CONFIGURACIÓN CLOUD - SHAREPOINT
+# 1. CARGA DE VARIABLES DE ENTORNO (.ENV)
+# ─────────────────────────────────────────────────────────────────────────────
+# Carga automáticamente las variables del archivo .env localizado en la raíz
+load_dotenv()
+
+# Credenciales de Azure AD
+AZURE_TENANT_ID     = os.getenv("AZURE_TENANT_ID")
+AZURE_CLIENT_ID     = os.getenv("AZURE_CLIENT_ID")
+AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
+
+# Credenciales de Supabase
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+GRAPH_SCOPE = ["https://graph.microsoft.com/.default"]
+
+
+def obtener_token_azure() -> str:
+    """
+    Se conecta a Azure Active Directory usando las credenciales del .env
+    y obtiene el Token de Acceso para Microsoft Graph / SharePoint.
+    """
+    if not all([AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET]):
+        raise ValueError("Faltan credenciales de Azure en el archivo .env")
+
+    app = msal.ConfidentialClientApplication(
+        AZURE_CLIENT_ID,
+        authority=f"https://login.microsoftonline.com/{AZURE_TENANT_ID}",
+        client_credential=AZURE_CLIENT_SECRET,
+    )
+    result = app.acquire_token_for_client(scopes=GRAPH_SCOPE)
+    
+    if "access_token" in result:
+        return result["access_token"]
+    else:
+        raise Exception(f"Error al autenticar en Azure AD: {result.get('error_description')}")
+
+
+# OPCIONAL: Cliente de Supabase inicializado (descomentar si usas la SDK oficial)
+# def obtener_cliente_supabase() -> Client:
+#     if not SUPABASE_URL or not SUPABASE_KEY:
+#         raise ValueError("Faltan credenciales de Supabase en el archivo .env")
+#     return create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2. CONFIGURACIÓN CLOUD - SHAREPOINT (RUTAS EN LA NUBE)
 # ─────────────────────────────────────────────────────────────────────────────
 SHAREPOINT_SITE_NAME = "JJ451"
-RUTA_CARPETA_PT      = "Equipo Información/BI/INVOLVES/PLAN DE TRABAJO"
-RUTA_CARPETA_BASES   = f"Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/PRECIOS/{datetime.datetime.now().year}"
-RUTA_CARPETA_SALIDAS = "Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS"
+AÑO_ACTUAL = datetime.datetime.now().year
+
+# Carpeta base en SharePoint extraída de tu enlace
+SHAREPOINT_BASE_DIR = "Equipo Información/BI"
+
+# Rutas dinámicas
+RUTA_CARPETA_PT = f"{SHAREPOINT_BASE_DIR}/INVOLVES/PLAN DE TRABAJO" #OOKK
+_BASES_ROOT     = f"{SHAREPOINT_BASE_DIR}/INVOLVES/BASES DE RESPUESTAS" #OOKKK
+_SALIDAS_ROOT   = f"{SHAREPOINT_BASE_DIR}/INVOLVES/SALIDAS" #OOOKKK
+
+# Rutas SharePoint por Módulo
+RUTA_CARPETA_PT_CIF       = RUTA_CARPETA_PT  #OK
+RUTA_CARPETA_BASES_CIF   = f"{_BASES_ROOT}/CIF/{AÑO_ACTUAL}" #OK
+RUTA_CARPETA_SALIDAS_CIF = f"{_SALIDAS_ROOT}/CIF" #OK
+
+RUTA_CARPETA_PT_PRECIOS      = RUTA_CARPETA_PT
+RUTA_CARPETA_BASES_PRECIOS   = f"{_BASES_ROOT}/PRECIOS/{AÑO_ACTUAL}" #OOKK
+RUTA_CARPETA_SALIDAS_PRECIOS = f"{_SALIDAS_ROOT}/PRECIOS"            #OOKKK
+
+RUTA_CARPETA_PT_NP       = RUTA_CARPETA_PT
+RUTA_CARPETA_BASES_NP    = f"{_BASES_ROOT}/NO PRESENCIA/{AÑO_ACTUAL}" #OK
+RUTA_CARPETA_SALIDAS_NP  = f"{_SALIDAS_ROOT}/NO PRESENCIA"   #OK
+
+RUTA_CARPETA_PT_SOS      = RUTA_CARPETA_PT
+RUTA_CARPETA_BASES_SOS    = f"{_BASES_ROOT}/PARTICIPACIONES/{AÑO_ACTUAL}"  #OK
+RUTA_CARPETA_SALIDAS_SOS  = f"{_SALIDAS_ROOT}/SOS"                         #OK             
+
+RUTA_CARPETA_PT_EXHIB    = RUTA_CARPETA_PT
+RUTA_CARPETA_BASES_EXHIB  = f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}"
+RUTA_CARPETA_SALIDAS_EXHIB= f"{_SALIDAS_ROOT}/EXHIBICIONES"
+
+RUTA_CARPETA_PT_DYP      = RUTA_CARPETA_PT
+RUTA_CARPETA_BASES_DYP    = f"{_BASES_ROOT}/DYP/{AÑO_ACTUAL}"
+RUTA_CARPETA_SALIDAS_DYP  = f"{_SALIDAS_ROOT}/DYP"
+
+RUTA_CARPETA_BASES   = RUTA_CARPETA_BASES_PRECIOS
+RUTA_CARPETA_SALIDAS = RUTA_CARPETA_SALIDAS_PRECIOS
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# RESOLUCIÓN DE BASE Y LAYOUT
+# 3. RESOLUCIÓN DE ENTORNO Y CARPETA LOCAL (FALLBACK DESARROLLO)
 # ─────────────────────────────────────────────────────────────────────────────
-_PROD_BASE = Path(r"C:\1\OneDrive - Eficacia\Escritorio\ETLS")
-_DEV_BASE  = Path(__file__).resolve().parent.parent  # parent de SCRIPTS/
+_DEV_BASE  = Path(__file__).resolve().parent.parent
 _OVERRIDE  = os.environ.get("EFICACIA_BASE", "").strip()
 _BASE_FILE = _DEV_BASE / "EFICACIA_BASE.txt"
 
 
 def _leer_base_file() -> str:
-    """Lee la primera línea no vacía/no comentario de EFICACIA_BASE.txt."""
     if not _BASE_FILE.is_file():
         return ""
     try:
@@ -85,44 +120,36 @@ def _leer_base_file() -> str:
 
 
 def _resolver_base() -> tuple[Path, str]:
-    # 1) Variable de entorno
     if _OVERRIDE:
         p = Path(_OVERRIDE)
         if p.is_dir():
             return p, "dev" if (p / "BASES").is_dir() else "prod"
-    # 2) Archivo EFICACIA_BASE.txt en la raíz del proyecto
+
     desde_archivo = _leer_base_file()
     if desde_archivo:
         p = Path(desde_archivo)
         if p.is_dir():
             return p, "dev" if (p / "BASES").is_dir() else "prod"
-    # 3) DEV (parent de SCRIPTS/) si tiene BASES/
+
     if _DEV_BASE.is_dir() and (_DEV_BASE / "BASES").is_dir():
         return _DEV_BASE, "dev"
-    # 4) PROD por defecto
-    if _PROD_BASE.is_dir():
-        return _PROD_BASE, "prod"
-    # Fallback final: producción aunque no exista (los chequeos de archivos
-    # individuales reportarán claro el problema).
-    return _PROD_BASE, "prod"
+    
+    return _DEV_BASE, "dev"
 
 
 BASE, LAYOUT = _resolver_base()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# DIRECTORIOS POR MÓDULO  (input + output)
+# 4. DIRECTORIOS LOCALES POR MÓDULO
 # ─────────────────────────────────────────────────────────────────────────────
-
 def _input_root(modulo: str) -> Path:
-    """Raíz de inputs para un módulo (CIF, NO PRESENCIA, PRECIOS, SOS, EXHIBICIONES)."""
     if LAYOUT == "dev":
         return BASE / "BASES" / modulo
     return BASE / modulo / "BASES"
 
 
 def _output_root(modulo: str) -> Path:
-    """Raíz de outputs para un módulo (auto-creada si no existe)."""
     if LAYOUT == "dev":
         d = BASE / "SALIDA" / modulo
     else:
@@ -131,57 +158,43 @@ def _output_root(modulo: str) -> Path:
     return d
 
 
-# ── CIF ──────────────────────────────────────────────────────────────────────
-CIF_BASES        = _input_root("CIF")
-CIF_PT_DIR       = CIF_BASES / "PLAN DE TRABAJO"
-CIF_INVOLVES     = CIF_BASES / "INVOLVES"   / "informe-gerencial-visitas.xlsx"
-CIF_COLABORADORES= CIF_BASES / "EMPLEADOS"  / "Informe_Colaboradores.xlsx"
-CIF_BASE_VENTAS  = CIF_BASES / "PUNTOS DE VENTA" / "BASE PUNTOS DE VENTA.xlsx"
-CIF_CAUSALES     = CIF_BASES / "CAUSALES"   / "CAUSALES.xlsx"
-CIF_SALIDA       = _output_root("CIF")
-# Detalle PDV×persona — el cliente lo conoce como CIF.xlsx (V3); mantenemos
-# el alias `Plan de trabajo.xlsx` por compatibilidad hacia atrás (D8=B).
-CIF_OUT_CIF      = CIF_SALIDA / "CIF.xlsx"
-CIF_OUT_FINAL    = CIF_SALIDA / "Plan de trabajo.xlsx"   # alias legacy
-# Resumen agregado por gestor (paso 8 V3): mes activo + histórico acumulado (D6=C)
-CIF_OUT_KPIS              = CIF_SALIDA / "KPIS_CIF.xlsx"
-CIF_OUT_KPIS_HISTORICO    = CIF_SALIDA / "KPIS_CIF_HISTORICO.xlsx"
-CIF_OUT_ALERTAS  = CIF_SALIDA / "ALERTAS_TIEMPOS_INCONSISTENTES.csv"
-# CSVs intermedios (en la misma carpeta del PT, como en producción)
-CIF_CONSOLIDADO_CSV  = CIF_PT_DIR / "Plan de trabajo consolidado.csv"
-CIF_AGRUPADO_CSV     = CIF_PT_DIR / "Plan de trabajo consolidado_grupado.csv"
-# Procesado de Involves (escrito por paso 3 y 4, leído por paso 5/6/7)
-CIF_INVOLVES_PROCESADO = CIF_BASES / "INVOLVES" / "informe_visitas_procesado.csv"
+# CIF
+CIF_BASES          = _input_root("CIF")
+CIF_PT_DIR         = CIF_BASES / "PLAN DE TRABAJO"
+CIF_INVOLVES       = CIF_BASES / "INVOLVES" / "informe-gerencial-visitas.xlsx"
+CIF_COLABORADORES  = CIF_BASES / "EMPLEADOS" / "Informe_Colaboradores.xlsx"
+CIF_BASE_VENTAS    = CIF_BASES / "PUNTOS DE VENTA" / "BASE PUNTOS DE VENTA.xlsx"
+CIF_CAUSALES       = CIF_BASES / "CAUSALES" / "CAUSALES.xlsx"
+CIF_SALIDA         = _output_root("CIF")
 
-# ── NO PRESENCIA ─────────────────────────────────────────────────────────────
-NP_BASES                = _input_root("NO PRESENCIA")
-NP_SALIDA               = _output_root("NO PRESENCIA")
-NP_OUT_KPIS             = NP_SALIDA / "NO_PRESENCIA_KPIS.xlsx"
-NP_OUT_KPIS_HISTORICO   = NP_SALIDA / "NO_PRESENCIA_KPIS_HISTORICO.xlsx"
+CIF_OUT_CIF            = CIF_SALIDA / "CIF.xlsx"
+CIF_OUT_FINAL          = CIF_SALIDA / "Plan de trabajo.xlsx"
+CIF_OUT_KPIS           = CIF_SALIDA / "KPIS_CIF.xlsx"
+CIF_OUT_KPIS_HISTORICO = CIF_SALIDA / "KPIS_CIF_HISTORICO.xlsx"
+CIF_OUT_ALERTAS        = CIF_SALIDA / "ALERTAS_TIEMPOS_INCONSISTENTES.csv"
 
-# ── PRECIOS ──────────────────────────────────────────────────────────────────
-PR_BASES                = _input_root("PRECIOS")
-PR_SALIDA               = _output_root("PRECIOS")
-PR_OUT_KPIS             = PR_SALIDA / "PRECIOS_KPIS.xlsx"
-PR_OUT_KPIS_HISTORICO   = PR_SALIDA / "PRECIOS_KPIS_HISTORICO.xlsx"
+# NO PRESENCIA
+NP_BASES              = _input_root("NO PRESENCIA")
+NP_SALIDA             = _output_root("NO PRESENCIA")
+NP_OUT_KPIS           = NP_SALIDA / "NO_PRESENCIA_KPIS.xlsx"
+NP_OUT_KPIS_HISTORICO = NP_SALIDA / "NO_PRESENCIA_KPIS_HISTORICO.xlsx"
 
-# ── SOS ──────────────────────────────────────────────────────────────────────
-SOS_BASES               = _input_root("SOS")
-SOS_SALIDA              = _output_root("SOS")
-SOS_OUT_KPIS            = SOS_SALIDA / "SOS_KPIS.xlsx"
-SOS_OUT_KPIS_HISTORICO  = SOS_SALIDA / "SOS_KPIS_HISTORICO.xlsx"
+# PRECIOS
+PR_BASES              = _input_root("PRECIOS")
+PR_SALIDA             = _output_root("PRECIOS")
+PR_OUT_KPIS           = PR_SALIDA / "PRECIOS_KPIS.xlsx"
+PR_OUT_KPIS_HISTORICO = PR_SALIDA / "PRECIOS_KPIS_HISTORICO.xlsx"
 
-# ── EXHIBICIONES ─────────────────────────────────────────────────────────────
+# SOS
+SOS_BASES             = _input_root("SOS")
+SOS_SALIDA            = _output_root("SOS")
+SOS_OUT_KPIS          = SOS_SALIDA / "SOS_KPIS.xlsx"
+SOS_OUT_KPIS_HISTORICO= SOS_SALIDA / "SOS_KPIS_HISTORICO.xlsx"
+
+# EXHIBICIONES
 def _resolver_exhib_data_dir() -> Path:
-    """
-    En dev devuelve BASE/BASES/EXHIBICIONES (plano).
-    En prod busca la subcarpeta `NN. Mes` más reciente; si no hay, devuelve
-    el directorio raíz de EXHIBICIONES.
-    """
     raiz = _input_root("EXHIBICIONES")
-    if LAYOUT == "dev":
-        return raiz
-    if not raiz.is_dir():
+    if LAYOUT == "dev" or not raiz.is_dir():
         return raiz
     candidatos = [
         raiz / d.name
@@ -192,101 +205,78 @@ def _resolver_exhib_data_dir() -> Path:
         return max(candidatos, key=lambda p: p.stat().st_mtime)
     return raiz
 
-
-EXHIB_DATA_DIR = _resolver_exhib_data_dir()
-EXHIB_SALIDA   = _output_root("EXHIBICIONES")
+EXHIB_DATA_DIR      = _resolver_exhib_data_dir()
+EXHIB_SALIDA        = _output_root("EXHIBICIONES")
 EXHIB_NIVEL_IMPACTO = EXHIB_DATA_DIR / "Nivel impacto x Exhibición.xlsx"
-# KPIs V3 — mes activo + histórico (D6=C)
-EXHIB_PAG_OUT_KPIS              = EXHIB_SALIDA / "EXHIBICIONES_PAGADAS_KPIS.xlsx"
-EXHIB_PAG_OUT_KPIS_HISTORICO    = EXHIB_SALIDA / "EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx"
-EXHIB_GRA_OUT_KPIS              = EXHIB_SALIDA / "EXHIBICIONES_GRATIS_KPIS.xlsx"
-EXHIB_GRA_OUT_KPIS_HISTORICO    = EXHIB_SALIDA / "EXHIBICIONES_GRATIS_KPIS_HISTORICO.xlsx"
 
-# ── D&P  (Ventas + Impactos + Segmentos) ─────────────────────────────────────
+EXHIB_PAG_OUT_KPIS           = EXHIB_SALIDA / "EXHIBICIONES_PAGADAS_KPIS.xlsx"
+EXHIB_PAG_OUT_KPIS_HISTORICO = EXHIB_SALIDA / "EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx"
+EXHIB_GRA_OUT_KPIS           = EXHIB_SALIDA / "EXHIBICIONES_GRATIS_KPIS.xlsx"
+EXHIB_GRA_OUT_KPIS_HISTORICO = EXHIB_SALIDA / "EXHIBICIONES_GRATIS_KPIS_HISTORICO.xlsx"
+
+# D&P
 DYP_BASES        = _input_root("D&P")
 DYP_VENTAS_DIR   = DYP_BASES / "01. Ventas"
 DYP_IMPACTOS_DIR = DYP_BASES / "02. Impactos"
 DYP_LISTAS_FILE  = DYP_BASES / "Listas" / "MSL & Listas Target Catman.xlsx"
 
 def _resolver_rutero_dyp() -> Path:
-    """Detecta el rutero D&P más reciente (RUTERO*D&P.xlsx por mtime). Si no
-    se encuentra ninguno, cae al nombre legacy 'Rutero_Droguerias.xlsx'."""
     rutero_dir = DYP_BASES / "Rutero"
     if rutero_dir.is_dir():
-        candidatos = list(rutero_dir.glob("RUTERO*.xlsx")) \
-                   + list(rutero_dir.glob("Rutero*.xlsx"))
+        candidatos = list(rutero_dir.glob("RUTERO*.xlsx")) + list(rutero_dir.glob("Rutero*.xlsx"))
         candidatos = [p for p in candidatos if not p.name.startswith("~$")]
         if candidatos:
             return max(candidatos, key=lambda p: p.stat().st_mtime)
     return rutero_dir / "Rutero_Droguerias.xlsx"
 
-DYP_RUTERO_FILE  = _resolver_rutero_dyp()
-DYP_BASE_CUPOS   = DYP_BASES / "Base_cupos.xlsx"
+DYP_RUTERO_FILE   = _resolver_rutero_dyp()
+DYP_BASE_CUPOS    = DYP_BASES / "Base_cupos.xlsx"
+DYP_SALIDA        = _output_root("D&P")
+DYP_OUT_VENTAS    = DYP_SALIDA / "Consolidado_Ventas.csv"
+DYP_OUT_IMPACTOS  = DYP_SALIDA / "Consolidado_Impactos.csv"
+DYP_OUT_SEGMENTOS = DYP_SALIDA / "impacto_segmentos.xlsx"
 
-DYP_SALIDA           = _output_root("D&P")
-DYP_OUT_VENTAS       = DYP_SALIDA / "Consolidado_Ventas.csv"
-DYP_OUT_IMPACTOS     = DYP_SALIDA / "Consolidado_Impactos.csv"
-DYP_OUT_SEGMENTOS    = DYP_SALIDA / "impacto_segmentos.xlsx"
-
-# ── ALERTAS ──────────────────────────────────────────────────────────────────
-ALERTAS_DIR    = BASE / "ALERTAS"
+# ALERTAS
+ALERTAS_DIR        = BASE / "ALERTAS"
 ALERTAS_DIR.mkdir(parents=True, exist_ok=True)
-ALERTAS_LOGS   = ALERTAS_DIR / "logs"
-ALERTAS_ADJUNTOS = ALERTAS_DIR / "ADJUNTOS"
-ALERTAS_MAESTRO  = ALERTAS_DIR / "MAESTRO_SUPERVISORES.xlsx"
+ALERTAS_LOGS       = ALERTAS_DIR / "logs"
+ALERTAS_ADJUNTOS   = ALERTAS_DIR / "ADJUNTOS"
+ALERTAS_MAESTRO    = ALERTAS_DIR / "MAESTRO_SUPERVISORES.xlsx"
 ALERTAS_CONFIG_ENV = ALERTAS_DIR / "config.env"
-ALERTAS_XLSM   = ALERTAS_DIR / "EnviarCorreos.xlsm"
+ALERTAS_XLSM       = ALERTAS_DIR / "EnviarCorreos.xlsm"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# HELPERS
+# DIAGNÓSTICO
 # ─────────────────────────────────────────────────────────────────────────────
-
-def descubrir_archivos_pt() -> tuple[str, str]:
-    """
-    Localiza los archivos de PT Directo e ISM más recientes en CIF_PT_DIR.
-    Devuelve (ruta_directo, ruta_ism). Vacío si no encuentra.
-    """
-    if not CIF_PT_DIR.is_dir():
-        return "", ""
-    todos = [
-        Path(p) for p in glob.glob(str(CIF_PT_DIR / "*.xlsx"))
-        if not Path(p).name.startswith("~$")
-        and "consolidado" not in Path(p).name.lower()
-    ]
-    candidatos_dir = [p for p in todos if "directo" in p.name.lower()]
-    candidatos_ism = [p for p in todos if "ism"     in p.name.lower()]
-    ruta_dir = str(max(candidatos_dir, key=lambda p: p.stat().st_mtime)) if candidatos_dir else ""
-    ruta_ism = str(max(candidatos_ism, key=lambda p: p.stat().st_mtime)) if candidatos_ism else ""
-    return ruta_dir, ruta_ism
-
-
 def info() -> str:
-    """Resumen de la resolución de paths para diagnóstico, incluyendo SharePoint."""
     lineas = [
-        f"BASE   : {BASE}",
-        f"LAYOUT : {LAYOUT}",
-        f"  CIF      → in: {CIF_BASES}",
-        f"             out: {CIF_SALIDA}",
-        f"  NP       → in: {NP_BASES}",
-        f"             out: {NP_SALIDA}",
-        f"  PRECIOS  → in: {PR_BASES}",
-        f"             out: {PR_SALIDA}",
-        f"  SOS      → in: {SOS_BASES}",
-        f"             out: {SOS_SALIDA}",
-        f"  EXHIB    → in: {EXHIB_DATA_DIR}",
-        f"             out: {EXHIB_SALIDA}",
-        f"  D&P      → in: {DYP_BASES}",
-        f"             out: {DYP_SALIDA}",
-        f"  ALERTAS  → {ALERTAS_DIR}",
-        f"  CLOUD SHAREPOINT:",
-        f"    SITE NAME: {SHAREPOINT_SITE_NAME}",
-        f"    DIR PT   : {RUTA_CARPETA_PT}",
-        f"    DIR BASES: {RUTA_CARPETA_BASES}",
-        f"    DIR OUTS : {RUTA_CARPETA_SALIDAS}",
+        "=== VERIFICACIÓN DE CREDENCIALES ===",
+        f"  AZURE TENANT ID : {'✓ Detectado' if AZURE_TENANT_ID else '✗ Falta'}",
+        f"  AZURE CLIENT ID : {'✓ Detectado' if AZURE_CLIENT_ID else '✗ Falta'}",
+        f"  SUPABASE URL    : {'✓ Detectada' if SUPABASE_URL else '✗ Falta'}",
+        "",
+        f"=== CLOUD SHAREPOINT (SITIO: {SHAREPOINT_SITE_NAME}) ===",
+        f"  BASE GENERAL : {SHAREPOINT_BASE_DIR}",
+        f"  PLAN TRABAJO : {RUTA_CARPETA_PT}",
+        "",
+        "--- RUTAS MÓDULOS SHAREPOINT ---",
+        f"  PRECIOS → BASES: {RUTA_CARPETA_BASES_PRECIOS} | OUTS: {RUTA_CARPETA_SALIDAS_PRECIOS}",
+        f"  CIF     → BASES: {RUTA_CARPETA_BASES_CIF} | OUTS: {RUTA_CARPETA_SALIDAS_CIF}",
+        f"  NP      → BASES: {RUTA_CARPETA_BASES_NP} | OUTS: {RUTA_CARPETA_SALIDAS_NP}",
+        f"  SOS     → BASES: {RUTA_CARPETA_BASES_SOS} | OUTS: {RUTA_CARPETA_SALIDAS_SOS}",
+        f"  EXHIB   → BASES: {RUTA_CARPETA_BASES_EXHIB} | OUTS: {RUTA_CARPETA_SALIDAS_EXHIB}",
+        f"  D&P     → BASES: {RUTA_CARPETA_BASES_DYP} | OUTS: {RUTA_CARPETA_SALIDAS_DYP}",
     ]
     return "\n".join(lineas)
 
 
 if __name__ == "__main__":
     print(info())
+    
+    # Prueba opcional de conexión a Azure al ejecutar directamente
+    try:
+        token = obtener_token_azure()
+        print("\n[SUCCESS] Conexión exitosa a Azure AD. Token obtenido correctamente.")
+    except Exception as e:
+        print(f"\n[ERROR] Falló la prueba de conexión a Azure: {e}")

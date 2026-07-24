@@ -1,0 +1,500 @@
+2026-07-17 08:47:36  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260717_084736.log
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260717T084736_c14c8d
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      Inicio: 2026-07-17 08:47:36
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      Run ID: 20260717T084736_c14c8d
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      Periodo: Julio_2026 (07/2026)
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif', 'nopresencia', 'precios', 'sos', 'exhib_pagadas', 'exhib_gratis', 'ventas', 'impactos', 'impactos_segmentos']
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-07-17 08:47:36  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-17 08:47:36  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-07-17 08:47:36  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx
+2026-07-17 08:47:36  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-17 08:47:36  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-07-17 08:47:36  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-17 08:47:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,601 filas PT  |  3,262 filas módulos cargadas
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      [ISM] 2,530 filas PT  |  888 filas módulos cargadas
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,131 filas totales
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 7 | Año 2026
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,073 filas retenidas
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 980 filas retenidas
+2026-07-17 08:47:39  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 791 filas retenidas
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 4,084 filas retenidas
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 759 filas retenidas
+2026-07-17 08:47:39  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-07-17 08:47:39  [etl.orquestador]   ✓ INFO      shared_loader completado en 2.1s
+2026-07-17 08:47:39  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:47:39  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 9 ETLs en paralelo (0 skipped)
+2026-07-17 08:47:39  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:47:39  [etl.exhib_pagadas]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:47:39  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — iniciando
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas  (Julio_2026)...
+2026-07-17 08:47:39  [etl.precios]       ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:47:39  [etl.precios]       ✓ INFO      ETL Precios — iniciando
+2026-07-17 08:47:39  [etl.cif]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:47:39  [etl.cif]           ✓ INFO      ETL CIF — iniciando
+2026-07-17 08:47:39  [etl.exhib_gratis]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:47:39  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — iniciando
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Resolviendo archivos fuente (Julio_2026) ─
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] ── Resolviendo archivos fuente (Julio_2026) ─
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] ── Resolviendo archivos fuente (Julio_2026) ─
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resolviendo archivos fuente (Julio_2026) ─
+2026-07-17 08:47:39  [etl.cif]           ✓ INFO      Paso 1 — PT consolidado: 11,131 filas
+2026-07-17 08:47:39  [etl.nopresencia]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:47:39  [etl.nopresencia]   ✓ INFO      ETL No Presencia — iniciando
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-07-17 08:47:39  [etl.sos]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-07-17 08:47:39  [etl.sos]           ✓ INFO      ETL SOS — iniciando
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] - Base Exhibiciones Informar Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] - Base Exhibiciones Informar Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] - Base Exhibiciones Informar Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] - Base Exhibiciones Informar Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] - Base Exhibiciones Informar Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.sos]           · DEBUG     [stdout] - Base Exhibiciones Informar Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-07-17 08:47:39  [etl.sos]           · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] - Base Exhibiciones Planning Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] - Base Exhibiciones Planning Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] - Base Exhibiciones Planning Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] - Base Exhibiciones Planning Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] - Base Exhibiciones Planning Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.sos]           · DEBUG     [stdout] - Base Exhibiciones Planning Julio 2026.xlsx
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-07-17 08:47:39  [etl.sos]           · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] - informe-gerencial-visitas_202607.xlsx
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] - informe-gerencial-visitas_202607.xlsx
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] - informe-gerencial-visitas_202607.xlsx
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] - informe-gerencial-visitas_202607.xlsx
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] - informe-gerencial-visitas_202607.xlsx
+2026-07-17 08:47:39  [etl.sos]           · DEBUG     [stdout] - informe-gerencial-visitas_202607.xlsx
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-07-17 08:47:39  [etl.sos]           · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-07-17 08:47:39  [etl.sos]           · DEBUG     [stdout] - Plan de trabajo.xlsx
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-07-17 08:47:39  [etl.precios]       · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-07-17 08:47:39  [etl.cif]           · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-07-17 08:47:39  [etl.exhib_gratis]  · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-07-17 08:47:39  [etl.nopresencia]   · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-07-17 08:47:39  [etl.sos]           · DEBUG     [stdout] ── Cargando archivos fuente ─────────────────────
+2026-07-17 08:47:39  [etl.cif]           ✓ INFO      Paso 2 — Agrupación SQL
+2026-07-17 08:47:39  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.exhib_pagadas]  · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-07-17 08:47:40  [etl.precios]       · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-07-17 08:47:40  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-07-17 08:47:40  [etl.exhib_gratis]  · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-07-17 08:47:40  [etl.nopresencia]   · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-07-17 08:47:40  [etl.sos]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN SQL
+2026-07-17 08:47:40  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-07-17 08:47:40  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-07-17 08:47:43  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Julio 2026.xlsx — 1,592 filas
+2026-07-17 08:47:43  [etl.precios]       ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Julio 2026.xlsx — 1,592 filas
+2026-07-17 08:47:43  [etl.cif]           ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Julio 2026.xlsx — 1,592 filas
+2026-07-17 08:47:43  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Julio 2026.xlsx — 1,592 filas
+2026-07-17 08:47:43  [etl.nopresencia]   ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Julio 2026.xlsx — 1,592 filas
+2026-07-17 08:47:43  [etl.sos]           ✓ INFO      [stdout] ✓ Base Exhibiciones Informar Julio 2026.xlsx — 1,592 filas
+2026-07-17 08:47:43  [etl.precios]       ✓ INFO      PT filtrado persistido: 191 PDVs únicos — periodo JULIO_2026
+2026-07-17 08:47:43  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (JULIO_2026) ---
+2026-07-17 08:47:43  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (JULIO_2026) ---
+2026-07-17 08:47:43  [etl.cif]           · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (JULIO_2026) ---
+2026-07-17 08:47:43  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (JULIO_2026) ---
+2026-07-17 08:47:43  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (JULIO_2026) ---
+2026-07-17 08:47:43  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (JULIO_2026) ---
+2026-07-17 08:47:43  [etl.exhib_pagadas]  · DEBUG     [stdout] Encuestas: Respuestas Precios Julio 2026.xlsx
+2026-07-17 08:47:43  [etl.precios]       · DEBUG     [stdout] Encuestas: Respuestas Precios Julio 2026.xlsx
+2026-07-17 08:47:43  [etl.cif]           · DEBUG     [stdout] Encuestas: Respuestas Precios Julio 2026.xlsx
+2026-07-17 08:47:43  [etl.exhib_gratis]  · DEBUG     [stdout] Encuestas: Respuestas Precios Julio 2026.xlsx
+2026-07-17 08:47:43  [etl.nopresencia]   · DEBUG     [stdout] Encuestas: Respuestas Precios Julio 2026.xlsx
+2026-07-17 08:47:43  [etl.sos]           · DEBUG     [stdout] Encuestas: Respuestas Precios Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.sos]           ✓ INFO      PT filtrado persistido: 742 PDVs únicos
+2026-07-17 08:47:45  [etl.sos]           ✓ INFO      10 archivo(s) de encuesta SOS encontrado(s)
+2026-07-17 08:47:45  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS  (Julio_2026) ---
+2026-07-17 08:47:45  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS  (Julio_2026) ---
+2026-07-17 08:47:45  [etl.cif]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS  (Julio_2026) ---
+2026-07-17 08:47:45  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS  (Julio_2026) ---
+2026-07-17 08:47:45  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS  (Julio_2026) ---
+2026-07-17 08:47:45  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS  (Julio_2026) ---
+2026-07-17 08:47:45  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ Respuestas SOS Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.precios]       ✓ INFO      [stdout] ✓ Respuestas SOS Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.cif]           ✓ INFO      [stdout] ✓ Respuestas SOS Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Respuestas SOS Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.nopresencia]   ✓ INFO      [stdout] ✓ Respuestas SOS Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.sos]           ✓ INFO      [stdout] ✓ Respuestas SOS Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ Respuestas SOS Baby Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.precios]       ✓ INFO      [stdout] ✓ Respuestas SOS Baby Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.cif]           ✓ INFO      [stdout] ✓ Respuestas SOS Baby Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Respuestas SOS Baby Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.nopresencia]   ✓ INFO      [stdout] ✓ Respuestas SOS Baby Julio 2026.xlsx
+2026-07-17 08:47:45  [etl.sos]           ✓ INFO      [stdout] ✓ Respuestas SOS Baby Julio 2026.xlsx
+2026-07-17 08:47:58  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Julio 2026.xlsx — 2,277 filas
+2026-07-17 08:47:58  [etl.precios]       ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Julio 2026.xlsx — 2,277 filas
+2026-07-17 08:47:58  [etl.cif]           ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Julio 2026.xlsx — 2,277 filas
+2026-07-17 08:47:59  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Julio 2026.xlsx — 2,277 filas
+2026-07-17 08:47:59  [etl.nopresencia]   ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Julio 2026.xlsx — 2,277 filas
+2026-07-17 08:47:59  [etl.sos]           ✓ INFO      [stdout] ✓ Base Exhibiciones Planning Julio 2026.xlsx — 2,277 filas
+2026-07-17 08:48:02  [etl.nopresencia]   ✓ INFO      PT filtrado persistido: 6,053 filas — periodo JULIO_2026
+2026-07-17 08:48:02  [etl.exhib_pagadas]  · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-07-17 08:48:02  [etl.precios]       · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-07-17 08:48:02  [etl.cif]           · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-07-17 08:48:02  [etl.exhib_gratis]  · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-07-17 08:48:02  [etl.nopresencia]   · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-07-17 08:48:02  [etl.sos]           · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-07-17 08:48:02  [etl.exhib_pagadas]  · DEBUG     [stdout] Archivo encuestas principales: Respuestas no presencia Julio 2026.xlsx
+2026-07-17 08:48:02  [etl.precios]       · DEBUG     [stdout] Archivo encuestas principales: Respuestas no presencia Julio 2026.xlsx
+2026-07-17 08:48:02  [etl.cif]           · DEBUG     [stdout] Archivo encuestas principales: Respuestas no presencia Julio 2026.xlsx
+2026-07-17 08:48:02  [etl.exhib_gratis]  · DEBUG     [stdout] Archivo encuestas principales: Respuestas no presencia Julio 2026.xlsx
+2026-07-17 08:48:02  [etl.nopresencia]   · DEBUG     [stdout] Archivo encuestas principales: Respuestas no presencia Julio 2026.xlsx
+2026-07-17 08:48:02  [etl.sos]           · DEBUG     [stdout] Archivo encuestas principales: Respuestas no presencia Julio 2026.xlsx
+2026-07-17 08:48:27  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-07-17 08:48:27  [etl.precios]       ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-07-17 08:48:27  [etl.cif]           ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-07-17 08:48:27  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-07-17 08:48:27  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-07-17 08:48:27  [etl.sos]           ✓ INFO      [stdout] ✅ Reporte capturas generado.
+2026-07-17 08:48:27  [etl.precios]       ✓ INFO      Reporte de captura de precios generado
+2026-07-17 08:48:27  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (JULIO_2026) ---
+2026-07-17 08:48:27  [etl.precios]       · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (JULIO_2026) ---
+2026-07-17 08:48:27  [etl.cif]           · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (JULIO_2026) ---
+2026-07-17 08:48:27  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (JULIO_2026) ---
+2026-07-17 08:48:27  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (JULIO_2026) ---
+2026-07-17 08:48:27  [etl.sos]           · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (JULIO_2026) ---
+2026-07-17 08:48:30  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.
+2026-07-17 08:48:30  [etl.precios]       ✓ INFO      [stdout] ✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.
+2026-07-17 08:48:30  [etl.cif]           ✓ INFO      [stdout] ✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.
+2026-07-17 08:48:30  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.
+2026-07-17 08:48:30  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.
+2026-07-17 08:48:30  [etl.sos]           ✓ INFO      [stdout] ✅ ¡Hecho! Los registros que no cruzaron ahora tienen 'No' y ejecución en 0.
+2026-07-17 08:48:30  [etl.exhib_pagadas]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Julio_2026) ---
+2026-07-17 08:48:30  [etl.precios]       · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Julio_2026) ---
+2026-07-17 08:48:30  [etl.cif]           · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Julio_2026) ---
+2026-07-17 08:48:30  [etl.exhib_gratis]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Julio_2026) ---
+2026-07-17 08:48:30  [etl.nopresencia]   · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Julio_2026) ---
+2026-07-17 08:48:30  [etl.sos]           · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Julio_2026) ---
+2026-07-17 08:48:34  [etl.exhib_pagadas]  · DEBUG     [stdout] Leyendo: Resultado_exhibiciones_pagadas Julio 2026.xlsx (2902 filas)
+2026-07-17 08:48:34  [etl.precios]       · DEBUG     [stdout] Leyendo: Resultado_exhibiciones_pagadas Julio 2026.xlsx (2902 filas)
+2026-07-17 08:48:34  [etl.cif]           · DEBUG     [stdout] Leyendo: Resultado_exhibiciones_pagadas Julio 2026.xlsx (2902 filas)
+2026-07-17 08:48:34  [etl.exhib_gratis]  · DEBUG     [stdout] Leyendo: Resultado_exhibiciones_pagadas Julio 2026.xlsx (2902 filas)
+2026-07-17 08:48:34  [etl.nopresencia]   · DEBUG     [stdout] Leyendo: Resultado_exhibiciones_pagadas Julio 2026.xlsx (2902 filas)
+2026-07-17 08:48:34  [etl.sos]           · DEBUG     [stdout] Leyendo: Resultado_exhibiciones_pagadas Julio 2026.xlsx (2902 filas)
+2026-07-17 08:48:50  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ Plan de trabajo.xlsx — 18,625 gestores cargados
+2026-07-17 08:48:50  [etl.precios]       ✓ INFO      [stdout] ✓ Plan de trabajo.xlsx — 18,625 gestores cargados
+2026-07-17 08:48:50  [etl.cif]           ✓ INFO      [stdout] ✓ Plan de trabajo.xlsx — 18,625 gestores cargados
+2026-07-17 08:48:50  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Plan de trabajo.xlsx — 18,625 gestores cargados
+2026-07-17 08:48:50  [etl.nopresencia]   ✓ INFO      [stdout] ✓ Plan de trabajo.xlsx — 18,625 gestores cargados
+2026-07-17 08:48:50  [etl.sos]           ✓ INFO      [stdout] ✓ Plan de trabajo.xlsx — 18,625 gestores cargados
+2026-07-17 08:49:07  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Mes activo: 128 empleados → EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-07-17 08:49:07  [etl.precios]       ✓ INFO      [stdout] ✅ Mes activo: 128 empleados → EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-07-17 08:49:07  [etl.cif]           ✓ INFO      [stdout] ✅ Mes activo: 128 empleados → EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-07-17 08:49:07  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Mes activo: 128 empleados → EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-07-17 08:49:07  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Mes activo: 128 empleados → EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-07-17 08:49:07  [etl.sos]           ✓ INFO      [stdout] ✅ Mes activo: 128 empleados → EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-07-17 08:49:10  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx
+2026-07-17 08:49:10  [etl.precios]       ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx
+2026-07-17 08:49:10  [etl.cif]           ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx
+2026-07-17 08:49:10  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx
+2026-07-17 08:49:10  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx
+2026-07-17 08:49:10  [etl.sos]           ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx
+2026-07-17 08:49:10  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — completado
+2026-07-17 08:49:10  [etl.exhib_pagadas]  ✓ INFO      Duración total: 91.5s
+2026-07-17 08:49:11  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:49:11  [etl.orquestador]   ✓ INFO      ETL 'exhib_pagadas' terminó — ✓ OK en 91.5s
+2026-07-17 08:49:11  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-07-17 08:49:11  [etl.ventas]        · DEBUG     [stdout] 📍 Origen: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\D&P\01. Ventas
+2026-07-17 08:49:11  [etl.ventas]        · DEBUG     [stdout] 📁 Salida: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Ventas.csv
+2026-07-17 08:49:12  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 5
+2026-07-17 08:49:29  [etl.ventas]        · DEBUG     [stdout] Modo upsert — reprocesando: 07. Julio base ventas.xlsx
+2026-07-17 08:49:29  [etl.ventas]        · DEBUG     [stdout] → Procesando: 07. Julio base ventas.xlsx
+2026-07-17 08:49:32  [etl.ventas]        ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\CIF\PLAN DE TRABAJO\Plan de trabajo consolidado_grupado.csv
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] Resumen agrupado (Primeros 5):
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] ACRONIMO ID_PDV_INVOLVES  TIEMPO_SERVICIO_HORAS
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] 0    LE001           10032                    NaN
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] 1    LE001           10033                    NaN
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] 2    LE001           10035                    NaN
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] 3    LE001           10036                    NaN
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] 4    LE001           10069                    NaN
+2026-07-17 08:49:32  [etl.cif]           ✓ INFO      Paso 3 — Visitas Involves
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] ========================================
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES (CRUCE PRIORIZANDO BASE VENTAS)  (Julio_2026)
+2026-07-17 08:49:32  [etl.ventas]        · DEBUG     [stdout] ========================================
+2026-07-17 08:49:39  [etl.ventas]        ✓ INFO      [stdout] ✅ Análisis detallado guardado.
+2026-07-17 08:49:39  [etl.precios]       ✓ INFO      Análisis detallado de precios generado
+2026-07-17 08:49:39  [etl.ventas]        · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN PRECIOS por gestor  (Julio_2026) ---
+2026-07-17 08:49:41  [etl.ventas]        · DEBUG     [stdout] Leyendo: REPORTE_CAPTURA_PRECIOS_JULIO_2026.xlsx (191 filas)
+2026-07-17 08:49:45  [etl.ventas]        ✓ INFO      [stdout] ✅ Mes activo: 33 gestores → PRECIOS_KPIS.xlsx
+2026-07-17 08:49:45  [etl.ventas]        ✓ INFO      [stdout] ✅ Histórico acumulado → PRECIOS_KPIS_HISTORICO.xlsx
+2026-07-17 08:49:45  [etl.precios]       ✓ INFO      KPI precios consolidado
+2026-07-17 08:49:45  [etl.precios]       ✓ INFO      ETL Precios — completado
+2026-07-17 08:49:46  [etl.precios]       ✓ INFO      Duración total: 126.4s
+2026-07-17 08:49:46  [etl.impactos]      ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:49:46  [etl.orquestador]   ✓ INFO      ETL 'precios' terminó — ✓ OK en 126.4s
+2026-07-17 08:49:46  [etl.impactos]      ✓ INFO      ETL Impactos D&P — iniciando
+2026-07-17 08:49:46  [etl.exhib_pagadas]  · DEBUG     [stdout] 📍 Origen: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\D&P\02. Impactos
+2026-07-17 08:49:46  [etl.impactos]      · DEBUG     [stdout] 📍 Origen: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\D&P\02. Impactos
+2026-07-17 08:49:46  [etl.exhib_pagadas]  · DEBUG     [stdout] 📁 Salida: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Impactos.csv
+2026-07-17 08:49:46  [etl.impactos]      · DEBUG     [stdout] 📁 Salida: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Impactos.csv
+2026-07-17 08:49:46  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 5
+2026-07-17 08:49:46  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados (2024+): 5
+2026-07-17 08:49:48  [etl.exhib_pagadas]  · DEBUG     [stdout] Modo upsert — reprocesando: 07. Julio base impactos - cuota.xlsx
+2026-07-17 08:49:48  [etl.impactos]      · DEBUG     [stdout] Modo upsert — reprocesando: 07. Julio base impactos - cuota.xlsx
+2026-07-17 08:49:48  [etl.exhib_pagadas]  · DEBUG     [stdout] → Procesando: 07. Julio base impactos - cuota.xlsx
+2026-07-17 08:49:48  [etl.impactos]      · DEBUG     [stdout] → Procesando: 07. Julio base impactos - cuota.xlsx
+2026-07-17 08:49:49  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Consolidado guardado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Impactos.csv  (272 filas)
+2026-07-17 08:49:49  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado guardado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Impactos.csv  (272 filas)
+2026-07-17 08:49:49  [etl.impactos]      ✓ INFO      ETL Impactos D&P — completado (272 filas en consolidado)
+2026-07-17 08:49:50  [etl.impactos]      ✓ INFO      Duración total: 3.5s
+2026-07-17 08:49:50  [etl.impactos_segmentos]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 08:49:50  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — iniciando
+2026-07-17 08:49:50  [etl.exhib_pagadas]  · DEBUG     [stdout] =======================================================
+2026-07-17 08:49:50  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-07-17 08:49:50  [etl.exhib_pagadas]  · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-07-17 08:49:50  [etl.impactos_segmentos]  · DEBUG     [stdout] ETL — Impacto por Segmento (V2)
+2026-07-17 08:49:50  [etl.orquestador]   ✓ INFO      ETL 'impactos' terminó — ✓ OK en 3.5s
+2026-07-17 08:49:50  [etl.exhib_pagadas]  · DEBUG     [stdout] =======================================================
+2026-07-17 08:49:50  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-07-17 08:49:50  [etl.exhib_pagadas]  · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-07-17 08:49:50  [etl.impactos_segmentos]  · DEBUG     [stdout] [1/5] Cargando rutero...
+2026-07-17 08:52:56  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ informe-gerencial-visitas_202607.xlsx — 51,443 filas
+2026-07-17 08:52:56  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✓ informe-gerencial-visitas_202607.xlsx — 51,443 filas
+2026-07-17 08:52:57  [etl.exhib_pagadas]  · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 45,266 filas 'Sin check-in' (88.0%); quedan 6,177 visitas efectivas.
+2026-07-17 08:52:57  [etl.impactos_segmentos]  · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 45,266 filas 'Sin check-in' (88.0%); quedan 6,177 visitas efectivas.
+2026-07-17 08:52:58  [etl.exhib_pagadas]  · DEBUG     [stdout] Encuestas consolidadas: 3,869 filas
+2026-07-17 08:52:58  [etl.impactos_segmentos]  · DEBUG     [stdout] Encuestas consolidadas: 3,869 filas
+2026-07-17 08:52:58  [etl.exhib_pagadas]  · DEBUG     [stdout] Plan de trabajo:         18,625 filas
+2026-07-17 08:52:58  [etl.impactos_segmentos]  · DEBUG     [stdout] Plan de trabajo:         18,625 filas
+2026-07-17 08:52:58  [etl.exhib_pagadas]  · DEBUG     [stdout] Visitas realizadas:      6,177 filas
+2026-07-17 08:52:58  [etl.impactos_segmentos]  · DEBUG     [stdout] Visitas realizadas:      6,177 filas
+2026-07-17 08:52:58  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-07-17 08:52:58  [etl.impactos_segmentos]  · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-07-17 08:53:03  [etl.exhib_pagadas]  · DEBUG     [stdout] Implementadas pagadas:          1,760 filas
+2026-07-17 08:53:03  [etl.impactos_segmentos]  · DEBUG     [stdout] Implementadas pagadas:          1,760 filas
+2026-07-17 08:53:03  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-07-17 08:53:03  [etl.impactos_segmentos]  · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-07-17 08:53:23  [etl.exhib_pagadas]  · DEBUG     [stdout] Implementadas gratis/concurso: 397 filas
+2026-07-17 08:53:23  [etl.impactos_segmentos]  · DEBUG     [stdout] Implementadas gratis/concurso: 397 filas
+2026-07-17 08:53:23  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Consolidando output ──────────────────────────
+2026-07-17 08:53:23  [etl.impactos_segmentos]  · DEBUG     [stdout] ── Consolidando output ──────────────────────────
+2026-07-17 08:53:59  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ Output escrito en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\EXHIBICIONES\Resultado exhibiciones gratis.xlsx (5,500 filas, periodos preservados)
+2026-07-17 08:53:59  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✓ Output escrito en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\EXHIBICIONES\Resultado exhibiciones gratis.xlsx (5,500 filas, periodos preservados)
+2026-07-17 08:53:59  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Resumen de Exhibiciones ──────────────────────
+2026-07-17 08:53:59  [etl.impactos_segmentos]  · DEBUG     [stdout] ── Resumen de Exhibiciones ──────────────────────
+2026-07-17 08:53:59  [etl.exhib_pagadas]  · DEBUG     [stdout] Total Exhibiciones:                           6,363
+2026-07-17 08:53:59  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones:                           6,363
+2026-07-17 08:53:59  [etl.exhib_pagadas]  · DEBUG     [stdout] Total Exhibiciones Gratis:                    1,804
+2026-07-17 08:53:59  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones Gratis:                    1,804
+2026-07-17 08:53:59  [etl.exhib_pagadas]  · DEBUG     [stdout] Total Exhibiciones Pagadas:                   4,560
+2026-07-17 08:53:59  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones Pagadas:                   4,560
+2026-07-17 08:53:59  [etl.exhib_pagadas]  · DEBUG     [stdout] Total Exhibiciones Alto Impacto:              2,850
+2026-07-17 08:53:59  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones Alto Impacto:              2,850
+2026-07-17 08:53:59  [etl.exhib_pagadas]  · DEBUG     [stdout] Total Exhibiciones Medio Impacto:             3,513
+2026-07-17 08:53:59  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones Medio Impacto:             3,513
+2026-07-17 08:54:00  [etl.exhib_pagadas]  · DEBUG     [stdout] ─────────────────────────────────────────────────
+2026-07-17 08:54:00  [etl.impactos_segmentos]  · DEBUG     [stdout] ─────────────────────────────────────────────────
+2026-07-17 08:54:00  [etl.exhib_pagadas]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado  (Julio_2026) ---
+2026-07-17 08:54:00  [etl.impactos_segmentos]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado  (Julio_2026) ---
+2026-07-17 08:54:05  [etl.exhib_pagadas]  · DEBUG     [stdout] Leyendo: Resultado exhibiciones gratis.xlsx (5500 filas)
+2026-07-17 08:54:05  [etl.impactos_segmentos]  · DEBUG     [stdout] Leyendo: Resultado exhibiciones gratis.xlsx (5500 filas)
+2026-07-17 08:54:08  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Mes activo: 74 empleados → EXHIBICIONES_GRATIS_KPIS.xlsx
+2026-07-17 08:54:08  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Mes activo: 74 empleados → EXHIBICIONES_GRATIS_KPIS.xlsx
+2026-07-17 08:54:09  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_GRATIS_KPIS_HISTORICO.xlsx
+2026-07-17 08:54:09  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Histórico → EXHIBICIONES_GRATIS_KPIS_HISTORICO.xlsx
+2026-07-17 08:54:09  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — completado
+2026-07-17 08:54:09  [etl.exhib_gratis]  ✓ INFO      Duración total: 390.5s
+2026-07-17 08:54:09  [etl.orquestador]   ✓ INFO      ETL 'exhib_gratis' terminó — ✓ OK en 390.5s
+2026-07-17 08:54:33  [etl.exhib_pagadas]  · DEBUG     [stdout] 11,787 PDVs en el rutero
+2026-07-17 08:54:33  [etl.precios]       · DEBUG     [stdout] 11,787 PDVs en el rutero
+2026-07-17 08:54:33  [etl.cif]           · DEBUG     [stdout] 11,787 PDVs en el rutero
+2026-07-17 08:54:33  [etl.exhib_pagadas]  · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-07-17 08:54:33  [etl.precios]       · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-07-17 08:54:33  [etl.cif]           · DEBUG     [stdout] [2/5] Cargando listas de referencia...
+2026-07-17 08:54:40  [etl.exhib_pagadas]  · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-07-17 08:54:40  [etl.precios]       · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-07-17 08:54:40  [etl.cif]           · DEBUG     [stdout] MustStock           :  63 EANs | todos los PDVs del rutero
+2026-07-17 08:54:40  [etl.exhib_pagadas]  · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-07-17 08:54:40  [etl.precios]       · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-07-17 08:54:40  [etl.cif]           · DEBUG     [stdout] Listerine_Sandia    :   1 EANs | 880 PDVs target
+2026-07-17 08:54:40  [etl.exhib_pagadas]  · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-07-17 08:54:40  [etl.precios]       · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-07-17 08:54:40  [etl.cif]           · DEBUG     [stdout] DoyPack_J&J_Baby    :   2 EANs | 1,515 PDVs target
+2026-07-17 08:54:40  [etl.exhib_pagadas]  · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-07-17 08:54:40  [etl.precios]       · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-07-17 08:54:40  [etl.cif]           · DEBUG     [stdout] Liserine_Kids       :   1 EANs | 344 PDVs target
+2026-07-17 08:54:40  [etl.exhib_pagadas]  · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-07-17 08:54:40  [etl.precios]       · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-07-17 08:54:40  [etl.cif]           · DEBUG     [stdout] Visine              :   1 EANs | 854 PDVs target
+2026-07-17 08:54:40  [etl.exhib_pagadas]  · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-07-17 08:54:40  [etl.precios]       · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-07-17 08:54:40  [etl.cif]           · DEBUG     [stdout] [3/5] Cargando ventas desde el consolidado...
+2026-07-17 08:54:40  [etl.exhib_pagadas]  · DEBUG     [stdout] Leyendo consolidado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Ventas.csv
+2026-07-17 08:54:40  [etl.precios]       · DEBUG     [stdout] Leyendo consolidado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Ventas.csv
+2026-07-17 08:54:40  [etl.cif]           · DEBUG     [stdout] Leyendo consolidado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Ventas.csv
+2026-07-17 08:54:54  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Consolidado guardado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Ventas.csv  (240,219 filas)
+2026-07-17 08:54:54  [etl.precios]       ✓ INFO      [stdout] ✅ Consolidado guardado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Ventas.csv  (240,219 filas)
+2026-07-17 08:54:54  [etl.cif]           ✓ INFO      [stdout] ✅ Consolidado guardado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\Consolidado_Ventas.csv  (240,219 filas)
+2026-07-17 08:54:55  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (240,219 filas en consolidado)
+2026-07-17 08:55:04  [etl.ventas]        ✓ INFO      Duración total: 344.2s
+2026-07-17 08:55:04  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 344.2s
+2026-07-17 08:55:05  [etl.cif]           ✓ INFO      Paso 4 — Justificaciones
+2026-07-17 08:56:02  [etl.nopresencia]   ✓ INFO      Encuestas de No Presencia procesadas
+2026-07-17 08:56:44  [etl.nopresencia]   ✓ INFO      Plan de Trabajo por semanas procesado
+2026-07-17 08:57:11  [etl.nopresencia]   ✓ INFO      Matriz de seguimiento generada
+2026-07-17 08:57:48  [etl.cif]           ✓ INFO      Paso 5 — Agrupación visitas (unificación gestores)
+2026-07-17 08:57:53  [etl.cif]           ✓ INFO      Paso 6 — Generación de alertas de tiempos inconsistentes
+2026-07-17 08:57:54  [etl.cif]           ✓ INFO      Paso 7 — Resultado final Excel
+2026-07-17 08:58:08  [etl.nopresencia]   ✓ INFO      Análisis de agotados generado
+2026-07-17 08:58:15  [etl.nopresencia]   ✓ INFO      KPI no presencia consolidado
+2026-07-17 08:58:15  [etl.nopresencia]   ✓ INFO      ETL No Presencia — completado
+2026-07-17 08:58:15  [etl.nopresencia]   ✓ INFO      Duración total: 636.8s
+2026-07-17 08:58:15  [etl.orquestador]   ✓ INFO      ETL 'nopresencia' terminó — ✓ OK en 636.8s
+2026-07-17 08:58:54  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ EXITO: Encuestas unidas (2 archivo(s)).
+2026-07-17 08:58:54  [etl.precios]       ✓ INFO      [stdout] ✅ EXITO: Encuestas unidas (2 archivo(s)).
+2026-07-17 08:58:54  [etl.cif]           ✓ INFO      [stdout] ✅ EXITO: Encuestas unidas (2 archivo(s)).
+2026-07-17 08:58:54  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ EXITO: Encuestas unidas (2 archivo(s)).
+2026-07-17 08:58:54  [etl.sos]           ✓ INFO      Encuestas SOS consolidadas
+2026-07-17 08:58:54  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 3: Generando Reporte de Cumplimiento  (Julio_2026) ---
+2026-07-17 08:58:54  [etl.precios]       · DEBUG     [stdout] --- PASO 3: Generando Reporte de Cumplimiento  (Julio_2026) ---
+2026-07-17 08:58:54  [etl.cif]           · DEBUG     [stdout] --- PASO 3: Generando Reporte de Cumplimiento  (Julio_2026) ---
+2026-07-17 08:58:54  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 3: Generando Reporte de Cumplimiento  (Julio_2026) ---
+2026-07-17 08:58:55  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Archivo generado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\impacto_segmentos.xlsx
+2026-07-17 08:58:55  [etl.precios]       ✓ INFO      [stdout] ✅ Archivo generado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\impacto_segmentos.xlsx
+2026-07-17 08:58:55  [etl.cif]           ✓ INFO      [stdout] ✅ Archivo generado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\impacto_segmentos.xlsx
+2026-07-17 08:58:55  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Archivo generado: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\D&P\impacto_segmentos.xlsx
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] Resumen por pestaña (período Julio-2026):
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] Resumen por pestaña (período Julio-2026):
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] Resumen por pestaña (período Julio-2026):
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] Resumen por pestaña (período Julio-2026):
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] MustStock                          11,787         6,308         5,479
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] MustStock                          11,787         6,308         5,479
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] MustStock                          11,787         6,308         5,479
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] MustStock                          11,787         6,308         5,479
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] Listerine_Sandia                      859           333           526
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] Listerine_Sandia                      859           333           526
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] Listerine_Sandia                      859           333           526
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] Listerine_Sandia                      859           333           526
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,485            70         1,415
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,485            70         1,415
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,485            70         1,415
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,485            70         1,415
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,485            60         1,425
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,485            60         1,425
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,485            60         1,425
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,485            60         1,425
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] Liserine_Kids                         340           144           196
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] Liserine_Kids                         340           144           196
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] Liserine_Kids                         340           144           196
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] Liserine_Kids                         340           144           196
+2026-07-17 08:58:55  [etl.exhib_pagadas]  · DEBUG     [stdout] Visine                                819           151           668
+2026-07-17 08:58:55  [etl.precios]       · DEBUG     [stdout] Visine                                819           151           668
+2026-07-17 08:58:55  [etl.cif]           · DEBUG     [stdout] Visine                                819           151           668
+2026-07-17 08:58:55  [etl.exhib_gratis]  · DEBUG     [stdout] Visine                                819           151           668
+2026-07-17 08:58:55  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — completado
+2026-07-17 08:58:55  [etl.impactos_segmentos]  ✓ INFO      Duración total: 545.3s
+2026-07-17 08:58:55  [etl.orquestador]   ✓ INFO      ETL 'impactos_segmentos' terminó — ✓ OK en 545.3s
+2026-07-17 09:00:01  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ EXITO: Reporte de capturas generado con Captura Planeada, Fechas y periodo Julio_2026.
+2026-07-17 09:00:01  [etl.sos]           ✓ INFO      Cumplimiento de captura calculado
+2026-07-17 09:00:01  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 4: Normalizando Target  (Julio_2026) ---
+2026-07-17 09:00:01  [etl.exhib_pagadas]  · DEBUG     [stdout] 📂 Archivo detectado: Colombia-sos-target-202607.xlsx
+2026-07-17 09:00:03  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ ¡LISTO! Excel generado para el periodo 7/2026.
+2026-07-17 09:00:03  [etl.exhib_pagadas]  · DEBUG     [stdout] 📁 C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\CIF\CIF.xlsx
+2026-07-17 09:00:03  [etl.exhib_pagadas]  · DEBUG     [stdout] 📁 C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\CIF\Plan de trabajo.xlsx  (alias legacy)
+2026-07-17 09:00:03  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-07-17 09:00:03  [etl.cif]           ✓ INFO      Paso 8 — KPIs por gestor
+2026-07-17 09:00:03  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-07-17 09:00:03  [etl.exhib_pagadas]  · DEBUG     [stdout] INICIANDO PASO 8: RESUMEN KPIS POR GESTOR (V3)  (Julio_2026)
+2026-07-17 09:00:03  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-07-17 09:00:03  [etl.exhib_pagadas]  · DEBUG     [stdout] Leyendo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\CIF\CIF.xlsx
+2026-07-17 09:01:18  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Mes activo  (07/2026): 147 gestores → KPIS_CIF.xlsx
+2026-07-17 09:01:19  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Histórico: 296 filas totales → KPIS_CIF_HISTORICO.xlsx
+2026-07-17 09:01:19  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-07-17 09:01:19  [etl.cif]           ✓ INFO      ETL CIF — completado
+2026-07-17 09:01:20  [etl.cif]           ✓ INFO      Duración total: 820.8s
+2026-07-17 09:01:20  [etl.orquestador]   ✓ INFO      ETL 'cif' terminó — ✓ OK en 820.8s
+2026-07-17 09:01:39  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ EXITO: Target normalizado guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\SOS\Colombia_sos_target_Normalizado.xlsx
+2026-07-17 09:01:39  [etl.precios]       ✓ INFO      [stdout] ✅ EXITO: Target normalizado guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\SOS\Colombia_sos_target_Normalizado.xlsx
+2026-07-17 09:01:39  [etl.sos]           ✓ INFO      Target normalizado
+2026-07-17 09:01:39  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 5: Generando Reporte Final (Cruce Triple y Cálculos)  (Julio_2026) ---
+2026-07-17 09:01:39  [etl.precios]       · DEBUG     [stdout] --- PASO 5: Generando Reporte Final (Cruce Triple y Cálculos)  (Julio_2026) ---
+2026-07-17 09:02:41  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ EXITO: Reporte Final SOS (Julio_2026) generado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\SOS\Reporte_SOS_Final_Calculado.xlsx
+2026-07-17 09:02:41  [etl.precios]       ✓ INFO      [stdout] ✅ EXITO: Reporte Final SOS (Julio_2026) generado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SALIDA\SOS\Reporte_SOS_Final_Calculado.xlsx
+2026-07-17 09:02:41  [etl.sos]           ✓ INFO      Cruce triple y cálculo SOS completado
+2026-07-17 09:02:41  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 6 (V3): RESUMEN KPI SOS por gestor  (Julio_2026) ---
+2026-07-17 09:02:41  [etl.precios]       · DEBUG     [stdout] --- PASO 6 (V3): RESUMEN KPI SOS por gestor  (Julio_2026) ---
+2026-07-17 09:02:41  [etl.exhib_pagadas]  · DEBUG     [stdout] Leyendo: Cumplimiento_Captura_SOS.xlsx (742 filas)
+2026-07-17 09:02:41  [etl.precios]       · DEBUG     [stdout] Leyendo: Cumplimiento_Captura_SOS.xlsx (742 filas)
+2026-07-17 09:02:42  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Mes activo: 114 gestores → SOS_KPIS.xlsx
+2026-07-17 09:02:42  [etl.precios]       ✓ INFO      [stdout] ✅ Mes activo: 114 gestores → SOS_KPIS.xlsx
+2026-07-17 09:02:42  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Histórico acumulado → SOS_KPIS_HISTORICO.xlsx
+2026-07-17 09:02:42  [etl.precios]       ✓ INFO      [stdout] ✅ Histórico acumulado → SOS_KPIS_HISTORICO.xlsx
+2026-07-17 09:02:42  [etl.sos]           ✓ INFO      KPI SOS consolidado
+2026-07-17 09:02:42  [etl.sos]           ✓ INFO      ETL SOS — completado
+2026-07-17 09:02:42  [etl.sos]           ✓ INFO      Duración total: 903.1s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      ETL 'sos' terminó — ✓ OK en 903.1s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        cif                    ✓ OK             820.8s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        nopresencia            ✓ OK             636.8s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        precios                ✓ OK             126.4s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        sos                    ✓ OK             903.1s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        exhib_pagadas          ✓ OK              91.5s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        exhib_gratis           ✓ OK             390.5s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK             344.2s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        impactos               ✓ OK               3.5s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        impactos_segmentos     ✓ OK             545.3s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               2.1s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        905.2s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                 3864.2s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        Ahorro estimado                        2958.9s
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      ························································
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      ························································
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO        08:47:39  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260717_084736.log
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      Fin: 2026-07-17 09:02:42
+2026-07-17 09:02:42  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
