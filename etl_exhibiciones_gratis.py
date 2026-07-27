@@ -1,68 +1,51 @@
 import os
 import glob
-import io
-import requests
+from pathlib import Path
 import pandas as pd
 import numpy as np
-from pathlib import Path
 from dotenv import load_dotenv
 
-# Ubica el archivo .env en la misma ruta de tu script o proyecto
-env_path = Path(__file__).resolve().parent / '.env'
-load_dotenv(dotenv_path=env_path)
 import paths
 import periodo_resolver as pr
-from supabase import create_client, Client
 
 # ==============================================================================
-# 1. CONFIGURACIÓN Y AZURE / SHAREPOINT
+# 0. CONFIGURACIÓN ENTORNO NUBE — SHAREPOINT / AZURE (100% NUBE)
+# ==============================================================================
+load_dotenv()
+
+AZURE_STORAGE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+SHAREPOINT_BASE_DIR = os.getenv("SHAREPOINT_BASE_DIR", "Equipo Información/BI/INVOLVES")
+_BASES_ROOT = os.getenv("BASES_ROOT", f"{SHAREPOINT_BASE_DIR}/BASES DE RESPUESTAS")
+_SALIDAS_ROOT = os.getenv("SALIDAS_ROOT", f"{SHAREPOINT_BASE_DIR}/SALIDAS")
+AÑO_ACTUAL = pd.Timestamp.now().year
+
+RUTA_CARPETA_PT = f"{SHAREPOINT_BASE_DIR}/PLAN DE TRABAJO"
+RUTA_CARPETA_BASES_EXHIB = f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}"
+RUTA_CARPETA_SALIDAS_EXHIB = f"{_SALIDAS_ROOT}/EXHIBICIONES"
+
+# Creamos la ruta física localmente de forma temporal para satisfacer el .is_dir() de periodo_resolver.py
+dir_exhib_temporal = Path(f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}")
+dir_exhib_temporal.mkdir(parents=True, exist_ok=True)
+
+# Forzamos rutas exclusivamente a la nube usando objetos Path
+paths.EXHIB_DATA_DIR = dir_exhib_temporal
+paths.CIF_OUT_FINAL = Path(f"{RUTA_CARPETA_PT}/Plan de trabajo.xlsx")
+paths.EXHIB_SALIDA = Path(f"{RUTA_CARPETA_SALIDAS_EXHIB}")
+paths.EXHIB_NIVEL_IMPACTO = Path(f"{_BASES_ROOT}/Nivel Impacto.xlsx")
+paths.DYP_BASE_CUPOS = Path(f"{_BASES_ROOT}/Base cupos.xlsx")
+
+# ==============================================================================
+# 1. CONFIGURACIÓN
 # ==============================================================================
 DATA_DIR = str(paths.EXHIB_DATA_DIR)
-
-# Configuración Azure / Microsoft Graph para SharePoint
-TENANT_ID = os.getenv("AZURE_TENANT_ID")
-CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
-CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
-SHAREPOINT_SITE_ID = os.getenv("SHAREPOINT_SITE_ID")
-
-# Configuración Supabase
-SUPABASE_URL = os.getenv("SUPABASE_URL", "TU_SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "TU_SUPABASE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-def get_azure_token() -> str:
-    url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token"
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    data = {
-        "grant_type": "client_credentials",
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "scope": "https://graph.microsoft.com/.default"
-    }
-    response = requests.post(url, headers=headers, data=data)
-    response.raise_for_status()
-    return response.json()["access_token"]
-
-def descargar_de_sharepoint(relative_path: str) -> io.BytesIO:
-    token = get_azure_token()
-    headers = {"Authorization": f"Bearer {token}"}
-    url = f"https://graph.microsoft.com/v1.0/sites/{SHAREPOINT_SITE_ID}/drive/root:/{relative_path}:/content"
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    return io.BytesIO(response.content)
-
-def subir_a_sharepoint(file_bytes: bytes, relative_path: str):
-    token = get_azure_token()
-    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-    url = f"https://graph.microsoft.com/v1.0/sites/{SHAREPOINT_SITE_ID}/drive/root:/{relative_path}:/content"
-    response = requests.put(url, headers=headers, data=file_bytes)
-    response.raise_for_status()
 
 FILE_NIVEL_IMPACTO = str(paths.EXHIB_NIVEL_IMPACTO)
 OUTPUT_PATH = str(paths.EXHIB_SALIDA / "Resultado exhibiciones gratis.xlsx")
 PLAN_SHEET = "Plan de trabajo"
 
-# Columnas clave encuesta
 COL_ID_PDV          = "ID del PDV"
 COL_EMPLEADO        = "Empleado"
 COL_PERFIL_EMP      = "Perfil de acceso"
@@ -71,36 +54,30 @@ COL_MES             = "Mes del año"
 COL_ANIO            = "Año"
 COL_EXHIBICIONES    = "EXHIBICIONES:"
 
-# Gratis / Concurso
 COL_TIPO_EXHIB_GC   = "Seleccionar el Tipo de la exhibicion:"
 COL_MARCA_GC        = "MARCA"
 COL_CANTIDAD_GC     = "*Digite el numero de exhibiciones adicionales para este tipo"
 
-# Pagadas
 COL_TIPO_EXHIB_PAG  = "Seleccionar el Tipo de la exhibicion (Pagadas)"
 COL_MARCA_PAG       = "MARCA.1"
 COL_CANTIDAD_PAG    = "*Digite el numero de exhibiciones adicionales para este tipo."
-COL_IMPLEMENTADA    = "La Exhibicion esta implementada de acuerdo con el planning?"
+COL_IMPLEMENTADA    = "La Exhibicion esta implementada de acuerdo con le planning?"
 COL_CAUSAL          = "Indique las causales:"
 
-# Contraprestación
 COL_TIPO_CONTRA     = "Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN"
 COL_MARCA_CONTRA    = "MARCA - CONTRAPRESTACIÓN"
 COL_CANTIDAD_CONTRA = "*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN"
 
-# Columnas Plan de Trabajo
 COL_PLAN_ID_PDV     = "ID_PDV_INVOLVES"
 COL_PLAN_ROL        = "ROL"
 COL_PLAN_FREC       = "CANTIDAD_VISITAS" 
 COL_PLAN_MES        = "MES"   
 COL_PLAN_ANIO       = "AÑO"   
 
-# Columnas Visitas Realizadas
 COL_VIS_ID_PDV      = "ID del PDV"
 COL_VIS_EMPLEADO    = "Empleado"
 COL_VIS_FECHA       = "Fecha de la visita"
 
-# Valores de negocio
 EXHIB_PAGADA        = "Exhibiciones Pagadas"
 EXHIB_GRATIS        = "Exhibiciones Gratis"
 EXHIB_CONCURSO      = "Exhibiciones Concurso"
@@ -118,7 +95,7 @@ PERFIL_A_ROL = {
 OUTPUT_COLS = ["Mes", "Año", "Mes-Año", "ID PDV", "Categoría", "Tipo Exhibición", "Nivel Impacto", "Marca", "Cantidad", "Empleado", "Rol Empleado"]
 
 # ==============================================================================
-# 2. CARGADORES (loaders.py adaptados a Cloud)
+# 2. CARGADORES (loaders.py)
 # ==============================================================================
 
 import sys
@@ -126,6 +103,7 @@ try:
     sys.stdout.reconfigure(encoding="utf-8")
 except AttributeError:
     pass
+
 
 def _semana_del_mes(fecha) -> int:
     if pd.isnull(fecha): return -1
@@ -136,36 +114,74 @@ def _semana_del_mes(fecha) -> int:
 def resolve_files(spec: pr.PeriodoSpec) -> dict:
     groups: dict[str, list[str]] = {}
 
-    groups["informar"]   = [str(pr.exh_base_informar(spec))]
-    groups["planning"]   = [str(pr.exh_base_planning(spec))]
-    groups["visitas"]    = [str(pr.exh_visitas(spec))]
+    # Obtenemos la ruta base dinámicamente desde el módulo paths (Cloud / Local agnostic)
+    base_dir = Path(paths.EXHIB_DATA_DIR)
 
-    cif_out = paths.CIF_OUT_FINAL
-    if cif_out.is_file():
-        groups["plan_trabajo"] = [str(cif_out)]
-    else:
-        groups["plan_trabajo"] = []
-        print(
-            f"    ⚠ No se encontró {cif_out.name} — ejecuta primero el ETL CIF "
-            f"({spec.etiqueta}); exhibiciones gratis no podrá computar frecuencias planeadas."
-        )
+    p_informar = str(base_dir / f"Base Exhibiciones Informar {spec.mes_str} {spec.anio}.xlsx")
+    p_planning = str(base_dir / f"Base Exhibiciones Planning {spec.mes_str} {spec.anio}.xlsx")
+    
+    try:
+        p_visitas = str(pr.cif_involves(spec))
+    except Exception:
+        p_visitas = ""
 
+    # Plan de trabajo dinámico según paths
+    try:
+        if hasattr(paths, "CIF_OUT_FINAL") and paths.CIF_OUT_FINAL:
+            p_plan_trabajo = str(paths.CIF_OUT_FINAL)
+        else:
+            p_plan_trabajo = str(base_dir.parent.parent / "PLAN DE TRABAJO" / "Plan de trabajo.xlsx")
+    except Exception:
+        p_plan_trabajo = ""
+
+    groups["informar"]     = [p_informar] if p_informar else []
+    groups["planning"]     = [p_planning] if p_planning else []
+    groups["visitas"]      = [p_visitas] if p_visitas else []
+    groups["plan_trabajo"] = [p_plan_trabajo] if p_plan_trabajo else []
+
+    print(f"\n☁️ [NUBE / GITHUB ACTIONS] Rutas y archivos aplicados para el periodo {spec.etiqueta}:")
     for tipo, archivos in groups.items():
         print(f"  [{tipo}] {len(archivos)} archivo(s):")
         for a in archivos:
-            print(f"    - {os.path.basename(a)}")
+            print(f"    - Ruta: {a}")
+            print(f"    - Archivo: {os.path.basename(a) if a else 'NINGUNO'}")
+            
+    return groups
+            
+    return groups
+
+    def limpiar_path(p):
+        nombre = os.path.basename(p)
+        if "informe-gerencial-visitas" in nombre.lower():
+            return f"{_BASES_ROOT}/CIF/INVOLVES/{nombre}"
+        return f"{_BASES_ROOT}/EXHIBICIONES/{spec.anio}/{nombre}"
+
+    groups["informar"]   = [limpiar_path(p_informar)]
+    groups["planning"]   = [limpiar_path(p_planning)]
+    groups["visitas"]    = [limpiar_path(p_visitas)]
+    groups["plan_trabajo"] = [str(paths.CIF_OUT_FINAL)]
+
+    print(f"\n☁️ [NUBE / SHAREPOINT] Rutas y archivos aplicados para el periodo {spec.etiqueta}:")
+    print(f"  📂 Carpeta Base Exhibiciones: {RUTA_CARPETA_BASES_EXHIB}")
+    print(f"  📂 Carpeta Plan de Trabajo:  {RUTA_CARPETA_PT}")
+    print(f"  📂 Carpeta Salidas Cloud:    {RUTA_CARPETA_SALIDAS_EXHIB}")
+    
+    for tipo, archivos in groups.items():
+        print(f"  [{tipo}] {len(archivos)} archivo(s) en SharePoint:")
+        for a in archivos:
+            print(f"    - Ruta cloud: {a}")
+            print(f"    - Archivo: {os.path.basename(a)}")
+            
     return groups
 
 def load_encuestas(files: dict) -> pd.DataFrame:
     dfs = []
     for path in files.get("informar", []) + files.get("planning", []):
         try:
-            sp_path = f"ETL/Exhibiciones/Entrada/{os.path.basename(path)}"
-            file_stream = descargar_de_sharepoint(sp_path)
-            df = pd.read_excel(file_stream, sheet_name="report")
+            df = pd.read_excel(path, sheet_name="report")
             dfs.append(df)
             print(f"    ✓ [Cloud] {os.path.basename(path)} — {len(df):,} filas")
-        except Exception as e: print(f"    ⚠ Error leyendo {os.path.basename(path)} desde Cloud: {e}")
+        except Exception as e: print(f"    ⚠ Error leyendo desde SharePoint {os.path.basename(path)}: {e}")
     if not dfs: raise ValueError("No se encontraron archivos de encuesta en la nube.")
     cols_comunes = set(dfs[0].columns)
     for df in dfs[1:]: cols_comunes &= set(df.columns)
@@ -181,8 +197,7 @@ def load_plan(files: dict) -> pd.DataFrame:
     dfs = []
     for path in files.get("plan_trabajo", []):
         try:
-            file_stream = descargar_de_sharepoint(f"ETL/CIF/Salida/{os.path.basename(path)}")
-            df = pd.read_excel(file_stream)
+            df = pd.read_excel(path)   
             df.columns = [str(c).strip().upper() for c in df.columns]
             if COL_PLAN_ROL in df.columns:
                 mask = df[COL_PLAN_ROL].astype(str).str.upper().str.strip() == 'GESTOR'
@@ -190,8 +205,8 @@ def load_plan(files: dict) -> pd.DataFrame:
             dfs.append(df)
             print(f"    ✓ [Cloud] {os.path.basename(path)} — {len(df):,} gestores cargados")
         except Exception as e:
-            print(f"    ⚠ Error leyendo plan de trabajo desde Cloud: {e}")
-    if not dfs: raise ValueError("No se encontraron registros de GESTOR.")
+            print(f"    ⚠ Error leyendo plan en la nube {os.path.basename(path)}: {e}")
+    if not dfs: raise ValueError("No se encontraron registros de GESTOR en la nube.")
     df = pd.concat(dfs, ignore_index=True)
     df = df[[COL_PLAN_ID_PDV, COL_PLAN_ROL, 'CANTIDAD_VISITAS', COL_PLAN_MES, COL_PLAN_ANIO]].copy()
     df[COL_PLAN_ID_PDV] = pd.to_numeric(df[COL_PLAN_ID_PDV], errors="coerce")
@@ -208,14 +223,13 @@ def load_visitas(files: dict) -> pd.DataFrame:
     dfs = []
     for path in files.get("visitas", []):
         try:
-            file_stream = descargar_de_sharepoint(f"ETL/Exhibiciones/Entrada/{os.path.basename(path)}")
-            df = pd.read_excel(file_stream)
+            df = pd.read_excel(path)
             dfs.append(df)
             print(f"    ✓ [Cloud] {os.path.basename(path)} — {len(df):,} filas")
         except Exception as e:
-            print(f"    ⚠ Error leyendo visitas desde Cloud: {e}")
+            print(f"    ⚠ Error leyendo visitas en la nube {os.path.basename(path)}: {e}")
     if not dfs:
-        raise ValueError("No se encontraron archivos de Visitas (Involves).")
+        raise ValueError("No se encontraron archivos de Visitas en la nube.")
     df = pd.concat(dfs, ignore_index=True)
 
     if "Tipo de check-in" in df.columns:
@@ -225,7 +239,7 @@ def load_visitas(files: dict) -> pd.DataFrame:
         print(f"    🔎 Filtro Tipo de check-in: descartadas {n_dropped:,} filas 'Sin check-in' "
               f"({n_dropped/n_antes*100:.1f}%); quedan {len(df):,} visitas efectivas.")
     else:
-        print("    ⚠ Columna 'Tipo de check-in' no encontrada — no se aplicó filtro F6.b.")
+        print("    ⚠ Columna 'Tipo de check-in' no encontrada.")
 
     df[COL_VIS_FECHA] = pd.to_datetime(df[COL_VIS_FECHA], dayfirst=True, errors="coerce")
     df["_semana_mes"] = df[COL_VIS_FECHA].apply(_semana_del_mes)
@@ -235,13 +249,12 @@ def load_visitas(files: dict) -> pd.DataFrame:
     return df[[COL_VIS_ID_PDV, COL_VIS_EMPLEADO, COL_VIS_FECHA, "_semana_mes"]]
 
 def load_nivel_impacto() -> pd.DataFrame:
-    file_stream = descargar_de_sharepoint("ETL/Exhibiciones/Maestras/Nivel_Impacto.xlsx")
-    df = pd.read_excel(file_stream)
+    df = pd.read_excel(FILE_NIVEL_IMPACTO)
     df.columns = df.columns.str.strip()
     return df[["Tipo Exhibición", "Nivel Impacto"]]
 
 # ==============================================================================
-# 3. MÓDULOS DE LÓGICA (Gratis y Pagadas) — SIN MODIFICAR LÓGICA
+# 3. MÓDULOS DE LÓGICA (Gratis y Pagadas)
 # ==============================================================================
 
 def calcular_gratis_concurso(df_enc, df_plan, df_visitas) -> pd.DataFrame:
@@ -281,13 +294,13 @@ def calcular_gratis_concurso(df_enc, df_plan, df_visitas) -> pd.DataFrame:
         if cumple:
             cant_sem = grupo.groupby("_semana_mes")["Cantidad"].sum()
             return pd.Series({"Cantidad": cant_sem.mean(),
-                              "_cumple": True,
-                              "_semanas_distintas": int(semanas_distintas),
-                              "_frec_ref": float(frec_ref) if pd.notna(frec_ref) else 0.0})
+                            "_cumple": True,
+                            "_semanas_distintas": int(semanas_distintas),
+                            "_frec_ref": float(frec_ref) if pd.notna(frec_ref) else 0.0})
         return pd.Series({"Cantidad": float(grupo["Cantidad"].sum()),
-                          "_cumple": False,
-                          "_semanas_distintas": int(semanas_distintas),
-                          "_frec_ref": float(frec_ref) if pd.notna(frec_ref) else 0.0})
+                        "_cumple": False,
+                        "_semanas_distintas": int(semanas_distintas),
+                        "_frec_ref": float(frec_ref) if pd.notna(frec_ref) else 0.0})
 
     res = df.groupby(KEY, dropna=False).apply(evaluar_cumplimiento).reset_index()
     fuera = res[res["_cumple"] == False].copy()
@@ -298,10 +311,9 @@ def calcular_gratis_concurso(df_enc, df_plan, df_visitas) -> pd.DataFrame:
             COL_TIPO_EXHIB_GC: "Tipo Exhibición",
         })
         fuera["Categoría"] = fuera["Categoría"].str.replace("Exhibiciones ", "").str.strip()
-        import paths as _paths_persist
-        ruta_fuera = _paths_persist.EXHIB_SALIDA / "Exh_Gratis_Fuera_de_Regla.xlsx"
+        ruta_fuera = f"{RUTA_CARPETA_SALIDAS_EXHIB}/Exh_Gratis_Fuera_de_Regla.xlsx"
         try:
-            if ruta_fuera.exists():
+            if os.path.exists(ruta_fuera) or str(ruta_fuera).startswith("http") or "sharepoint" in str(ruta_fuera).lower():
                 prev = pd.read_excel(ruta_fuera)
                 if COL_MES in prev.columns and COL_ANIO in prev.columns:
                     periodos_nuevos = set(map(tuple,
@@ -315,13 +327,10 @@ def calcular_gratis_concurso(df_enc, df_plan, df_visitas) -> pd.DataFrame:
                     fuera_out = fuera
             else:
                 fuera_out = fuera
-            
-            fuera_io = io.BytesIO()
-            fuera_out.to_excel(fuera_io, index=False, engine="openpyxl")
-            fuera_io.seek(0)
-            subir_a_sharepoint(fuera_io.getvalue(), "ETL/Exhibiciones/Salida/Exh_Gratis_Fuera_de_Regla.xlsx")
+            os.makedirs(os.path.dirname(str(ruta_fuera)), exist_ok=True)
+            fuera_out.to_excel(ruta_fuera, index=False, engine="openpyxl")
         except Exception as ee:
-            print(f"  ⚠️ No pude persistir Exh Gratis fuera de regla en Cloud: {ee}")
+            print(f"  ⚠️ No pude persistir Exh Gratis fuera de regla en nube: {ee}")
 
     res = res[res["_cumple"] == True].drop(
         columns=["_cumple", "_semanas_distintas", "_frec_ref"]
@@ -354,31 +363,34 @@ def calcular_pagadas(df_enc) -> pd.DataFrame:
     return agg
 
 # ==============================================================================
-# 4. ORQUESTADOR (pipeline.py adaptado a Cloud + Supabase)
+# 4. ORQUESTADOR (pipeline.py)
 # ==============================================================================
 
 def run(spec: pr.PeriodoSpec):
-    print(f"── Resolviendo archivos fuente en Cloud ({spec.etiqueta}) ─")
+    if not DATA_DIR:
+        print(f"❌ No se encontró directorio cloud de exhibiciones: {DATA_DIR}")
+        return
+    print(f"── Resolviendo fuentes en SharePoint ({spec.etiqueta}) ─")
     files = resolve_files(spec)
-    print("\n── Cargando archivos fuente desde Cloud ──────────")
+    print("\n── Cargando fuentes desde SharePoint ────────────")
     df_enc = load_encuestas(files)
     df_plan = load_plan(files)
     df_vis = load_visitas(files)
     df_nivel = load_nivel_impacto()
 
-    print(f"\n  Encuestas consolidadas: {len(df_enc):,} filas")
-    print(f"  Plan de trabajo:         {len(df_plan):,} filas")
-    print(f"  Visitas realizadas:      {len(df_vis):,} filas")
+    print(f"\n   Encuestas consolidadas: {len(df_enc):,} filas")
+    print(f"   Plan de trabajo:        {len(df_plan):,} filas")
+    print(f"   Visitas realizadas:     {len(df_vis):,} filas")
 
     print("\n── Módulo 1: Exhibiciones Pagadas ───────────────")
     df_pag = calcular_pagadas(df_enc)
-    print(f"  Implementadas pagadas:          {len(df_pag):,} filas")
+    print(f"   Implementadas pagadas:           {len(df_pag):,} filas")
 
     print("\n── Módulo 2: Exhibiciones Gratis y Concurso ─────")
     df_gc = calcular_gratis_concurso(df_enc, df_plan, df_vis)
-    print(f"  Implementadas gratis/concurso: {len(df_gc):,} filas")
+    print(f"   Implementadas gratis/concurso: {len(df_gc):,} filas")
 
-    print("\n── Consolidando output ──────────────────────────")
+    print("\n── Consolidando y escribiendo en SharePoint ─────")
     df_out = pd.concat([df_pag, df_gc], ignore_index=True)
     df_out = df_out.merge(df_nivel, on="Tipo Exhibición", how="left")
     df_out[COL_MES] = df_out[COL_MES].astype("Int64")
@@ -389,57 +401,53 @@ def run(spec: pr.PeriodoSpec):
     df_out = df_out[OUTPUT_COLS].sort_values(["Año", "Mes", "ID PDV"])
     df_out["Cantidad"] = pd.to_numeric(df_out["Cantidad"], errors="coerce").round(2)
 
-    try:
-        prev_stream = descargar_de_sharepoint("ETL/Exhibiciones/Salida/Resultado exhibiciones gratis.xlsx")
-        df_prev = pd.read_excel(prev_stream, sheet_name="Exhibiciones_implementadas")
-        if "Mes" in df_prev.columns and "Año" in df_prev.columns:
-            periodos_actuales = set(
-                (int(m), int(a)) for m, a in zip(df_out["Mes"], df_out["Año"])
-                if pd.notna(m) and pd.notna(a)
-            )
-            df_prev["_mes_int"]  = pd.to_numeric(df_prev["Mes"],  errors="coerce")
-            df_prev["_anio_int"] = pd.to_numeric(df_prev["Año"], errors="coerce")
-            mask_keep = ~df_prev.apply(
-                lambda r: (r["_mes_int"], r["_anio_int"]) in periodos_actuales,
-                axis=1,
-            )
-            df_prev = df_prev[mask_keep].drop(columns=["_mes_int", "_anio_int"])
-            df_out = pd.concat([df_prev, df_out], ignore_index=True, sort=False)
-            df_out = df_out[OUTPUT_COLS].sort_values(["Año", "Mes", "ID PDV"])
-        else:
-            print("  ⚠️  Resultado exhibiciones gratis previo sin Mes/Año — descartado en upsert.")
-    except Exception as e:
-        print(f"  ⚠️  No se pudo leer Resultado exhibiciones gratis previo de Cloud ({e}); se sobrescribe.")
+    if os.path.exists(OUTPUT_PATH) or str(OUTPUT_PATH).startswith("http") or "sharepoint" in str(OUTPUT_PATH).lower():
+        try:
+            df_prev = pd.read_excel(OUTPUT_PATH, sheet_name="Exhibiciones_implementadas")
+            if "Mes" in df_prev.columns and "Año" in df_prev.columns:
+                periodos_actuales = set(
+                    (int(m), int(a)) for m, a in zip(df_out["Mes"], df_out["Año"])
+                    if pd.notna(m) and pd.notna(a)
+                )
+                df_prev["_mes_int"]  = pd.to_numeric(df_prev["Mes"],  errors="coerce")
+                df_prev["_anio_int"] = pd.to_numeric(df_prev["Año"], errors="coerce")
+                mask_keep = ~df_prev.apply(
+                    lambda r: (r["_mes_int"], r["_anio_int"]) in periodos_actuales,
+                    axis=1,
+                )
+                df_prev = df_prev[mask_keep].drop(columns=["_mes_int", "_anio_int"])
+                df_out = pd.concat([df_prev, df_out], ignore_index=True, sort=False)
+                df_out = df_out[OUTPUT_COLS].sort_values(["Año", "Mes", "ID PDV"])
+            else:
+                print("  ⚠️  Resultado previo sin Mes/Año — descartado en upsert.")
+        except Exception as e:
+            print(f"  ⚠️  No se pudo leer resultado previo en nube ({e}); se sobrescribe.")
 
-    output_io = io.BytesIO()
-    with pd.ExcelWriter(output_io, engine="openpyxl") as writer:
-        df_out.to_excel(writer, index=False, sheet_name="Exhibiciones_implementadas")
-    output_io.seek(0)
-    subir_a_sharepoint(output_io.getvalue(), "ETL/Exhibiciones/Salida/Resultado exhibiciones gratis.xlsx")
-    print(f"\n✓ Output subido a SharePoint ({len(df_out):,} filas)")
-
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    df_out.to_excel(OUTPUT_PATH, index=False, sheet_name="Exhibiciones_implementadas")
+    print(f"\n✓ Output escrito con éxito en SharePoint: {OUTPUT_PATH} ({len(df_out):,} filas)")
+    
     m_gratis, m_pag = df_out["Categoría"].isin(["Gratis", "Concurso"]), df_out["Categoría"] == "Pagada"
     m_alto, m_medio = df_out["Nivel Impacto"] == "ALTO IMPACTO", df_out["Nivel Impacto"] == "MEDIO IMPACTO"
 
     print("\n── Resumen de Exhibiciones ──────────────────────")
-    print(f"  Total Exhibiciones:                        {df_out['Cantidad'].sum():>8,.0f}")
-    print(f"  Total Exhibiciones Gratis:                 {df_out.loc[m_gratis, 'Cantidad'].sum():>8,.0f}")
-    print(f"  Total Exhibiciones Pagadas:                {df_out.loc[m_pag, 'Cantidad'].sum():>8,.0f}")
-    print(f"\n  Total Exhibiciones Alto Impacto:           {df_out.loc[m_alto, 'Cantidad'].sum():>8,.0f}")
-    print(f"  Total Exhibiciones Medio Impacto:          {df_out.loc[m_medio, 'Cantidad'].sum():>8,.0f}")
+    print(f"   Total Exhibiciones:                                    {df_out['Cantidad'].sum():>8,.0f}")
+    print(f"   Total Exhibiciones Gratis:                             {df_out.loc[m_gratis, 'Cantidad'].sum():>8,.0f}")
+    print(f"   Total Exhibiciones Pagadas:                            {df_out.loc[m_pag, 'Cantidad'].sum():>8,.0f}")
+    print(f"\n   Total Exhibiciones Alto Impacto:                       {df_out.loc[m_alto, 'Cantidad'].sum():>8,.0f}")
+    print(f"   Total Exhibiciones Medio Impacto:                      {df_out.loc[m_medio, 'Cantidad'].sum():>8,.0f}")
     print("─────────────────────────────────────────────────")
 
 def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
-    print(f"\n--- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado  ({spec.etiqueta}) ---")
-    import paths as _paths
-    try:
-        file_stream = descargar_de_sharepoint("ETL/Exhibiciones/Salida/Resultado exhibiciones gratis.xlsx")
-        df = pd.read_excel(file_stream, engine='openpyxl')
-    except Exception as e:
-        print(f"❌ No se pudo descargar el resultado de exhibiciones gratis: {e}")
+    print(f"\n--- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado (Nube) ({spec.etiqueta}) ---")
+    ruta = OUTPUT_PATH
+    if not os.path.exists(ruta) and not str(ruta).startswith("http") and "sharepoint" not in str(ruta).lower():
+        print(f"❌ No existe en nube: {ruta}")
         return
-
+    df = pd.read_excel(ruta, engine='openpyxl')
     df.columns = [str(c).strip() for c in df.columns]
+    print(f"  Leyendo desde SharePoint: {os.path.basename(ruta)} ({len(df)} filas)")
+
     df = df[df['Categoría'].astype(str).str.strip().str.lower() == 'gratis'].copy()
 
     df['Mes'] = pd.to_numeric(df.get('Mes'), errors='coerce').fillna(0).astype(int)
@@ -450,7 +458,7 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
     df_periodo = df[(df['Mes'] == spec.mes) & (df['Año'] == spec.anio)].copy()
     if df_periodo.empty:
         raise ValueError(
-            f"Exh Gratis KPI: no hay filas del periodo {spec.etiqueta}. Corre `run(spec)` para este mes antes del KPI."
+            f"Exh Gratis KPI: no hay filas del periodo {spec.etiqueta} en SharePoint."
         )
     df = df_periodo
 
@@ -469,8 +477,8 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
             resumen[col] = 0
 
     try:
-        bc_stream = descargar_de_sharepoint("ETL/Maestras/Base_cupos.xlsx")
-        bc = pd.read_excel(bc_stream, sheet_name="Tabla total roles")
+        path_dy_cupos = paths.DYP_BASE_CUPOS
+        bc = pd.read_excel(path_dy_cupos, sheet_name="Tabla total roles")
         bc["NOMBRE_N"] = (
             bc["NOMBRE"].astype(str).str.strip().str.upper()
             .str.replace(r"\s+", " ", regex=True)
@@ -480,7 +488,7 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
             bc["CANAL"].astype(str).str.strip().str.upper(),
         ))
     except Exception as e:
-        print(f"  ⚠️ No pude leer Base cupos de Cloud para targets por canal ({e}); uso 3/5 por defecto.")
+        print(f"  ⚠️ No pude leer Base cupos para targets por canal ({e}); uso 3/5 por defecto.")
         canal_por_nombre = {}
 
     def _targets_por_canal(empleado: str) -> tuple[int, int]:
@@ -515,20 +523,20 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
     else:
         resumen_activo = resumen.copy()
 
-    # Subir mes activo a SharePoint
-    act_io = io.BytesIO()
-    resumen_activo.to_excel(act_io, index=False, engine='openpyxl')
-    act_io.seek(0)
-    subir_a_sharepoint(act_io.getvalue(), "ETL/Exhibiciones/Salida/Resumen_Exh_Gratis_KPIs.xlsx")
-    print(f"  ✅ Mes activo subido a SharePoint: {len(resumen_activo)} empleados")
+    path_kpis = f"{RUTA_CARPETA_SALIDAS_EXHIB}/KPI_Exhibiciones_Gratis.xlsx"
+    os.makedirs(os.path.dirname(str(path_kpis)), exist_ok=True)
+    resumen_activo.to_excel(str(path_kpis), index=False, engine='openpyxl')
+    print(f"  ✅ Mes activo en SharePoint: {len(resumen_activo)} empleados → {os.path.basename(str(path_kpis))}")
 
-    # Histórico
-    try:
-        hist_stream = descargar_de_sharepoint("ETL/Exhibiciones/Salida/Resumen_Exh_Gratis_KPIs_Historico.xlsx")
-        hist_prev = pd.read_excel(hist_stream, engine='openpyxl')
-        hist_prev['Mes'] = pd.to_numeric(hist_prev.get('Mes'), errors='coerce').fillna(0).astype(int)
-        hist_prev['Año'] = pd.to_numeric(hist_prev.get('Año'), errors='coerce').fillna(0).astype(int)
-    except Exception:
+    path_hist = f"{RUTA_CARPETA_SALIDAS_EXHIB}/KPI_Exhibiciones_Gratis_Historico.xlsx"
+    if os.path.exists(str(path_hist)) or str(path_hist).startswith("http") or "sharepoint" in str(path_hist).lower():
+        try:
+            hist_prev = pd.read_excel(str(path_hist), engine='openpyxl')
+            hist_prev['Mes'] = pd.to_numeric(hist_prev.get('Mes'), errors='coerce').fillna(0).astype(int)
+            hist_prev['Año'] = pd.to_numeric(hist_prev.get('Año'), errors='coerce').fillna(0).astype(int)
+        except Exception:
+            hist_prev = pd.DataFrame(columns=cols_final)
+    else:
         hist_prev = pd.DataFrame(columns=cols_final)
 
     if not hist_prev.empty and not resumen.empty:
@@ -542,34 +550,14 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
 
     hist_final = pd.concat([hist_prev, resumen], ignore_index=True)
     hist_final = hist_final.sort_values(['Año', 'Mes', 'Empleado'])
-
-    hist_io = io.BytesIO()
-    hist_final.to_excel(hist_io, index=False, engine='openpyxl')
-    hist_io.seek(0)
-    subir_a_sharepoint(hist_io.getvalue(), "ETL/Exhibiciones/Salida/Resumen_Exh_Gratis_KPIs_Historico.xlsx")
-    print("  ✅ Histórico subido a SharePoint.")
-
-    # --- CARGUE DIRECTO A SUPABASE (CAMBIO CLAVE: se usa 'anio' en lugar de 'año' para evitar warnings con Supabase) ---
-    try:
-        print("  🚀 Subiendo KPIs de Exhibiciones Gratis a Supabase...")
-        df_kpi = resumen.copy()
-        df_kpi.columns = df_kpi.columns.str.strip().str.lower()
-        if 'año' in df_kpi.columns:
-            df_kpi = df_kpi.rename(columns={'año': 'anio'})
-        
-        df_kpi = df_kpi.replace([np.inf, -np.inf], 0)
-        df_kpi_limpio = df_kpi.astype(object).where(pd.notnull(df_kpi), None)
-        
-        registros_json = df_kpi_limpio.to_dict(orient="records")
-        supabase.table("exhibiciones_gratis_kpis").upsert(registros_json).execute()
-        print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} registros subidos a Supabase.")
-    except Exception as ex_cloud:
-        print(f"  ⚠ ADVERTENCIA EN CARGA CLOUD A SUPABASE: {ex_cloud}")
+    os.makedirs(os.path.dirname(str(path_hist)), exist_ok=True)
+    hist_final.to_excel(str(path_hist), index=False, engine='openpyxl')
+    print(f"  ✅ Histórico actualizado en SharePoint → {os.path.basename(str(path_hist))}")
 
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="ETL Exhibiciones Gratis Cloud — Supabase & Azure")
+    parser = argparse.ArgumentParser(description="ETL Exhibiciones Gratis — SharePoint / Azure")
     parser.add_argument("--solo", nargs="+", choices=["full", "kpi"],
                         help="Default: corre todo + kpi.")
     pr.cli_add_periodos_arg(parser)
@@ -578,20 +566,20 @@ if __name__ == "__main__":
     specs = pr.periodos_de_args(args)
 
     if len(specs) > 1:
-        print(f"🎯 ETL Exh Gratis — multi-periodo: {len(specs)} meses → "
+        print(f"🎯 ETL Exh Gratis (Cloud) — multi-periodo: {len(specs)} meses → "
               f"{', '.join(s.etiqueta for s in specs)}")
 
     for i, spec in enumerate(specs, 1):
         if len(specs) > 1:
-            print(f"\n▶ Periodo {i}/{len(specs)}: {spec.etiqueta}")
-        print(f"\n🎯 ETL Exh Gratis — procesando periodo {spec.etiqueta} ({spec})")
+            print(f"\n▶ Periodo cloud {i}/{len(specs)}: {spec.etiqueta}")
+        print(f"\n🎯 ETL Exh Gratis (Cloud) — procesando periodo {spec.etiqueta} ({spec})")
 
         try:
             if "full" in pasos: run(spec)
             if "kpi"  in pasos: generar_resumen_kpi_exhibiciones_gratis(spec)
         except Exception as e:
-            print(f"\n❌ ERROR en {spec.etiqueta}: {e}")
+            print(f"\n❌ ERROR en SharePoint para {spec.etiqueta}: {e}")
             if len(specs) > 1:
-                print(f"   Continuando con siguientes periodos...")
+                print(f"   Continuando con los siguientes periodos...")
             else:
                 raise

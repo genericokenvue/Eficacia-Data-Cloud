@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       script:
-        description: 'Nombre del script a ejecutar (Ej: etl_precios_supa_sharepoint.py). Dejar vacío para run_all.py'
+        description: 'Nombre del script a ejecutar (Ej: etl_precios.py). Dejar vacío para run_all.py'
         required: false
         default: ''
       argumentos:
