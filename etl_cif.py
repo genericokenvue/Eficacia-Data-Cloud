@@ -376,9 +376,14 @@ def ejecutar_paso_4(spec: pr.PeriodoSpec, headers, site_id):
     url_causales = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if "causales" in a["name"].lower()), None)
     url_proc_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if nombre_output_involves in a["name"]), None)
     
-    ruta_involves_spec = str(pr.cif_involves(spec))
-    nombre_inv_file = os.path.basename(ruta_involves_spec)
-    url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if nombre_inv_file.lower() in a["name"].lower()), None)
+    # Búsqueda en la nube adaptada para evitar rutas locales (pr.cif_involves)
+    url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if "informe-gerencial-visitas" in a["name"].lower() and (str(spec.mes) in a["name"] or str(spec.anio) in a["name"])), None)
+
+    if not url_inv:
+        # Buscar en la carpeta específica de bases de respuestas del periodo en SharePoint
+        ruta_bases_respuestas_cif = f"Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/{spec.anio}"
+        archivos_gen = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_bases_respuestas_cif)
+        url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_gen if "informe-gerencial-visitas" in a["name"].lower() or periodo_nom.lower() in a["name"].lower()), None)
 
     if not all([url_plan, url_ventas, url_causales, url_inv, url_proc_inv]):
         print("❌ ERROR: Faltan archivos requeridos en SharePoint para el Paso 4.")
