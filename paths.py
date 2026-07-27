@@ -161,10 +161,10 @@ def _output_root(modulo: str) -> Path:
 # CIF
 CIF_BASES          = _input_root("CIF")
 CIF_PT_DIR         = CIF_BASES / "PLAN DE TRABAJO"
-CIF_INVOLVES       = CIF_BASES / "INVOLVES" / "informe-gerencial-visitas.xlsx"
-CIF_COLABORADORES  = CIF_BASES / "EMPLEADOS" / "Informe_Colaboradores.xlsx"
-CIF_BASE_VENTAS    = CIF_BASES / "PUNTOS DE VENTA" / "BASE PUNTOS DE VENTA.xlsx"
-CIF_CAUSALES       = CIF_BASES / "CAUSALES" / "CAUSALES.xlsx"
+CIF_INVOLVES       = CIF_BASES  / "informe-gerencial-visitas.xlsx"
+CIF_COLABORADORES  = CIF_BASES  / "Informe_Colaboradores.xlsx"
+CIF_BASE_VENTAS    = CIF_BASES  / "BASE PUNTOS DE VENTA.xlsx"
+CIF_CAUSALES       = CIF_BASES  / "CAUSALES.xlsx"
 CIF_SALIDA         = _output_root("CIF")
 
 CIF_OUT_CIF            = CIF_SALIDA / "CIF.xlsx"
