@@ -1,0 +1,81 @@
+2026-07-29 09:11:32  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260729_091132.log
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260729T091132_c66e0e
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      Inicio: 2026-07-29 09:11:32
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      Run ID: 20260729T091132_c66e0e
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      Periodo: Julio_2026 (07/2026)
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['sos']
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-07-29 09:11:32  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 09:11:32  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-07-29 09:11:32  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx
+2026-07-29 09:11:32  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-29 09:11:32  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-07-29 09:11:32  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-29 09:11:33  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,601 filas PT  |  3,262 filas módulos cargadas
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      [ISM] 2,530 filas PT  |  888 filas módulos cargadas
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,131 filas totales
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 7 | Año 2026
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,073 filas retenidas
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 980 filas retenidas
+2026-07-29 09:11:34  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 791 filas retenidas
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 4,084 filas retenidas
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 759 filas retenidas
+2026-07-29 09:11:34  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      shared_loader completado en 2.1s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-29 09:11:34  [etl.sos]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-29 09:11:34  [etl.sos]           ✓ INFO      ETL SOS — iniciando
+2026-07-29 09:11:34  [etl.sos]           ✓ INFO      PT filtrado persistido: 742 PDVs únicos
+2026-07-29 09:11:34  [etl.sos]           ☠ CRITICAL  Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 380, in _ejecutar_etl
+    fn(df_pt, spec.mes, spec.anio)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 241, in _run_sos
+    etl_sos.ejecutar_paso_2_consolidar_encuestas(spec)
+TypeError: ejecutar_paso_2_consolidar_encuestas() missing 2 required positional arguments: 'headers' and 'site_id'
+
+2026-07-29 09:11:34  [etl.sos]           ✗ ERROR     Duración hasta fallo: 0.2s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ETL 'sos' terminó — ✗ FALLÓ en 0.2s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        sos                    ✗ ERROR            0.2s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               2.1s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                          2.3s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                    2.2s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      Eventos: 1 CRITICAL  |  1 ERROR  |  1 WARNING
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        CRITICAL (1)
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        09:11:34  [sos]               Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 380, in _ejecutar_etl
+    fn(df_pt, spec.mes, spec.anio)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 241, in _run_sos
+    etl_sos.ejecutar_paso_2_consolidar_encuestas(spec)
+TypeError: ejecutar_paso_2_consolidar_encuestas() missing 2 required positional arguments: 'headers' and 'site_id'
+
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        ERROR (1)
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        09:11:34  [sos]               Duración hasta fallo: 0.2s
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO        09:11:34  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260729_091132.log
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      Fin: 2026-07-29 09:11:34
+2026-07-29 09:11:34  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

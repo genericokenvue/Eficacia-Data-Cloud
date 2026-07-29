@@ -66,55 +66,37 @@ def _run_cif(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     separador(log)
     log.info("ETL CIF — iniciando")
 
+    import etl_cif
+    import periodo_resolver as pr
+
     spec = pr.resolver(int(mes), int(anio))
-    df_consolidado = df_pt.copy()
-    for col in etl_cif.COLUMNAS_FINALES:
-        if col not in df_consolidado.columns:
-            df_consolidado[col] = ""
-    df_consolidado = df_consolidado[[c for c in etl_cif.COLUMNAS_FINALES
-                                     if c in df_consolidado.columns]]
+    
+    # Autenticación y obtención de parámetros mediante Graph API igual que los demás módulos
+    token = etl_cif.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    site_id = etl_cif.obtener_site_id(headers)
 
-    log.info(f"Paso 1 — PT consolidado: {len(df_consolidado):,} filas")
-    df_consolidado.to_csv(
-        etl_cif.RUTA_CONSOLIDADO, index=False,
-        encoding="utf-8-sig", sep=";", decimal=","
-    )
+    log.info(f"Paso 1 — PT consolidado: {len(df_pt):,} filas")
 
-    log.info("Paso 2 — Agrupación SQL")
-    etl_cif.ejecutar_paso_2()
-
-    log.info("Paso 3 — Visitas Involves")
-    etl_cif.ejecutar_paso_3(spec)
-
-    log.info("Paso 4 — Justificaciones")
-    etl_cif.ejecutar_paso_4(spec)
-
-    log.info("Paso 5 — Agrupación visitas (unificación gestores)")
-    etl_cif.ejecutar_paso_5()
-
-    log.info("Paso 6 — Generación de alertas de tiempos inconsistentes")
-    etl_cif.ejecutar_paso_6()
-
-    log.info("Paso 7 — Resultado final Excel")
-    etl_cif.ejecutar_paso_7(spec)
-
-    log.info("Paso 8 — KPIs por gestor")
-    etl_cif.generar_resumen_kpis_8(spec)
-
+    # Ejecución secuencial de los pasos internos de CIF usando el spec
+    etl_cif.ejecutar_paso_1(spec, headers, site_id)
+    etl_cif.ejecutar_paso_2(spec, headers, site_id)
+    etl_cif.ejecutar_paso_3(spec, headers, site_id)
+    etl_cif.ejecutar_paso_4(spec, headers, site_id)
+    etl_cif.ejecutar_paso_5(spec, headers, site_id)
+    etl_cif.ejecutar_paso_6(spec, headers, site_id)
+    etl_cif.ejecutar_paso_7(spec, headers, site_id)
+    etl_cif.generar_resumen_kpis_8(spec, headers, site_id)
+    
     log.info("ETL CIF — completado")
-
 
 def _run_nopresencia(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     log = get_logger("nopresencia")
     separador(log)
     log.info("ETL No Presencia — iniciando")
 
-    from etl_nopresencia import (
-        MESES_ESPANOL, RUTA_PT_CONSOLIDADO_FINAL,
-        procesar_no_presencia, procesar_plan_de_trabajo_semanas,
-        generar_matriz_seguimiento, generar_analisis_agotados,
-        generar_resumen_kpi_no_presencia,
-    )
+    import etl_nopresencia
+    import periodo_resolver as pr
 
     if df_pt.empty:
         log.error(
@@ -124,35 +106,48 @@ def _run_nopresencia(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
         return
 
     spec = pr.resolver(int(mes), int(anio))
-    PERIODO_DATA = f"{MESES_ESPANOL[mes]}_{anio}"
-    df_pt.to_excel(RUTA_PT_CONSOLIDADO_FINAL, index=False)
-    log.info(f"PT filtrado persistido: {len(df_pt):,} filas — periodo {PERIODO_DATA}")
+    periodo_final = f"{etl_nopresencia.MESES_ESPANOL[mes]}_{anio}"
 
-    ruta_np_proc = procesar_no_presencia(PERIODO_DATA, spec)
-    if not ruta_np_proc:
-        log.error(
-            "No se encontraron archivos de encuesta de No Presencia "
-            "— los pasos de matriz y agotados no se ejecutarán"
-        )
+    # Autenticación requerida por los pasos nativos de etl_nopresencia
+    token = etl_nopresencia.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    site_id = etl_nopresencia.obtener_site_id(headers)
+
+    # 1. Consolidar PT (o usar el DataFrame recibido si ya está cargado)
+    if df_pt.empty:
+        df_pt, periodo_final = etl_nopresencia.ejecutar_paso_1_consolidar_pt_np(spec, headers, site_id)
+    else:
+        log.info(f"Usando DataFrame de PT proporcionado por el orquestador ({len(df_pt):,} filas)")
+
+    if df_pt.empty:
+        log.error("No se pudo obtener el Plan de Trabajo para No Presencia. ETL abortado.")
         return
 
+    # 2. Procesar encuestas de No Presencia
+    df_np_proc = etl_nopresencia.procesar_no_presencia(periodo_final, spec, headers, site_id)
+    if df_np_proc.empty:
+        log.error("No se encontraron archivos de encuesta de No Presencia válidos.")
+        return
     log.info("Encuestas de No Presencia procesadas")
 
-    ruta_pt_proc = procesar_plan_de_trabajo_semanas(RUTA_PT_CONSOLIDADO_FINAL, PERIODO_DATA)
-    if not ruta_pt_proc:
+    # 3. Procesar PT por semanas
+    df_pt_proc = etl_nopresencia.procesar_plan_de_trabajo_semanas(df_pt, periodo_final)
+    if df_pt_proc.empty:
         log.error("Fallo al procesar el Plan de Trabajo por semanas — matriz no generada")
         return
-
     log.info("Plan de Trabajo por semanas procesado")
 
-    generar_matriz_seguimiento(ruta_np_proc, ruta_pt_proc, PERIODO_DATA, spec=spec)
+    # 4. Generar matriz de seguimiento comparativa
+    etl_nopresencia.generar_matriz_seguimiento(df_np_proc, df_pt_proc, periodo_final, spec=spec, headers=headers, site_id=site_id)
     log.info("Matriz de seguimiento generada")
 
-    generar_analisis_agotados(ruta_np_proc, PERIODO_DATA)
+    # 5. Análisis de agotados
+    etl_nopresencia.generar_analisis_agotados(periodo_final, headers, site_id)
     log.info("Análisis de agotados generado")
 
-    generar_resumen_kpi_no_presencia(spec)
-    log.info("KPI no presencia consolidado")
+    # 6. KPI y carga a Supabase
+    etl_nopresencia.generar_resumen_kpi_no_presencia(spec, headers, site_id)
+    log.info("KPI No Presencia consolidado y cargado")
 
     log.info("ETL No Presencia — completado")
 
@@ -162,9 +157,11 @@ def _run_precios(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     separador(log)
     log.info("ETL Precios — iniciando")
 
-    import os, glob
+    import os
+    import requests
+    import msal
     from etl_precios import (
-        MESES_ESPANOL, RUTA_ORIGEN_PRECIOS,
+        MESES_ESPANOL,
         generar_reporte_captura_precios, generar_analisis_precios,
         generar_resumen_kpi_precios,
     )
@@ -176,6 +173,30 @@ def _run_precios(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
         )
         return
 
+    # Autenticación requerida para SharePoint / Azure
+    tenant_id = os.environ.get("AZURE_TENANT_ID")
+    client_id = os.environ.get("AZURE_CLIENT_ID")
+    client_secret = os.environ.get("AZURE_CLIENT_SECRET")
+
+    if not all([tenant_id, client_id, client_secret]):
+        raise ValueError("❌ Faltan credenciales de Azure en el archivo .env")
+
+    authority = f"https://login.microsoftonline.com/{tenant_id}"
+    app = msal.ConfidentialClientApplication(client_id, authority=authority, client_credential=client_secret)
+    result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
+    
+    if "access_token" not in result:
+        raise Exception(f"Error de autenticación en Azure: {result.get('error_description')}")
+
+    headers = {"Authorization": f"Bearer {result['access_token']}"}
+    
+    # Obtener site_id de SharePoint
+    url_site = f"https://graph.microsoft.com/v1.0/sites/root:/sites/{paths.SHAREPOINT_SITE_NAME}"
+    res_site = requests.get(url_site, headers=headers).json()
+    if "id" not in res_site:
+        raise Exception(f"No se encontró el sitio SharePoint '{paths.SHAREPOINT_SITE_NAME}'.")
+    site_id = res_site["id"]
+
     spec = pr.resolver(int(mes), int(anio))
     periodo = f"{MESES_ESPANOL[mes]}_{anio}"
 
@@ -183,46 +204,30 @@ def _run_precios(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     df_pt_unificado['ID_PDV_INVOLVES'] = df_pt_unificado['ID_PDV_INVOLVES'].astype(str).str.strip()
     df_pt_unificado = df_pt_unificado.groupby('ID_PDV_INVOLVES').first().reset_index()
 
-    ruta_pt_final = os.path.join(RUTA_ORIGEN_PRECIOS, f"Plan_Trabajo_Precios_{periodo}.xlsx")
+    ruta_pt_final = os.path.join(str(paths.CIF_PT_DIR), f"Plan_Trabajo_Precios_{periodo}.xlsx")
     df_pt_unificado.to_excel(ruta_pt_final, index=False)
     log.info(f"PT filtrado persistido: {len(df_pt_unificado):,} PDVs únicos — periodo {periodo}")
 
-    # Verificar que existan archivos de encuesta antes de llamar los pasos
-    from etl_precios import CLAVE_ARCHIVO_ENCUESTA
-    patron = os.path.join(RUTA_ORIGEN_PRECIOS, f"*{CLAVE_ARCHIVO_ENCUESTA}*.xlsx")
-    if not glob.glob(patron):
-        log.error(
-            f"No se encontraron archivos de encuesta de Precios en {RUTA_ORIGEN_PRECIOS} "
-            f"(patrón: *{CLAVE_ARCHIVO_ENCUESTA}*) — pasos 2 y 3 abortados"
-        )
-        return
-
-    generar_reporte_captura_precios(df_pt_unificado, periodo, spec)
+    # Delegamos la ejecución pasando headers y site_id a todo el flujo
+    generar_reporte_captura_precios(df_pt_unificado, periodo, spec, headers, site_id)
     log.info("Reporte de captura de precios generado")
 
-    generar_analisis_precios(periodo, spec)
+    generar_analisis_precios(periodo, spec, headers, site_id)
     log.info("Análisis detallado de precios generado")
 
-    generar_resumen_kpi_precios(spec)
+    generar_resumen_kpi_precios(spec, headers, site_id)
     log.info("KPI precios consolidado")
 
     log.info("ETL Precios — completado")
-
 
 def _run_sos(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     log = get_logger("sos")
     separador(log)
     log.info("ETL SOS — iniciando")
 
-    import os, glob
-    from etl_sos import (
-        RUTA_PT_CONSOLIDADO_FINAL, RUTA_ORIGEN_SOS, CLAVE_ARCHIVO_NP,
-        ejecutar_paso_2_consolidar_encuestas,
-        ejecutar_paso_3_cumplimiento_captura,
-        ejecutar_paso_4_normalizar_target_dinamico,
-        ejecutar_paso_5_cruce_triple_y_calculo,
-        generar_resumen_kpi_sos,
-    )
+    import etl_sos
+    import periodo_resolver as pr
+    from pathlib import Path
 
     if df_pt.empty:
         log.error(
@@ -235,47 +240,64 @@ def _run_sos(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     df_pt_unificado = df_pt.copy()
     df_pt_unificado['ID_PDV_INVOLVES'] = df_pt_unificado['ID_PDV_INVOLVES'].astype(str).str.strip()
     df_pt_unificado = df_pt_unificado.groupby('ID_PDV_INVOLVES').first().reset_index()
-    df_pt_unificado.to_excel(RUTA_PT_CONSOLIDADO_FINAL, index=False)
+    
+    ruta_salida = Path("pt_consolidado_sos_final.xlsx")
+    df_pt_unificado.to_excel(ruta_salida, index=False)
     log.info(f"PT filtrado persistido: {len(df_pt_unificado):,} PDVs únicos")
 
-    # Verificar encuestas SOS antes de continuar
-    patron = os.path.join(RUTA_ORIGEN_SOS, f"*{CLAVE_ARCHIVO_NP}*.xlsx")
-    archivos_enc = glob.glob(patron)
-    if not archivos_enc:
-        log.error(
-            f"No se encontraron archivos de encuesta SOS en {RUTA_ORIGEN_SOS} "
-            f"— pasos 2 al 5 abortados"
-        )
-        return
-    log.info(f"{len(archivos_enc)} archivo(s) de encuesta SOS encontrado(s)")
+    # Autenticación requerida por los pasos nativos de etl_sos
+    token = etl_sos.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    site_id = etl_sos.obtener_site_id(headers)
 
-    ejecutar_paso_2_consolidar_encuestas(spec)
+    # Delegamos la ejecución secuencial pasando los argumentos que exige el módulo
+    etl_sos.ejecutar_paso_2_consolidar_encuestas(spec, headers, site_id)
     log.info("Encuestas SOS consolidadas")
 
-    ejecutar_paso_3_cumplimiento_captura(spec)
+    etl_sos.ejecutar_paso_3_cumplimiento_captura(df_pt_unificado, pd.DataFrame(), spec, headers, site_id)
     log.info("Cumplimiento de captura calculado")
 
-    ejecutar_paso_4_normalizar_target_dinamico(spec)
+    etl_sos.ejecutar_paso_4_normalizar_target_dinamico(spec, headers, site_id)
     log.info("Target normalizado")
 
-    ejecutar_paso_5_cruce_triple_y_calculo(spec)
+    etl_sos.ejecutar_paso_5_cruce_triple_y_calculo(spec, headers, site_id)
     log.info("Cruce triple y cálculo SOS completado")
 
-    generar_resumen_kpi_sos(spec)
+    etl_sos.generar_resumen_kpi_sos(spec, headers, site_id)
     log.info("KPI SOS consolidado")
 
     log.info("ETL SOS — completado")
 
 
-def _run_exhibiciones_pagadas(spec=None, **_) -> None:
+def _run_exhibiciones_pagadas(df_pt: pd.DataFrame = None, mes: int = None, anio: int = None, spec=None, **_) -> None:
     log = get_logger("exhib_pagadas")
     separador(log)
     log.info("ETL Exhibiciones Pagadas — iniciando")
+
+    import etl_exhibiciones_pagadas
+    import periodo_resolver as pr
+
+    # Resolver spec de forma flexible dependiendo de cómo se invoque
+    if spec is None:
+        if mes is not None and anio is not None:
+            spec = pr.resolver(int(mes), int(anio))
+        else:
+            log.error("spec ausente — exhibiciones pagadas no puede correr sin periodo")
+            return
+
     if spec is None:
         log.error("spec ausente — exhibiciones pagadas no puede correr sin periodo")
         return
-    etl_exhibiciones_pagadas.ejecutar_proceso(spec)
-    etl_exhibiciones_pagadas.generar_resumen_kpi_exhibiciones_pagadas(spec)
+
+    # Autenticación requerida para los servicios en la nube
+    token = etl_exhibiciones_pagadas.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    site_id = etl_exhibiciones_pagadas.obtener_site_id(headers)
+
+    # Ejecución del proceso principal y generación de KPIs
+    etl_exhibiciones_pagadas.ejecutar_proceso(spec, headers, site_id)
+    etl_exhibiciones_pagadas.generar_resumen_kpi_exhibiciones_pagadas(spec, headers, site_id)
+    
     log.info("ETL Exhibiciones Pagadas — completado")
 
 
@@ -310,11 +332,6 @@ def _run_impactos(**_) -> None:
 
 
 def _run_impactos_segmentos(**_) -> None:
-    """
-    Depende del CSV consolidado de ventas. Si éste no existe, el ETL
-    aborta con un mensaje claro indicando que se ejecute primero
-    `--solo ventas`.
-    """
     log = get_logger("impactos_segmentos")
     separador(log)
     log.info("ETL Impactos por Segmento — iniciando")
@@ -332,11 +349,8 @@ REGISTRO_ETLS = {
     "sos"                : {"fn": _run_sos,                    "clave_pt": "sos"},
     "exhib_pagadas"      : {"fn": _run_exhibiciones_pagadas,   "clave_pt": None},
     "exhib_gratis"       : {"fn": _run_exhibiciones_gratis,    "clave_pt": None},
-    # ── D&P ────────────────────────────────────────────────────────────────
     "ventas"             : {"fn": _run_ventas,                 "clave_pt": None},
     "impactos"           : {"fn": _run_impactos,               "clave_pt": None},
-    # impactos_segmentos depende del CSV consolidado de ventas. Si pides
-    # `--solo impactos_segmentos`, asegúrate de tener el consolidado vigente.
     "impactos_segmentos" : {"fn": _run_impactos_segmentos,     "clave_pt": None},
 }
 
@@ -346,27 +360,19 @@ REGISTRO_ETLS = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 class _TeeLogger(io.TextIOBase):
-    """
-    Redirige stdout/stderr al logger del ETL activo.
-    Las líneas vacías se descartan; las líneas con contenido se loguean
-    como DEBUG (INFO si contienen ✅ o EXITO, WARNING si contienen ⚠,
-    ERROR/CRITICAL si contienen ❌).
-    Thread-safe: cada thread tiene su propio nombre de ETL.
-    """
     def __init__(self, nombre_etl: str, stream_original):
         self._log     = get_logger(nombre_etl)
         self._orig    = stream_original
         self._buffer  = ""
 
     def write(self, texto: str) -> int:
-        self._orig.write(texto)   # siempre pasar al terminal original también
+        self._orig.write(texto)
         self._buffer += texto
         while "\n" in self._buffer:
             linea, self._buffer = self._buffer.split("\n", 1)
             linea = linea.strip()
             if not linea:
                 continue
-            # Clasificar el nivel según el contenido del print original
             if any(k in linea for k in ["❌", "ERROR", "Error"]):
                 self._log.error(f"[stdout] {linea}")
             elif any(k in linea for k in ["⚠", "AUDITORÍA", "WARNING"]):
@@ -392,18 +398,11 @@ def _ejecutar_etl(
     spec: pr.PeriodoSpec,
     run_id: str,
 ) -> tuple[str, float, str | None]:
-    """
-    Ejecuta un ETL dentro de un thread.
-    Redirige su stdout al logger para capturar los prints internos.
-    Sprint 16.2 — registra el run en run_log.jsonl con hashes de I/O.
-    Devuelve (nombre, tiempo_s, traceback_o_None).
-    """
     log = get_logger(nombre)
     ts_inicio = datetime.now().isoformat(timespec="seconds")
     t0  = time.perf_counter()
     tb  = None
 
-    # Hash de inputs PREVIO al run (snapshot del estado de las BASES).
     input_hash, files_input = rl.calcular_input_hash(nombre, spec)
 
     stdout_orig = sys.stdout
@@ -425,7 +424,6 @@ def _ejecutar_etl(
     duracion = time.perf_counter() - t0
     ts_fin = datetime.now().isoformat(timespec="seconds")
 
-    # Hash de outputs DESPUÉS del run.
     output_hash, files_output = rl.calcular_output_hash(nombre)
 
     rl.log_run(rl.RunEvent(
@@ -464,15 +462,10 @@ def _imprimir_reporte(
     t_total: float,
     log,
 ) -> None:
-    """
-    Imprime el resumen de ejecución en terminal y en el archivo de log.
-    Incluye tiempos, estados y todos los eventos WARNING/ERROR/CRITICAL.
-    """
     separador(log, "═")
     log.info("REPORTE DE EJECUCIÓN")
     separador(log, "═")
 
-    # ── Tabla de tiempos ──────────────────────────────────────────────────
     log.info(f"  {'ETL':<22} {'Estado':<14} {'Tiempo':>8}")
     log.info(f"  {'─'*22} {'─'*14} {'─'*8}")
 
@@ -498,7 +491,6 @@ def _imprimir_reporte(
     ahorro = t_etls_serie - (t_total - t_loader)
     log.info(f"  {'Ahorro estimado':<22} {'':<14} {ahorro:>7.1f}s")
 
-    # ── Eventos acumulados ────────────────────────────────────────────────
     eventos = obtener_eventos_acumulados()
     criticos  = [e for e in eventos if e["nivel"] == "CRITICAL"]
     errores   = [e for e in eventos if e["nivel"] == "ERROR"]
@@ -523,7 +515,6 @@ def _imprimir_reporte(
                 etl_tag = f"[{e['etl'].replace('etl.', '')}]"
                 log.info(f"  {e['ts']}  {etl_tag:<18}  {e['mensaje']}")
                 if e.get("exc"):
-                    # Solo las últimas 3 líneas del traceback para no saturar el reporte
                     for linea in e["exc"].strip().splitlines()[-3:]:
                         log.info(f"    {linea}")
 
@@ -560,10 +551,6 @@ def orquestar(
     log_sys.info(f"Skip si cached: {skip_if_cached}")
     separador(log_sys, "═")
 
-    # ── FASE 0: Carga compartida ──────────────────────────────────────────
-    # Sprint 16.1 — usar shared_loader.descubrir_archivos_pt con periodo
-    # explícito para evitar que el orquestador procese silenciosamente el
-    # último mes encontrado cuando hay varios en BASES.
     t0_loader = time.perf_counter()
     ruta_pt_directo, ruta_pt_ism = _descubrir_pt_con_periodo(
         str(paths.CIF_PT_DIR), periodo=spec,
@@ -586,7 +573,6 @@ def orquestar(
     anio = resultado_pt["periodo_anio"]
     log_sys.info(f"shared_loader completado en {t_loader:.1f}s")
 
-    # ── FASE 1: Ejecución paralela ────────────────────────────────────────
     tareas = []
     skipped: list[str] = []
     for nombre in etls_a_ejecutar:
@@ -597,7 +583,6 @@ def orquestar(
         clave_pt = cfg["clave_pt"]
         df_pt    = resultado_pt.get(clave_pt) if clave_pt else None
 
-        # Sprint 16.2 — skip si --skip-if-cached y nada cambió.
         if skip_if_cached:
             puede_skip, motivo = rl.should_skip(nombre, spec)
             if puede_skip:
@@ -642,7 +627,6 @@ def orquestar(
 
     t_total = time.perf_counter() - t_total_inicio
 
-    # ── FASE 2: Reporte ───────────────────────────────────────────────────
     _imprimir_reporte(resultados, etls_a_ejecutar, t_loader, t_total, log_sys)
 
 
@@ -674,18 +658,11 @@ def _parse_args():
     )
     parser.add_argument(
         "--skip-if-cached", action="store_true",
-        help=(
-            "Sprint 16.2: saltar ETLs cuyos inputs no cambiaron desde el "
-            "último run OK (según run_log.jsonl) y cuyos outputs ya existen. "
-            "Útil para reprocesos masivos sin trabajo redundante."
-        ),
+        help="Saltar ETLs cuyos inputs no cambiaron desde el último run OK.",
     )
     parser.add_argument(
         "--gold", action="store_true",
-        help=(
-            "Sprint 16.3: regenerar la capa GOLD (CSVs para BI en SALIDA/GOLD/) "
-            "al final de la corrida. Filtra a los periodos procesados."
-        ),
+        help="Regenerar la capa GOLD al final de la corrida.",
     )
     return parser.parse_args()
 
@@ -694,9 +671,6 @@ if __name__ == "__main__":
     args = _parse_args()
     specs = pr.periodos_de_args(args)
 
-    # Determinar ruta del log e inicializar PRIMERO. Un solo archivo de log
-    # cubre toda la corrida (incluyendo multi-periodo); cada periodo agrega
-    # un separador propio al inicio de su orquestación.
     log_dir  = Path(args.log_dir) if args.log_dir else Path(__file__).parent / "logs"
     ts_nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
     etiqueta_periodos = (

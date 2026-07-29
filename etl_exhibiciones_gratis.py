@@ -1,9 +1,11 @@
 import os
 import glob
 from pathlib import Path
+from io import BytesIO
 import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
+from azure.storage.blob import BlobServiceClient
 
 import paths
 import periodo_resolver as pr
@@ -11,7 +13,8 @@ import periodo_resolver as pr
 # ==============================================================================
 # 0. CONFIGURACIÓN ENTORNO NUBE — SHAREPOINT / AZURE (100% NUBE)
 # ==============================================================================
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / '.env')
 
 AZURE_STORAGE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -26,11 +29,9 @@ RUTA_CARPETA_PT = f"{SHAREPOINT_BASE_DIR}/PLAN DE TRABAJO"
 RUTA_CARPETA_BASES_EXHIB = f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}"
 RUTA_CARPETA_SALIDAS_EXHIB = f"{_SALIDAS_ROOT}/EXHIBICIONES"
 
-# Creamos la ruta física localmente de forma temporal para satisfacer el .is_dir() de periodo_resolver.py
 dir_exhib_temporal = Path(f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}")
 dir_exhib_temporal.mkdir(parents=True, exist_ok=True)
 
-# Forzamos rutas exclusivamente a la nube usando objetos Path
 paths.EXHIB_DATA_DIR = dir_exhib_temporal
 paths.CIF_OUT_FINAL = Path(f"{RUTA_CARPETA_PT}/Plan de trabajo.xlsx")
 paths.EXHIB_SALIDA = Path(f"{RUTA_CARPETA_SALIDAS_EXHIB}")
@@ -44,7 +45,6 @@ DATA_DIR = str(paths.EXHIB_DATA_DIR)
 
 FILE_NIVEL_IMPACTO = str(paths.EXHIB_NIVEL_IMPACTO)
 OUTPUT_PATH = str(paths.EXHIB_SALIDA / "Resultado exhibiciones gratis.xlsx")
-PLAN_SHEET = "Plan de trabajo"
 
 COL_ID_PDV          = "ID del PDV"
 COL_EMPLEADO        = "Empleado"
@@ -83,9 +83,7 @@ EXHIB_GRATIS        = "Exhibiciones Gratis"
 EXHIB_CONCURSO      = "Exhibiciones Concurso"
 CAUSAL_CONTRA       = "contraprestación a la negociación"
 
-PERFILES_VISITAS_REALES = {"SUPERVISOR", "GENERADOR DE DEMANDA"}
 PERFIL_PLAN         = "GESTOR"
-
 PERFIL_A_ROL = {
     "GESTOR": "GESTOR",
     "SUPERVISOR": "SUPERVISOR",
@@ -95,7 +93,7 @@ PERFIL_A_ROL = {
 OUTPUT_COLS = ["Mes", "Año", "Mes-Año", "ID PDV", "Categoría", "Tipo Exhibición", "Nivel Impacto", "Marca", "Cantidad", "Empleado", "Rol Empleado"]
 
 # ==============================================================================
-# 2. CARGADORES (loaders.py)
+# 2. CARGADORES AZURE BLOB STORAGE (API)
 # ==============================================================================
 
 import sys
@@ -104,6 +102,17 @@ try:
 except AttributeError:
     pass
 
+def _get_azure_blob_client(blob_path: str):
+    conn_str = AZURE_STORAGE_CONNECTION_STRING
+    if not conn_str:
+        raise ValueError("No se encontró la variable AZURE_STORAGE_CONNECTION_STRING en el entorno.")
+    
+    partes = str(blob_path).replace("\\", "/").strip("/").split("/", 1)
+    container_name = partes[0]
+    blob_name = partes[1] if len(partes) > 1 else ""
+    
+    blob_service_client = BlobServiceClient.from_connection_string(conn_str)
+    return blob_service_client.get_blob_client(container=container_name, blob=blob_name)
 
 def _semana_del_mes(fecha) -> int:
     if pd.isnull(fecha): return -1
@@ -114,63 +123,33 @@ def _semana_del_mes(fecha) -> int:
 def resolve_files(spec: pr.PeriodoSpec) -> dict:
     groups: dict[str, list[str]] = {}
 
-    # Obtenemos la ruta base dinámicamente desde el módulo paths (Cloud / Local agnostic)
-    base_dir = Path(paths.EXHIB_DATA_DIR)
+    carpeta_bases_cloud = f"{_BASES_ROOT}/EXHIBICIONES/{spec.anio}"
+    nombre_informar = f"Base Exhibiciones Informar {spec.etiqueta.replace('_', ' ')}.xlsx"
+    nombre_planning = f"Base Exhibiciones Planning {spec.etiqueta.replace('_', ' ')}.xlsx"
 
-    p_informar = str(base_dir / f"Base Exhibiciones Informar {spec.mes_str} {spec.anio}.xlsx")
-    p_planning = str(base_dir / f"Base Exhibiciones Planning {spec.mes_str} {spec.anio}.xlsx")
-    
+    p_informar = f"{carpeta_bases_cloud}/{nombre_informar}"
+    p_planning = f"{carpeta_bases_cloud}/{nombre_planning}"
+
     try:
         p_visitas = str(pr.cif_involves(spec))
     except Exception:
         p_visitas = ""
 
-    # Plan de trabajo dinámico según paths
     try:
-        if hasattr(paths, "CIF_OUT_FINAL") and paths.CIF_OUT_FINAL:
-            p_plan_trabajo = str(paths.CIF_OUT_FINAL)
-        else:
-            p_plan_trabajo = str(base_dir.parent.parent / "PLAN DE TRABAJO" / "Plan de trabajo.xlsx")
+        p_plan_trabajo = str(paths.CIF_OUT_FINAL) if hasattr(paths, "CIF_OUT_FINAL") and paths.CIF_OUT_FINAL else f"{SHAREPOINT_BASE_DIR}/PLAN DE TRABAJO/Plan de trabajo.xlsx"
     except Exception:
-        p_plan_trabajo = ""
+        p_plan_trabajo = f"{SHAREPOINT_BASE_DIR}/PLAN DE TRABAJO/Plan de trabajo.xlsx"
 
     groups["informar"]     = [p_informar] if p_informar else []
     groups["planning"]     = [p_planning] if p_planning else []
-    groups["visitas"]      = [p_visitas] if p_visitas else []
-    groups["plan_trabajo"] = [p_plan_trabajo] if p_plan_trabajo else []
+    groups["visitas"]      = [p_visitas] if p_visitas and p_visitas != "None" else []
+    groups["plan_trabajo"] = [p_plan_trabajo] if p_plan_trabajo and p_plan_trabajo != "None" else []
 
-    print(f"\n☁️ [NUBE / GITHUB ACTIONS] Rutas y archivos aplicados para el periodo {spec.etiqueta}:")
+    print(f"\n☁️ [NUBE / AZURE API] Rutas aplicadas para el periodo {spec.etiqueta}:")
     for tipo, archivos in groups.items():
         print(f"  [{tipo}] {len(archivos)} archivo(s):")
         for a in archivos:
             print(f"    - Ruta: {a}")
-            print(f"    - Archivo: {os.path.basename(a) if a else 'NINGUNO'}")
-            
-    return groups
-            
-    return groups
-
-    def limpiar_path(p):
-        nombre = os.path.basename(p)
-        if "informe-gerencial-visitas" in nombre.lower():
-            return f"{_BASES_ROOT}/CIF/INVOLVES/{nombre}"
-        return f"{_BASES_ROOT}/EXHIBICIONES/{spec.anio}/{nombre}"
-
-    groups["informar"]   = [limpiar_path(p_informar)]
-    groups["planning"]   = [limpiar_path(p_planning)]
-    groups["visitas"]    = [limpiar_path(p_visitas)]
-    groups["plan_trabajo"] = [str(paths.CIF_OUT_FINAL)]
-
-    print(f"\n☁️ [NUBE / SHAREPOINT] Rutas y archivos aplicados para el periodo {spec.etiqueta}:")
-    print(f"  📂 Carpeta Base Exhibiciones: {RUTA_CARPETA_BASES_EXHIB}")
-    print(f"  📂 Carpeta Plan de Trabajo:  {RUTA_CARPETA_PT}")
-    print(f"  📂 Carpeta Salidas Cloud:    {RUTA_CARPETA_SALIDAS_EXHIB}")
-    
-    for tipo, archivos in groups.items():
-        print(f"  [{tipo}] {len(archivos)} archivo(s) en SharePoint:")
-        for a in archivos:
-            print(f"    - Ruta cloud: {a}")
-            print(f"    - Archivo: {os.path.basename(a)}")
             
     return groups
 
@@ -178,11 +157,20 @@ def load_encuestas(files: dict) -> pd.DataFrame:
     dfs = []
     for path in files.get("informar", []) + files.get("planning", []):
         try:
-            df = pd.read_excel(path, sheet_name="report")
+            # Lógica segura: si existe en local/OneDrive se lee directo, sino intenta Azure
+            if os.path.exists(str(path)):
+                df = pd.read_excel(path, sheet_name="report")
+                print(f"    ✓ [Local / Respaldo] {os.path.basename(path)} — {len(df):,} filas")
+            else:
+                blob_client = _get_azure_blob_client(path)
+                stream_data = blob_client.download_blob().readall()
+                df = pd.read_excel(BytesIO(stream_data), sheet_name="report")
+                print(f"    ✓ [Azure API] {os.path.basename(path)} — {len(df):,} filas")
             dfs.append(df)
-            print(f"    ✓ [Cloud] {os.path.basename(path)} — {len(df):,} filas")
-        except Exception as e: print(f"    ⚠ Error leyendo desde SharePoint {os.path.basename(path)}: {e}")
-    if not dfs: raise ValueError("No se encontraron archivos de encuesta en la nube.")
+        except Exception as e: 
+            print(f"    ⚠ Error leyendo archivo ({os.path.basename(str(path))}): {e}")
+            
+    if not dfs: raise ValueError("No se encontraron archivos de encuesta ni en local ni en la nube de Azure.")
     cols_comunes = set(dfs[0].columns)
     for df in dfs[1:]: cols_comunes &= set(df.columns)
     cols_comunes = [c for c in dfs[0].columns if c in cols_comunes]
@@ -197,16 +185,22 @@ def load_plan(files: dict) -> pd.DataFrame:
     dfs = []
     for path in files.get("plan_trabajo", []):
         try:
-            df = pd.read_excel(path)   
+            if os.path.exists(str(path)):
+                df = pd.read_excel(path)
+            else:
+                blob_client = _get_azure_blob_client(path)
+                stream_data = blob_client.download_blob().readall()
+                df = pd.read_excel(BytesIO(stream_data))   
             df.columns = [str(c).strip().upper() for c in df.columns]
             if COL_PLAN_ROL in df.columns:
                 mask = df[COL_PLAN_ROL].astype(str).str.upper().str.strip() == 'GESTOR'
                 df = df[mask].copy()
             dfs.append(df)
-            print(f"    ✓ [Cloud] {os.path.basename(path)} — {len(df):,} gestores cargados")
+            print(f"    ✓ [Cargado] {os.path.basename(str(path))} — {len(df):,} gestores cargados")
         except Exception as e:
-            print(f"    ⚠ Error leyendo plan en la nube {os.path.basename(path)}: {e}")
-    if not dfs: raise ValueError("No se encontraron registros de GESTOR en la nube.")
+            print(f"    ⚠ Error leyendo plan ({os.path.basename(str(path))}): {e}")
+            
+    if not dfs: raise ValueError("No se encontraron registros de GESTOR.")
     df = pd.concat(dfs, ignore_index=True)
     df = df[[COL_PLAN_ID_PDV, COL_PLAN_ROL, 'CANTIDAD_VISITAS', COL_PLAN_MES, COL_PLAN_ANIO]].copy()
     df[COL_PLAN_ID_PDV] = pd.to_numeric(df[COL_PLAN_ID_PDV], errors="coerce")
@@ -223,13 +217,19 @@ def load_visitas(files: dict) -> pd.DataFrame:
     dfs = []
     for path in files.get("visitas", []):
         try:
-            df = pd.read_excel(path)
+            if str(path).startswith("http") or not os.path.exists(str(path)):
+                blob_client = _get_azure_blob_client(path)
+                stream_data = blob_client.download_blob().readall()
+                df = pd.read_excel(BytesIO(stream_data))
+            else:
+                df = pd.read_excel(path)
             dfs.append(df)
-            print(f"    ✓ [Cloud] {os.path.basename(path)} — {len(df):,} filas")
+            print(f"    ✓ [Cloud / Local] {os.path.basename(str(path))} — {len(df):,} filas")
         except Exception as e:
-            print(f"    ⚠ Error leyendo visitas en la nube {os.path.basename(path)}: {e}")
+            print(f"    ⚠ Error leyendo visitas ({os.path.basename(str(path))}): {e}")
+            
     if not dfs:
-        raise ValueError("No se encontraron archivos de Visitas en la nube.")
+        raise ValueError("No se encontraron archivos de Visitas.")
     df = pd.concat(dfs, ignore_index=True)
 
     if "Tipo de check-in" in df.columns:
@@ -249,7 +249,12 @@ def load_visitas(files: dict) -> pd.DataFrame:
     return df[[COL_VIS_ID_PDV, COL_VIS_EMPLEADO, COL_VIS_FECHA, "_semana_mes"]]
 
 def load_nivel_impacto() -> pd.DataFrame:
-    df = pd.read_excel(FILE_NIVEL_IMPACTO)
+    if os.path.exists(str(FILE_NIVEL_IMPACTO)):
+        df = pd.read_excel(FILE_NIVEL_IMPACTO)
+    else:
+        blob_client = _get_azure_blob_client(FILE_NIVEL_IMPACTO)
+        stream_data = blob_client.download_blob().readall()
+        df = pd.read_excel(BytesIO(stream_data))
     df.columns = df.columns.str.strip()
     return df[["Tipo Exhibición", "Nivel Impacto"]]
 
@@ -330,7 +335,7 @@ def calcular_gratis_concurso(df_enc, df_plan, df_visitas) -> pd.DataFrame:
             os.makedirs(os.path.dirname(str(ruta_fuera)), exist_ok=True)
             fuera_out.to_excel(ruta_fuera, index=False, engine="openpyxl")
         except Exception as ee:
-            print(f"  ⚠️ No pude persistir Exh Gratis fuera de regla en nube: {ee}")
+            print(f"  ⚠️ No pude persistir Exh Gratis fuera de regla: {ee}")
 
     res = res[res["_cumple"] == True].drop(
         columns=["_cumple", "_semanas_distintas", "_frec_ref"]
@@ -372,7 +377,7 @@ def run(spec: pr.PeriodoSpec):
         return
     print(f"── Resolviendo fuentes en SharePoint ({spec.etiqueta}) ─")
     files = resolve_files(spec)
-    print("\n── Cargando fuentes desde SharePoint ────────────")
+    print("\n── Cargando fuentes ────────────")
     df_enc = load_encuestas(files)
     df_plan = load_plan(files)
     df_vis = load_visitas(files)
@@ -384,13 +389,13 @@ def run(spec: pr.PeriodoSpec):
 
     print("\n── Módulo 1: Exhibiciones Pagadas ───────────────")
     df_pag = calcular_pagadas(df_enc)
-    print(f"   Implementadas pagadas:           {len(df_pag):,} filas")
+    print(f"   Implementadas pagadas:          {len(df_pag):,} filas")
 
     print("\n── Módulo 2: Exhibiciones Gratis y Concurso ─────")
     df_gc = calcular_gratis_concurso(df_enc, df_plan, df_vis)
     print(f"   Implementadas gratis/concurso: {len(df_gc):,} filas")
 
-    print("\n── Consolidando y escribiendo en SharePoint ─────")
+    print("\n── Consolidando y escribiendo ─────")
     df_out = pd.concat([df_pag, df_gc], ignore_index=True)
     df_out = df_out.merge(df_nivel, on="Tipo Exhibición", how="left")
     df_out[COL_MES] = df_out[COL_MES].astype("Int64")
@@ -421,32 +426,32 @@ def run(spec: pr.PeriodoSpec):
             else:
                 print("  ⚠️  Resultado previo sin Mes/Año — descartado en upsert.")
         except Exception as e:
-            print(f"  ⚠️  No se pudo leer resultado previo en nube ({e}); se sobrescribe.")
+            print(f"  ⚠️  No se pudo leer resultado previo ({e}); se sobrescribe.")
 
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     df_out.to_excel(OUTPUT_PATH, index=False, sheet_name="Exhibiciones_implementadas")
-    print(f"\n✓ Output escrito con éxito en SharePoint: {OUTPUT_PATH} ({len(df_out):,} filas)")
+    print(f"\n✓ Output escrito con éxito: {OUTPUT_PATH} ({len(df_out):,} filas)")
     
     m_gratis, m_pag = df_out["Categoría"].isin(["Gratis", "Concurso"]), df_out["Categoría"] == "Pagada"
     m_alto, m_medio = df_out["Nivel Impacto"] == "ALTO IMPACTO", df_out["Nivel Impacto"] == "MEDIO IMPACTO"
 
     print("\n── Resumen de Exhibiciones ──────────────────────")
-    print(f"   Total Exhibiciones:                                    {df_out['Cantidad'].sum():>8,.0f}")
-    print(f"   Total Exhibiciones Gratis:                             {df_out.loc[m_gratis, 'Cantidad'].sum():>8,.0f}")
-    print(f"   Total Exhibiciones Pagadas:                            {df_out.loc[m_pag, 'Cantidad'].sum():>8,.0f}")
-    print(f"\n   Total Exhibiciones Alto Impacto:                       {df_out.loc[m_alto, 'Cantidad'].sum():>8,.0f}")
-    print(f"   Total Exhibiciones Medio Impacto:                      {df_out.loc[m_medio, 'Cantidad'].sum():>8,.0f}")
+    print(f"   Total Exhibiciones:                                     {df_out['Cantidad'].sum():>8,.0f}")
+    print(f"   Total Exhibiciones Gratis:                                {df_out.loc[m_gratis, 'Cantidad'].sum():>8,.0f}")
+    print(f"   Total Exhibiciones Pagadas:                              {df_out.loc[m_pag, 'Cantidad'].sum():>8,.0f}")
+    print(f"\n   Total Exhibiciones Alto Impacto:                         {df_out.loc[m_alto, 'Cantidad'].sum():>8,.0f}")
+    print(f"   Total Exhibiciones Medio Impacto:                        {df_out.loc[m_medio, 'Cantidad'].sum():>8,.0f}")
     print("─────────────────────────────────────────────────")
 
 def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
-    print(f"\n--- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado (Nube) ({spec.etiqueta}) ---")
+    print(f"\n--- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado ({spec.etiqueta}) ---")
     ruta = OUTPUT_PATH
     if not os.path.exists(ruta) and not str(ruta).startswith("http") and "sharepoint" not in str(ruta).lower():
-        print(f"❌ No existe en nube: {ruta}")
+        print(f"❌ No existe: {ruta}")
         return
     df = pd.read_excel(ruta, engine='openpyxl')
     df.columns = [str(c).strip() for c in df.columns]
-    print(f"  Leyendo desde SharePoint: {os.path.basename(ruta)} ({len(df)} filas)")
+    print(f"  Leyendo archivo: {os.path.basename(ruta)} ({len(df)} filas)")
 
     df = df[df['Categoría'].astype(str).str.strip().str.lower() == 'gratis'].copy()
 
@@ -458,7 +463,7 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
     df_periodo = df[(df['Mes'] == spec.mes) & (df['Año'] == spec.anio)].copy()
     if df_periodo.empty:
         raise ValueError(
-            f"Exh Gratis KPI: no hay filas del periodo {spec.etiqueta} en SharePoint."
+            f"Exh Gratis KPI: no hay filas del periodo {spec.etiqueta}."
         )
     df = df_periodo
 
@@ -478,7 +483,11 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
 
     try:
         path_dy_cupos = paths.DYP_BASE_CUPOS
-        bc = pd.read_excel(path_dy_cupos, sheet_name="Tabla total roles")
+        if os.path.exists(str(path_dy_cupos)):
+            bc = pd.read_excel(str(path_dy_cupos), sheet_name="Tabla total roles")
+        else:
+            blob_client = _get_azure_blob_client(str(path_dy_cupos))
+            bc = pd.read_excel(BytesIO(blob_client.download_blob().readall()), sheet_name="Tabla total roles")
         bc["NOMBRE_N"] = (
             bc["NOMBRE"].astype(str).str.strip().str.upper()
             .str.replace(r"\s+", " ", regex=True)
@@ -526,7 +535,7 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
     path_kpis = f"{RUTA_CARPETA_SALIDAS_EXHIB}/KPI_Exhibiciones_Gratis.xlsx"
     os.makedirs(os.path.dirname(str(path_kpis)), exist_ok=True)
     resumen_activo.to_excel(str(path_kpis), index=False, engine='openpyxl')
-    print(f"  ✅ Mes activo en SharePoint: {len(resumen_activo)} empleados → {os.path.basename(str(path_kpis))}")
+    print(f"  ✅ Mes activo guardado: {len(resumen_activo)} empleados → {os.path.basename(str(path_kpis))}")
 
     path_hist = f"{RUTA_CARPETA_SALIDAS_EXHIB}/KPI_Exhibiciones_Gratis_Historico.xlsx"
     if os.path.exists(str(path_hist)) or str(path_hist).startswith("http") or "sharepoint" in str(path_hist).lower():
@@ -552,7 +561,7 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
     hist_final = hist_final.sort_values(['Año', 'Mes', 'Empleado'])
     os.makedirs(os.path.dirname(str(path_hist)), exist_ok=True)
     hist_final.to_excel(str(path_hist), index=False, engine='openpyxl')
-    print(f"  ✅ Histórico actualizado en SharePoint → {os.path.basename(str(path_hist))}")
+    print(f"  ✅ Histórico actualizado → {os.path.basename(str(path_hist))}")
 
 
 if __name__ == "__main__":
@@ -566,19 +575,19 @@ if __name__ == "__main__":
     specs = pr.periodos_de_args(args)
 
     if len(specs) > 1:
-        print(f"🎯 ETL Exh Gratis (Cloud) — multi-periodo: {len(specs)} meses → "
+        print(f"🎯 ETL Exh Gratis — multi-periodo: {len(specs)} meses → "
               f"{', '.join(s.etiqueta for s in specs)}")
 
     for i, spec in enumerate(specs, 1):
         if len(specs) > 1:
-            print(f"\n▶ Periodo cloud {i}/{len(specs)}: {spec.etiqueta}")
-        print(f"\n🎯 ETL Exh Gratis (Cloud) — procesando periodo {spec.etiqueta} ({spec})")
+            print(f"\n▶ Periodo {i}/{len(specs)}: {spec.etiqueta}")
+        print(f"\n🎯 ETL Exh Gratis — procesando periodo {spec.etiqueta} ({spec})")
 
         try:
             if "full" in pasos: run(spec)
             if "kpi"  in pasos: generar_resumen_kpi_exhibiciones_gratis(spec)
         except Exception as e:
-            print(f"\n❌ ERROR en SharePoint para {spec.etiqueta}: {e}")
+            print(f"\n❌ ERROR para {spec.etiqueta}: {e}")
             if len(specs) > 1:
                 print(f"   Continuando con los siguientes periodos...")
             else:

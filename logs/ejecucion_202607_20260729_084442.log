@@ -1,0 +1,85 @@
+2026-07-29 08:44:42  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260729_084442.log
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260729T084442_5d13d8
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      Inicio: 2026-07-29 08:44:42
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      Run ID: 20260729T084442_5d13d8
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      Periodo: Julio_2026 (07/2026)
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['precios']
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-07-29 08:44:42  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 08:44:42  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-07-29 08:44:42  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx
+2026-07-29 08:44:42  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-29 08:44:42  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-07-29 08:44:42  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-29 08:44:44  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,601 filas PT  |  3,262 filas módulos cargadas
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      [ISM] 2,530 filas PT  |  888 filas módulos cargadas
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,131 filas totales
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 7 | Año 2026
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,073 filas retenidas
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 980 filas retenidas
+2026-07-29 08:44:45  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 791 filas retenidas
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 4,084 filas retenidas
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 759 filas retenidas
+2026-07-29 08:44:45  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-07-29 08:44:45  [etl.orquestador]   ✓ INFO      shared_loader completado en 3.3s
+2026-07-29 08:44:45  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-29 08:44:45  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-07-29 08:44:45  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-29 08:44:45  [etl.precios]       ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-29 08:44:45  [etl.precios]       ✓ INFO      ETL Precios — iniciando
+2026-07-29 08:44:48  [etl.precios]       ✓ INFO      PT filtrado persistido: 191 PDVs únicos — periodo JULIO_2026
+2026-07-29 08:44:48  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (JULIO_2026) ---
+2026-07-29 08:45:00  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/REPORTE_CAPTURA_PRECIOS_JULIO_2026.xlsx
+2026-07-29 08:45:00  [etl.precios]       ✓ INFO      [stdout] ✅ Reporte capturas unificado generado en SharePoint.
+2026-07-29 08:45:00  [etl.precios]       ✓ INFO      Reporte de captura de precios generado
+2026-07-29 08:45:00  [etl.precios]       ☠ CRITICAL  Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 396, in _ejecutar_etl
+    fn(df_pt, spec.mes, spec.anio)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 220, in _run_precios
+    generar_analisis_precios(periodo, spec)
+TypeError: generar_analisis_precios() missing 2 required positional arguments: 'headers' and 'site_id'
+
+2026-07-29 08:45:00  [etl.precios]       ✗ ERROR     Duración hasta fallo: 15.1s
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ETL 'precios' terminó — ✗ FALLÓ en 15.1s
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        precios                ✗ ERROR           15.1s
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               3.3s
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         18.5s
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                   18.4s
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      Eventos: 1 CRITICAL  |  1 ERROR  |  1 WARNING
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        CRITICAL (1)
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        08:45:00  [precios]           Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 396, in _ejecutar_etl
+    fn(df_pt, spec.mes, spec.anio)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 220, in _run_precios
+    generar_analisis_precios(periodo, spec)
+TypeError: generar_analisis_precios() missing 2 required positional arguments: 'headers' and 'site_id'
+
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        ERROR (1)
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        08:45:00  [precios]           Duración hasta fallo: 15.1s
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ························································
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO        08:44:45  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260729_084442.log
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      Fin: 2026-07-29 08:45:00
+2026-07-29 08:45:00  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

@@ -146,14 +146,14 @@ def ejecutar_proceso(spec: pr.PeriodoSpec, headers, site_id):
     if not url_p or not url_i:
         raise FileNotFoundError(f"No se encontraron los archivos correctos de Planning o Base en {paths.RUTA_CARPETA_BASES_EXHIB}")
 
-    # Lectura robusta de la cabecera del Planning
+    # Lectura robusta de la cabecera del Planning buscando la fila real de los campos clave
     content_p = requests.get(url_p).content
     df_raw = pd.read_excel(io.BytesIO(content_p), header=None)
     header_row_idx = 0
     
     for idx, row in df_raw.iterrows():
         fila_str = " ".join([str(val).upper() for val in row.values if pd.notna(val)])
-        if any(keyword in fila_str for keyword in ["NOMBRE", "PUNTO DE VENTA", "PDV", "*PUNTO DE VENTA"]):
+        if any(keyword in fila_str for keyword in ["PUNTO DE VENTA", "PDV"]) and any(keyword in fila_str for keyword in ["TIPO", "MARCA", "PAGADAS"]):
             header_row_idx = idx
             break
 
@@ -162,9 +162,9 @@ def ejecutar_proceso(spec: pr.PeriodoSpec, headers, site_id):
     
     # Búsqueda exacta y flexible de columnas clave en el Planning
     col_pdv = next((c for c in df_p.columns if "PUNTO DE VENTA" in c.upper() or "PDV" in c.upper()), None)
-    col_tipo = next((c for c in df_p.columns if c.strip() == "*Tipo - Pagadas" or ("TIPO" in c.upper() and "PAGADA" in c.upper())), None)
-    col_marca = next((c for c in df_p.columns if "MARCA" in c.upper() and "PAGADA" in c.upper()), None)
-    col_cant = next((c for c in df_p.columns if "*DIGITE EL NUMERO DE EXHIBICIONES ADICIONALES PARA ESTE TIPO" in c.upper() or ("PAGADA" in c.upper() and ("NUMERO" in c.upper() or "DIGITE" in c.upper() or "CANTIDAD" in c.upper()))), None)
+    col_tipo = next((c for c in df_p.columns if "TIPO" in c.upper() and ("PAGADA" in c.upper() or "EXHIBICION" in c.upper())), None)
+    col_marca = next((c for c in df_p.columns if "MARCA" in c.upper() and ("PAGADA" in c.upper() or "EXHIBICION" in c.upper())), None)
+    col_cant = next((c for c in df_p.columns if "DIGITE" in c.upper() or "ADICIONALES" in c.upper() or ("PAGADA" in c.upper() and ("NUMERO" in c.upper() or "CANTIDAD" in c.upper()))), None)
 
     if not all([col_pdv, col_tipo, col_marca, col_cant]):
         raise KeyError(f"❌ Faltan columnas requeridas en el Planning. Disponibles: {list(df_p.columns)}")
