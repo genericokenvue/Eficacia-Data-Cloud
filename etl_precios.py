@@ -382,8 +382,15 @@ def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
             
             supabase.table("precios_kpis").upsert(registros_json).execute()
             print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} filas subidas de forma exitosa a Supabase.")
+            
     except Exception as ex_cloud:
-        print(f"  ⚠ ADVERTENCIA EN CARGA CLOUD (Los archivos Excel locales se generaron bien): {ex_cloud}")
+        print(f"  ⚠ ERROR REAL EN CARGA SUPABASE: {ex_cloud}")
+        if hasattr(ex_cloud, 'response') and ex_cloud.response is not None:
+            print(f"  🔍 Detalle del servidor: {ex_cloud.response.text}")
+        elif hasattr(ex_cloud, 'message'):
+            print(f"  🔍 Mensaje técnico: {ex_cloud.message}")
+        # Si deseas que la exception detenga el flujo por completo al fallar Supabase, descomenta la siguiente línea:
+        # raise ex_cloud
 
 
 if __name__ == "__main__":
