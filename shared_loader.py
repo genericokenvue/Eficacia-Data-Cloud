@@ -9,6 +9,8 @@ Ver docstring original para descripción de la interfaz.
 
 import os
 import glob
+import urllib.parse
+import requests
 import pandas as pd
 import numpy as np
 from etl_logger import get_logger
@@ -96,31 +98,12 @@ def calcular_kpi_simple_y_escribir(
     nombre_cumplimiento: str = "CUMPLIMIENTO",
     nombres_renombre: tuple = ("PLANEADO", "EJECUTADO"),
 ) -> int:
-    """
-    Helper común para los ETLs operativos V3 (SOS / NP / Precios).
-
-    Calcula un KPI por (MES, AÑO, SUPERVISOR_LIDER, NOMBRE):
-        CUMPLIMIENTO = sum(col_ejecutado) / sum(col_planeado)
-
-    Escribe DOS archivos:
-        • ruta_kpi_mes        — solo el periodo más reciente
-        • ruta_kpi_historico  — acumulado con upsert por (MES, AÑO, NOMBRE)
-
-    Devuelve el número de filas del periodo activo.
-
-    Conserva la semántica de V3 pero respeta multiperiodo (D6=C):
-    si df_origen tiene varios meses, el histórico se actualiza por upsert
-    para cada (MES, AÑO, NOMBRE) presente, sin borrar otras combinaciones.
-    """
     import numpy as np
 
     df = df_origen.copy()
     df[col_planeado]  = pd.to_numeric(df[col_planeado],  errors='coerce').fillna(0)
     df[col_ejecutado] = pd.to_numeric(df[col_ejecutado], errors='coerce').fillna(0)
 
-    # Sprint 15.5.2 — Fix F8: rechazar entrada sin periodo válido.
-    # Antes asumíamos MES=0/AÑO=0 silenciosamente, contaminando el histórico
-    # con filas que ningún consumidor sabe qué periodo representan.
     if 'MES' not in df.columns or 'AÑO' not in df.columns:
         faltan = [c for c in ('MES', 'AÑO') if c not in df.columns]
         raise ValueError(
@@ -172,7 +155,6 @@ def calcular_kpi_simple_y_escribir(
         ['AÑO', 'MES', 'SUPERVISOR_LIDER', 'NOMBRE']
     ).reset_index(drop=True)
 
-    # ── Mes activo: último periodo presente ──
     if not resumen.empty:
         anio_max = int(resumen['AÑO'].max())
         mes_max  = int(resumen[resumen['AÑO'] == anio_max]['MES'].max())
@@ -184,10 +166,6 @@ def calcular_kpi_simple_y_escribir(
     os.makedirs(os.path.dirname(str(ruta_kpi_mes)), exist_ok=True)
     resumen_activo.to_excel(str(ruta_kpi_mes), index=False, engine='openpyxl')
 
-    # ── Histórico acumulado (upsert por (MES, AÑO, NOMBRE)) ──
-    # Sprint 15.5.2 — Fix F8: filtra filas con MES/AÑO inválidos del histórico
-    # previo si las hubiera (por contaminación de corridas anteriores), en vez
-    # de degradarlas a 0/0.
     if os.path.exists(str(ruta_kpi_historico)):
         try:
             hist_prev = pd.read_excel(str(ruta_kpi_historico), engine='openpyxl')
@@ -212,14 +190,6 @@ def calcular_kpi_simple_y_escribir(
     else:
         hist_prev = pd.DataFrame(columns=cols_final)
 
-    # Sprint 15.9 (final fix) — upsert por PERIODO, no por (MES, AÑO, NOMBRE).
-    # ANTES: solo se borraban del histórico las filas con la misma llave
-    # (MES, AÑO, NOMBRE) que el nuevo `resumen`. Si una persona estaba en
-    # el run anterior pero el run nuevo ya no la incluye (ej. el filtro
-    # OBSERVACIÓN la excluyó), su fila vieja quedaba "huérfana".
-    # AHORA: se borran TODAS las filas de los periodos (MES, AÑO) presentes
-    # en `resumen`. El upsert es por periodo, garantizando que el histórico
-    # refleje exactamente lo que produjo el último run para ese periodo.
     if not hist_prev.empty and not resumen.empty:
         periodos_nuevos = set(map(tuple,
             resumen[['MES', 'AÑO']].drop_duplicates().values.tolist()))
@@ -237,24 +207,98 @@ def calcular_kpi_simple_y_escribir(
 
 
 def id_a_str(serie: pd.Series) -> pd.Series:
-    """
-    Convierte una serie de IDs (float, int o str) a string SIN ".0" trailing.
-
-    Por qué existe: cuando pandas lee Excel y la columna tiene NaN, infiere
-    `float64`; entonces `astype(str)` produce "12345.0". Si el otro lado del
-    cruce viene como `int64`, su `astype(str)` da "12345" y los IDs nunca
-    coinciden — bug silencioso que vacía todos los joins.
-
-    Uso correcto en CUALQUIER cruce por ID:
-        df_a["ID"] = id_a_str(df_a["ID"])
-        df_b["ID"] = id_a_str(df_b["ID"])
-        df_a.merge(df_b, on="ID", ...)
-
-    Valores no numéricos / NaN se devuelven como string vacío "".
-    """
     s = pd.to_numeric(serie, errors="coerce")
     salida = s.where(s.notna(), pd.NA).astype("Int64").astype(str)
     return salida.replace("<NA>", "")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DESCARGA DINÁMICA DESDE SHAREPOINT (CLOUD / GITHUB ACTIONS)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _descargar_pt_desde_sharepoint(periodo) -> tuple[str, str]:
+    """
+    Descarga los archivos de Plan de Trabajo desde SharePoint usando Graph API
+    cuando la ruta local no existe (ej. GitHub Actions).
+    """
+    try:
+        import msal
+        import paths
+        
+        tenant_id = os.environ.get("AZURE_TENANT_ID")
+        client_id = os.environ.get("AZURE_CLIENT_ID")
+        client_secret = os.environ.get("AZURE_CLIENT_SECRET")
+        
+        if not tenant_id or not client_id or not client_secret:
+            log.error("Faltan credenciales de Azure (AZURE_TENANT_ID, CLIENT_ID, CLIENT_SECRET)")
+            return "", ""
+
+        authority = f"https://login.microsoftonline.com/{tenant_id}"
+        app = msal.ConfidentialClientApplication(client_id, authority=authority, client_credential=client_secret)
+        token_res = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
+        
+        if "access_token" not in token_res:
+            log.error(f"No se pudo obtener token de acceso de Azure: {token_res.get('error_description')}")
+            return "", ""
+
+        headers = {"Authorization": f"Bearer {token_res['access_token']}"}
+        
+        # Obtener Site ID
+        res_site = requests.get(f"https://graph.microsoft.com/v1.0/sites/root:/sites/{paths.SHAREPOINT_SITE_NAME}", headers=headers).json()
+        site_id = res_site.get("id")
+        if not site_id:
+            log.error(f"No se pudo resolver el site_id para SharePoint: {paths.SHAREPOINT_SITE_NAME}")
+            return "", ""
+
+        ruta_formateada = urllib.parse.quote(paths.RUTA_CARPETA_PT)
+        url = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/{ruta_formateada}:/children"
+        
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            log.error(f"Error al listar SharePoint en {paths.RUTA_CARPETA_PT} ({response.status_code}): {response.text}")
+            return "", ""
+            
+        archivos = response.json().get("value", [])
+        token_periodo = f"{periodo.mes_str} {periodo.anio}".lower() if periodo else ""
+
+        archivos_validos = [
+            a for a in archivos 
+            if not a["name"].startswith("~$") and "consolidado" not in a["name"].lower()
+        ]
+
+        candidatos_dir = [a for a in archivos_validos if "directo" in a["name"].lower()]
+        candidatos_ism = [a for a in archivos_validos if "ism" in a["name"].lower()]
+
+        if periodo:
+            candidatos_dir = [a for a in candidatos_dir if token_periodo in a["name"].lower()]
+            candidatos_ism = [a for a in candidatos_ism if token_periodo in a["name"].lower()]
+
+        url_dir = candidatos_dir[0]["@microsoft.graph.downloadUrl"] if candidatos_dir else None
+        url_ism = candidatos_ism[0]["@microsoft.graph.downloadUrl"] if candidatos_ism else None
+
+        os.makedirs("/tmp/pt_temp", exist_ok=True)
+        ruta_dir_local = ""
+        ruta_ism_local = ""
+
+        if url_dir:
+            content = requests.get(url_dir).content
+            ruta_dir_local = f"/tmp/pt_temp/{candidatos_dir[0]['name']}"
+            with open(ruta_dir_local, "wb") as f:
+                f.write(content)
+            log.info(f"PT Directo descargado desde SharePoint: {candidatos_dir[0]['name']}")
+                
+        if url_ism:
+            content = requests.get(url_ism).content
+            ruta_ism_local = f"/tmp/pt_temp/{candidatos_ism[0]['name']}"
+            with open(ruta_ism_local, "wb") as f:
+                f.write(content)
+            log.info(f"PT ISM descargado desde SharePoint: {candidatos_ism[0]['name']}")
+
+        return ruta_dir_local, ruta_ism_local
+
+    except Exception as e:
+        log.error(f"Excepción al descargar PT desde SharePoint: {e}", exc_info=True)
+        return "", ""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -264,32 +308,17 @@ def id_a_str(serie: pd.Series) -> pd.Series:
 def descubrir_archivos_pt(directorio_pt: str, periodo=None) -> tuple[str, str]:
     """
     Localiza los archivos de Plan de Trabajo Directo e ISM dentro de
-    `directorio_pt`.
-
-    Sprint 15.5.2 — Fix F2: si se pasa `periodo` (PeriodoSpec), filtra para
-    que devuelva solo los archivos de ese mes/año. Esto evita que en una
-    carpeta con varios meses el caller obtenga silenciosamente el mes
-    equivocado.
-
-    Patrones esperados (case-insensitive):
-        Plan de trabajo Directo {Mes} {Año}.xlsx   →  PT Directo
-        Plan de trabajo ISM     {Mes} {Año}.xlsx   →  PT ISM
-
-    Si `periodo` es None, mantiene el comportamiento legacy (más reciente
-    por mtime) pero loguea WARNING — los ETLs nuevos deben pasar periodo.
-
-    Retorna (ruta_directo, ruta_ism). Cada elemento puede ser "" si no se
-    encuentra archivo de esa fuente — el caller decide cómo reaccionar.
+    `directorio_pt`. Si el directorio físico no existe (ej. en GitHub Actions),
+    intenta descargarlos automáticamente desde SharePoint.
     """
     if not os.path.isdir(directorio_pt):
-        log.critical(
-            f"Directorio de PT no existe: {directorio_pt} "
-            f"— el pipeline no puede continuar"
+        log.warning(
+            f"Directorio local de PT no existe: {directorio_pt} "
+            f"— intentando descarga remota desde SharePoint..."
         )
-        return "", ""
+        return _descargar_pt_desde_sharepoint(periodo)
 
     todos = glob.glob(os.path.join(directorio_pt, "*.xlsx"))
-    # Excluir archivos temporales de Excel y consolidados de salida
     todos = [
         p for p in todos
         if not os.path.basename(p).startswith("~$")
@@ -300,8 +329,6 @@ def descubrir_archivos_pt(directorio_pt: str, periodo=None) -> tuple[str, str]:
     candidatos_ism = [p for p in todos if "ism"     in os.path.basename(p).lower()]
 
     if periodo is not None:
-        # Filtrar por nombre que contenga "{Mes} {Año}" (ej. "Mayo 2026").
-        # PeriodoSpec viene de SCRIPTS/periodo_resolver.py.
         token = f"{periodo.mes_str} {periodo.anio}".lower()
         candidatos_dir = [
             p for p in candidatos_dir
@@ -326,8 +353,7 @@ def descubrir_archivos_pt(directorio_pt: str, periodo=None) -> tuple[str, str]:
     else:
         log.warning(
             "descubrir_archivos_pt llamada sin parámetro `periodo` — "
-            "uso el más reciente por mtime (comportamiento legacy). "
-            "Sprint 15.5.2: los ETLs deben pasar periodo explícito."
+            "uso el más reciente por mtime (comportamiento legacy)."
         )
         ruta_dir = max(candidatos_dir, key=os.path.getmtime) if candidatos_dir else ""
         ruta_ism = max(candidatos_ism, key=os.path.getmtime) if candidatos_ism else ""
@@ -350,17 +376,7 @@ def descubrir_archivos_pt(directorio_pt: str, periodo=None) -> tuple[str, str]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _leer_archivo_pt(ruta: str, hoja_pt: str, fuente: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Abre el ExcelFile UNA SOLA VEZ y lee las dos hojas relevantes.
-    Devuelve (df_pt_normalizado, df_modulos_raw).
-
-    Niveles de log:
-      CRITICAL → archivo no existe (bloquea completamente el pipeline)
-      ERROR    → excepción inesperada al leer (corrupción, formato, etc.)
-      WARNING  → hoja 'Captura de modulos' vacía o sin columna ID PDV INVOLVES
-      INFO     → carga exitosa con conteo de filas
-    """
-    if not os.path.exists(ruta):
+    if not ruta or not os.path.exists(ruta):
         log.critical(
             f"Archivo Plan de Trabajo no encontrado: {ruta} "
             f"— fuente '{fuente}' excluida del pipeline"
@@ -369,7 +385,6 @@ def _leer_archivo_pt(ruta: str, hoja_pt: str, fuente: str) -> tuple[pd.DataFrame
 
     try:
         with pd.ExcelFile(ruta) as xls:
-            # ── Hoja Captura de modulos ──────────────────────────────────
             df_mod = pd.read_excel(xls, sheet_name="Captura de modulos")
             df_mod.columns = df_mod.columns.str.strip().str.upper()
 
@@ -384,12 +399,8 @@ def _leer_archivo_pt(ruta: str, hoja_pt: str, fuente: str) -> tuple[pd.DataFrame
                     f"({os.path.basename(ruta)}) — filtros de módulo desactivados para esta fuente"
                 )
             else:
-                # Mantener consistencia con la normalización del PT (abajo).
-                # Sin esto, df_pt["ID_PDV_INVOLVES"] (string) no cruzaría con
-                # df_mod["ID PDV INVOLVES"] (int) en _filtrar_por_modulo.
                 df_mod["ID PDV INVOLVES"] = id_a_str(df_mod["ID PDV INVOLVES"])
 
-            # ── Hoja Plan de trabajo ─────────────────────────────────────
             df_pt = pd.read_excel(xls, sheet_name=hoja_pt)
             df_pt.columns = df_pt.columns.str.strip()
             df_pt.rename(
@@ -406,9 +417,6 @@ def _leer_archivo_pt(ruta: str, hoja_pt: str, fuente: str) -> tuple[pd.DataFrame
                     )
                     df_pt[col] = pd.to_numeric(df_pt[col], errors="coerce")
 
-            # Normalizar IDs de PDV a string limpio (sin ".0" trailing) — crítico
-            # para que los cruces aguas abajo (Precios/SOS/NP/Exhibiciones) no
-            # fallen silenciosamente.
             if "ID_PDV_INVOLVES" in df_pt.columns:
                 df_pt["ID_PDV_INVOLVES"] = id_a_str(df_pt["ID_PDV_INVOLVES"])
 
@@ -449,13 +457,6 @@ def _filtrar_por_modulo(
     fuente: str,
     modulo: str,
 ) -> pd.DataFrame:
-    """
-    Filtra df_pt por los PDVs con flag = 1 en el módulo indicado.
-
-    WARNING → columna de módulo ausente en df_mod (datos parciales)
-    WARNING → DataFrame resultante vacío tras el filtro
-    INFO    → filas retenidas tras filtro
-    """
     col = MODULOS[modulo][fuente]
 
     if col not in df_mod.columns:
@@ -480,12 +481,6 @@ def _filtrar_por_modulo(
 
 
 def _detectar_periodo(df_pt: pd.DataFrame) -> tuple[int, int]:
-    """
-    Extrae mes y año predominante del campo FECHA del PT.
-
-    WARNING → columna FECHA ausente o sin fechas válidas → fallback a fecha actual
-    INFO    → periodo detectado correctamente
-    """
     from datetime import datetime
 
     if "FECHA" not in df_pt.columns or df_pt["FECHA"].isna().all():
@@ -522,20 +517,6 @@ def cargar_plan_de_trabajo(
     mes: int | None = None,
     anio: int | None = None,
 ) -> dict:
-    """
-    Lee los dos archivos del Plan de Trabajo una sola vez y devuelve un dict
-    con DataFrames listos para cada ETL.
-
-    Sprint 16.1 — si se pasan `mes` y `anio`, el periodo del resultado es ese
-    exactamente (NO se auto-detecta desde FECHA). Esto garantiza consistencia
-    con --mes/--anio del orquestador y D1 (periodo CLI obligatorio).
-
-    Si `mes`/`anio` son None, mantiene el comportamiento legacy de
-    auto-detección desde la columna FECHA del PT (con WARNING).
-
-    Lanza RuntimeError si NINGUNA fuente pudo cargarse (error crítico
-    que detiene el pipeline completo).
-    """
     log.info("━" * 50)
     log.info("Iniciando carga compartida del Plan de Trabajo")
     log.info("━" * 50)
@@ -557,7 +538,7 @@ def cargar_plan_de_trabajo(
     if len(partes) == 1:
         fuente_faltante = "ISM" if df_dir_pt.empty else "DIRECTO"
         log.warning(
-            f"Solo se cargó una fuente del PT ({fuente_faltante} no disponible) "
+            f"Solo se cargó una fuente del PT ({fuente_faltante} not available) "
             f"— los resultados estarán incompletos"
         )
 
