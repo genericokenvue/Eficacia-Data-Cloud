@@ -5,3 +5,4 @@ supabase
 python-dotenv
 openpyxl
 numpy
+azure-storage-blob
