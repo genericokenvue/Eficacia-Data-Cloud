@@ -205,6 +205,10 @@ def _run_precios(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     df_pt_unificado = df_pt_unificado.groupby('ID_PDV_INVOLVES').first().reset_index()
 
     ruta_pt_final = os.path.join(str(paths.CIF_PT_DIR), f"Plan_Trabajo_Precios_{periodo}.xlsx")
+    
+    # Asegurar que el directorio local exista antes de escribir el archivo
+    os.makedirs(os.path.dirname(ruta_pt_final), exist_ok=True)
+    
     df_pt_unificado.to_excel(ruta_pt_final, index=False)
     log.info(f"PT filtrado persistido: {len(df_pt_unificado):,} PDVs únicos — periodo {periodo}")
 
