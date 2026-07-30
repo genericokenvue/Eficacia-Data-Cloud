@@ -305,15 +305,30 @@ def _run_exhibiciones_pagadas(df_pt: pd.DataFrame = None, mes: int = None, anio:
     log.info("ETL Exhibiciones Pagadas — completado")
 
 
-def _run_exhibiciones_gratis(spec=None, **_) -> None:
+def _run_exhibiciones_gratis(df_pt: pd.DataFrame = None, mes: int = None, anio: int = None, spec=None, **_) -> None:
     log = get_logger("exhib_gratis")
     separador(log)
     log.info("ETL Exhibiciones Gratis — iniciando")
+
+    import etl_exhibiciones_gratis
+    import periodo_resolver as pr
+
+    # Resolver spec de forma flexible dependiendo de cómo se invoque
+    if spec is None:
+        if mes is not None and anio is not None:
+            spec = pr.resolver(int(mes), int(anio))
+        else:
+            log.error("spec ausente — exhibiciones gratis no puede correr sin periodo")
+            return
+
     if spec is None:
         log.error("spec ausente — exhibiciones gratis no puede correr sin periodo")
         return
+
+    # Ejecución del proceso principal y generación de KPIs (con autenticación interna mediante Graph API y Supabase)
     etl_exhibiciones_gratis.run(spec)
     etl_exhibiciones_gratis.generar_resumen_kpi_exhibiciones_gratis(spec)
+    
     log.info("ETL Exhibiciones Gratis — completado")
 
 
