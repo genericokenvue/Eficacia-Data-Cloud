@@ -377,8 +377,9 @@ def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
 
 
 
-
-
+            # 👇 AGREGAR ESTA LÍNEA PARA ELIMINAR DUPLICADOS EN EL LOTE
+            
+            df_kpi = df_kpi.drop_duplicates(subset=["mes", "anio", "nombre"], keep="last")
             
             df_kpi = df_kpi.replace([np.inf, -np.inf], 0)
             df_kpi_limpio = df_kpi.astype(object).where(pd.notnull(df_kpi), None)
