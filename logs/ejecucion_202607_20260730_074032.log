@@ -1,0 +1,107 @@
+2026-07-30 07:40:32  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260730_074032.log
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260730T074032_1e86b6
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      Inicio: 2026-07-30 07:40:32
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      Run ID: 20260730T074032_1e86b6
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      Periodo: Julio_2026 (07/2026)
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['exhib_gratis']
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-07-30 07:40:32  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 07:40:32  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-07-30 07:40:32  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx
+2026-07-30 07:40:32  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-30 07:40:32  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-07-30 07:40:32  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-30 07:40:41  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,601 filas PT  |  3,262 filas módulos cargadas
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      [ISM] 2,530 filas PT  |  888 filas módulos cargadas
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,131 filas totales
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 7 | Año 2026
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,073 filas retenidas
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 980 filas retenidas
+2026-07-30 07:40:43  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 791 filas retenidas
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 4,084 filas retenidas
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 759 filas retenidas
+2026-07-30 07:40:43  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      shared_loader completado en 10.6s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-30 07:40:43  [etl.exhib_gratis]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-30 07:40:43  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — iniciando
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Julio_2026) ─
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] ☁️ [NUBE / AZURE API] Rutas aplicadas para el periodo Julio_2026:
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Julio 2026.xlsx
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Julio 2026.xlsx
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: C:\1\OneDrive - Eficacia\Escritorio\ETLS\BASES\CIF\INVOLVES\informe-gerencial-visitas_202607.xlsx
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] [plan_trabajo] 1 archivo(s):
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información\BI\INVOLVES\PLAN DE TRABAJO\Plan de trabajo.xlsx
+2026-07-30 07:40:43  [etl.exhib_gratis]  · DEBUG     [stdout] ── Cargando fuentes ────────────
+2026-07-30 07:40:43  [etl.exhib_gratis]  ✗ ERROR     [stdout] ⚠ Error leyendo archivo (Base Exhibiciones Informar Julio 2026.xlsx): No se encontró la variable AZURE_STORAGE_CONNECTION_STRING en el entorno.
+2026-07-30 07:40:43  [etl.exhib_gratis]  ✗ ERROR     [stdout] ⚠ Error leyendo archivo (Base Exhibiciones Planning Julio 2026.xlsx): No se encontró la variable AZURE_STORAGE_CONNECTION_STRING en el entorno.
+2026-07-30 07:40:43  [etl.exhib_gratis]  ☠ CRITICAL  Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 419, in _ejecutar_etl
+    fn(spec=spec)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 315, in _run_exhibiciones_gratis
+    etl_exhibiciones_gratis.run(spec)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\etl_exhibiciones_gratis.py", line 380, in run
+    df_enc = load_encuestas(files)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\etl_exhibiciones_gratis.py", line 172, in load_encuestas
+    if not dfs: raise ValueError("No se encontraron archivos de encuesta ni en local ni en la nube de Azure.")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: No se encontraron archivos de encuesta ni en local ni en la nube de Azure.
+
+2026-07-30 07:40:43  [etl.exhib_gratis]  ✗ ERROR     Duración hasta fallo: 0.1s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ETL 'exhib_gratis' terminó — ✗ FALLÓ en 0.1s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        exhib_gratis           ✗ ERROR            0.1s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              10.6s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         10.8s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                   10.8s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      Eventos: 1 CRITICAL  |  3 ERROR  |  1 WARNING
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        CRITICAL (1)
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        07:40:43  [exhib_gratis]      Excepción no capturada — ETL abortado
+Traceback (most recent call last):
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 419, in _ejecutar_etl
+    fn(spec=spec)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\run_all.py", line 315, in _run_exhibiciones_gratis
+    etl_exhibiciones_gratis.run(spec)
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\etl_exhibiciones_gratis.py", line 380, in run
+    df_enc = load_encuestas(files)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\etl_exhibiciones_gratis.py", line 172, in load_encuestas
+    if not dfs: raise ValueError("No se encontraron archivos de encuesta ni en local ni en la nube de Azure.")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: No se encontraron archivos de encuesta ni en local ni en la nube de Azure.
+
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        ERROR (3)
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        07:40:43  [exhib_gratis]      [stdout] ⚠ Error leyendo archivo (Base Exhibiciones Informar Julio 2026.xlsx): No se encontró la variable AZURE_STORAGE_CONNECTION_STRING en el entorno.
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        07:40:43  [exhib_gratis]      [stdout] ⚠ Error leyendo archivo (Base Exhibiciones Planning Julio 2026.xlsx): No se encontró la variable AZURE_STORAGE_CONNECTION_STRING en el entorno.
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        07:40:43  [exhib_gratis]      Duración hasta fallo: 0.1s
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO        07:40:43  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260730_074032.log
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      Fin: 2026-07-30 07:40:43
+2026-07-30 07:40:43  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
