@@ -1,0 +1,104 @@
+2026-07-30 09:37:00  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260730_093700.log
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260730T093700_cabeca
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      Inicio: 2026-07-30 09:37:00
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      Run ID: 20260730T093700_cabeca
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      Periodo: Julio_2026 (07/2026)
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['exhib_gratis']
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-07-30 09:37:00  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 09:37:00  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-07-30 09:37:00  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx
+2026-07-30 09:37:00  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-30 09:37:00  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-07-30 09:37:00  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,601 filas PT  |  3,262 filas módulos cargadas
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      [ISM] 2,530 filas PT  |  888 filas módulos cargadas
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,131 filas totales
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 7 | Año 2026
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,073 filas retenidas
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 980 filas retenidas
+2026-07-30 09:37:02  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 791 filas retenidas
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 4,084 filas retenidas
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 759 filas retenidas
+2026-07-30 09:37:02  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-07-30 09:37:02  [etl.orquestador]   ✓ INFO      shared_loader completado en 2.1s
+2026-07-30 09:37:02  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-30 09:37:02  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-07-30 09:37:02  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-30 09:37:02  [etl.exhib_gratis]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-30 09:37:02  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — iniciando
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Julio_2026) ─
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Julio_2026:
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Julio 2026.xlsx
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Julio 2026.xlsx
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/VISITAS/2026/informe-gerencial-visitas_202607.xlsx
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Julio 2026.xlsx
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Julio 2026.xlsx
+2026-07-30 09:37:02  [etl.exhib_gratis]  · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-07-30 09:37:08  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Julio 2026.xlsx — 1,592 filas
+2026-07-30 09:37:15  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Julio 2026.xlsx — 2,277 filas
+2026-07-30 09:37:34  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo Directo Julio 2026.xlsx — 7,792 gestores cargados
+2026-07-30 09:37:40  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo ISM Julio 2026.xlsx — 2,043 gestores cargados
+2026-07-30 09:37:56  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] informe-gerencial-visitas_202607.xlsx — 51,443 filas
+2026-07-30 09:37:56  [etl.exhib_gratis]  · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 45,266 filas 'Sin check-in' (88.0%); quedan 6,177 visitas efectivas.
+2026-07-30 09:38:00  [etl.exhib_gratis]  · DEBUG     [stdout] Encuestas consolidadas: 3,869 filas
+2026-07-30 09:38:00  [etl.exhib_gratis]  · DEBUG     [stdout] Plan de trabajo:        9,819 filas
+2026-07-30 09:38:00  [etl.exhib_gratis]  · DEBUG     [stdout] Visitas realizadas:     6,177 filas
+2026-07-30 09:38:00  [etl.exhib_gratis]  · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-07-30 09:38:00  [etl.exhib_gratis]  · DEBUG     [stdout] Implementadas pagadas:          1,760 filas
+2026-07-30 09:38:00  [etl.exhib_gratis]  · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-07-30 09:38:07  [etl.exhib_gratis]  · DEBUG     [stdout] Implementadas gratis/concurso: 759 filas
+2026-07-30 09:38:07  [etl.exhib_gratis]  · DEBUG     [stdout] ── Consolidando y escribiendo en SharePoint ─────
+2026-07-30 09:38:09  [etl.exhib_gratis]  ✗ ERROR     [stdout] ⚠️ No se pudo leer resultado previo de SharePoint (❌ No se pudo descargar el archivo desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado exhibiciones gratis.xlsx). Estado HTTP 404: {"error":{"code":"itemNotFound","message":"The resource could not be found."}}); se sobrescribe.
+2026-07-30 09:38:12  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Output escrito con éxito en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado exhibiciones gratis.xlsx (2,519 filas)
+2026-07-30 09:38:12  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resumen de Exhibiciones ──────────────────────
+2026-07-30 09:38:12  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones:                                        5,306
+2026-07-30 09:38:12  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Gratis:                                   3,326
+2026-07-30 09:38:12  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Pagadas:                                 1,979
+2026-07-30 09:38:12  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Alto Impacto:                            2,181
+2026-07-30 09:38:12  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Medio Impacto:                           3,125
+2026-07-30 09:38:12  [etl.exhib_gratis]  · DEBUG     [stdout] ─────────────────────────────────────────────────
+2026-07-30 09:38:12  [etl.exhib_gratis]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado (Julio_2026) ---
+2026-07-30 09:38:16  [etl.exhib_gratis]  · DEBUG     [stdout] Leyendo archivo desde SharePoint (2519 filas)
+2026-07-30 09:38:18  [etl.exhib_gratis]  ✗ ERROR     [stdout] ⚠️ No pude leer Base cupos para targets por canal desde SharePoint (❌ No se pudo descargar el archivo desde SharePoint (Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/Base cupos.xlsx). Estado HTTP 404: {"error":{"code":"itemNotFound","message":"The resource could not be found."}}); uso 3/5 por defecto.
+2026-07-30 09:38:22  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Mes activo guardado en SharePoint: 103 empleados → KPI_Exhibiciones_Gratis.xlsx
+2026-07-30 09:38:28  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Histórico actualizado en SharePoint → KPI_Exhibiciones_Gratis_Historico.xlsx
+2026-07-30 09:38:31  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ ÉXITO CLOUD: 103 registros cargados con éxito a la tabla 'exhibiciones_gratis_kpis' en Supabase.
+2026-07-30 09:38:31  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — completado
+2026-07-30 09:38:31  [etl.exhib_gratis]  ✓ INFO      Duración total: 89.1s
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ETL 'exhib_gratis' terminó — ✓ OK en 89.1s
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        exhib_gratis           ✓ OK              89.1s
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               2.1s
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                         91.2s
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                   91.2s
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  2 ERROR  |  1 WARNING
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        ERROR (2)
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        09:38:09  [exhib_gratis]      [stdout] ⚠️ No se pudo leer resultado previo de SharePoint (❌ No se pudo descargar el archivo desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado exhibiciones gratis.xlsx). Estado HTTP 404: {"error":{"code":"itemNotFound","message":"The resource could not be found."}}); se sobrescribe.
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        09:38:18  [exhib_gratis]      [stdout] ⚠️ No pude leer Base cupos para targets por canal desde SharePoint (❌ No se pudo descargar el archivo desde SharePoint (Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/Base cupos.xlsx). Estado HTTP 404: {"error":{"code":"itemNotFound","message":"The resource could not be found."}}); uso 3/5 por defecto.
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ························································
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO        09:37:02  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260730_093700.log
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      Fin: 2026-07-30 09:38:31
+2026-07-30 09:38:31  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

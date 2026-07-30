@@ -25,13 +25,21 @@ else:
     if env_path_alt.exists():
         load_dotenv(dotenv_path=env_path_alt, override=True)
 
-# Cargamos estrictamente las variables de tu .env para Graph API
 AZURE_TENANT_ID = os.getenv("AZURE_TENANT_ID")
 AZURE_CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
 AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        from supabase import create_client
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    except ImportError:
+        supabase = None
+else:
+    supabase = None
 
 SHAREPOINT_BASE_DIR = os.getenv("SHAREPOINT_BASE_DIR", "Equipo Información/BI/INVOLVES").replace("\\", "/")
 _BASES_ROOT = os.getenv("BASES_ROOT", f"{SHAREPOINT_BASE_DIR}/BASES DE RESPUESTAS").replace("\\", "/")
@@ -66,7 +74,6 @@ COL_CANTIDAD_GC     = "*Digite el numero de exhibiciones adicionales para este t
 COL_TIPO_EXHIB_PAG  = "Seleccionar el Tipo de la exhibicion (Pagadas)"
 COL_MARCA_PAG       = "MARCA.1"
 COL_CANTIDAD_PAG    = "*Digite el numero de exhibiciones adicionales para este tipo."
-# COL_IMPLEMENTADA se resolverá dinámicamente en calcular_pagadas para evitar KeyErrors por tildes/errores ortográficos
 COL_CAUSAL          = "Indique las causales:"
 
 COL_TIPO_CONTRA     = "Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN"
@@ -165,6 +172,47 @@ def _upload_sharepoint_file(sharepoint_path: str, buffer_data: BytesIO):
     if response.status_code not in [200, 201]:
         raise Exception(f"❌ Error al subir archivo a SharePoint ({sharepoint_path}). Estado HTTP {response.status_code}: {response.text}")
 
+def _subir_kpis_supabase(resumen_df, nombre_tabla: str):
+    """Sube un DataFrame de resumen directamente a la tabla especificada de Supabase usando nombres de columna normalizados (snake_case)."""
+    if supabase is None:
+        print("  ⚠️ El cliente de Supabase no está inicializado. Se omite la carga.")
+        return
+
+    if resumen_df.empty:
+        print("  ℹ️ No hay registros para enviar a Supabase.")
+        return
+
+    df_clean = resumen_df.copy()
+    
+    # Normalización completa de columnas a snake_case exacto para evitar errores en Supabase
+    renombres = {
+        'Mes': 'mes',
+        'Año': 'anio',
+        'Empleado': 'empleado',
+        'ALTO IMPACTO': 'alto_impacto',
+        'MEDIO IMPACTO': 'medio_impacto',
+        'TARGET_ALTO': 'target_alto',
+        'TARGET_MEDIO': 'target_medio',
+        'CUMP_ALTO': 'cump_alto',
+        'CUMP_MEDIO': 'cump_medio',
+        'TOTAL': 'total'
+    }
+    df_clean = df_clean.rename(columns=renombres)
+    
+    # Seguridad adicional: pasar todo a minúsculas y reemplazar espacios por guiones bajos
+    df_clean.columns = df_clean.columns.str.strip().str.lower().str.replace(' ', '_')
+
+    df_clean = df_clean.replace([np.inf, -np.inf], 0)
+    df_limpio = df_clean.astype(object).where(pd.notnull(df_clean), None)
+    
+    registros = df_limpio.to_dict(orient="records")
+
+    try:
+        supabase.table(nombre_tabla).upsert(registros).execute()
+        print(f"  ✅ ÉXITO CLOUD: {len(registros)} registros cargados con éxito a la tabla '{nombre_tabla}' en Supabase.")
+    except Exception as ex:
+        raise Exception(f"❌ Error al cargar datos a la tabla '{nombre_tabla}' en Supabase: {ex}")
+
 def _semana_del_mes(fecha) -> int:
     if pd.isnull(fecha): return -1
     primer_dia = fecha.replace(day=1)
@@ -209,10 +257,13 @@ def load_encuestas(files: dict) -> pd.DataFrame:
     rutas_a_probar = files.get("informar", []) + files.get("planning", [])
     
     for path in rutas_a_probar:
-        stream_data = _get_sharepoint_file_stream(path)
-        df = pd.read_excel(stream_data, sheet_name="report")
-        print(f"    ✓ [SharePoint] {os.path.basename(str(path))} — {len(df):,} filas")
-        dfs.append(df)
+        try:
+            stream_data = _get_sharepoint_file_stream(path)
+            df = pd.read_excel(stream_data, sheet_name="report")
+            print(f"    ✓ [SharePoint] {os.path.basename(str(path))} — {len(df):,} filas")
+            dfs.append(df)
+        except Exception as e:
+            print(f"    ⚠️ No se pudo cargar el archivo {os.path.basename(str(path))}: {e}")
             
     if not dfs: raise ValueError("No se pudieron cargar archivos de encuesta desde SharePoint.")
     cols_comunes = set(dfs[0].columns)
@@ -313,13 +364,18 @@ def load_plan(files: dict) -> pd.DataFrame:
 def load_visitas(files: dict) -> pd.DataFrame:
     dfs = []
     for path in files.get("visitas", []):
-        stream_data = _get_sharepoint_file_stream(path)
-        df = pd.read_excel(stream_data)
-        dfs.append(df)
-        print(f"    ✓ [SharePoint] {os.path.basename(str(path))} — {len(df):,} filas")
+        try:
+            stream_data = _get_sharepoint_file_stream(path)
+            df = pd.read_excel(stream_data)
+            dfs.append(df)
+            print(f"    ✓ [SharePoint] {os.path.basename(str(path))} — {len(df):,} filas")
+        except Exception as e:
+            print(f"    ⚠️ No se pudo cargar el archivo de visitas {os.path.basename(str(path))}: {e}")
             
     if not dfs:
-        raise ValueError("No se encontraron archivos de Visitas en SharePoint.")
+        print("    ⚠️ No se encontraron archivos de Visitas válidos en SharePoint. Se continúa sin visitas.")
+        return pd.DataFrame(columns=[COL_VIS_ID_PDV, COL_VIS_EMPLEADO, COL_VIS_FECHA, "_semana_mes"])
+        
     df = pd.concat(dfs, ignore_index=True)
 
     if "Tipo de check-in" in df.columns:
@@ -340,10 +396,14 @@ def load_visitas(files: dict) -> pd.DataFrame:
 
 def load_nivel_impacto() -> pd.DataFrame:
     file_nivel = str(paths.EXHIB_NIVEL_IMPACTO).replace("\\", "/")
-    stream_data = _get_sharepoint_file_stream(file_nivel)
-    df = pd.read_excel(stream_data)
-    df.columns = df.columns.str.strip()
-    return df[["Tipo Exhibición", "Nivel Impacto"]]
+    try:
+        stream_data = _get_sharepoint_file_stream(file_nivel)
+        df = pd.read_excel(stream_data)
+        df.columns = df.columns.str.strip()
+        return df[["Tipo Exhibición", "Nivel Impacto"]]
+    except Exception as e:
+        print(f"    ⚠️ No se pudo cargar el archivo de nivel de impacto: {e}. Se retorna estructura vacía.")
+        return pd.DataFrame(columns=["Tipo Exhibición", "Nivel Impacto"])
 
 # ==============================================================================
 # 3. MÓDULOS DE CÁLCULO
@@ -363,25 +423,30 @@ def calcular_gratis_concurso(df_enc, df_plan, df_visitas) -> pd.DataFrame:
     })[[COL_ID_PDV, "_rol", "_frec_plan", COL_MES, COL_ANIO]]
     
     df = df.merge(plan_lookup, on=[COL_ID_PDV, "_rol", COL_MES, COL_ANIO], how="left")
-    df_visitas["_mes_vis"] = df_visitas[COL_VIS_FECHA].dt.month
-    df_visitas["_anio_vis"] = df_visitas[COL_VIS_FECHA].dt.year
     
-    frec_real = df_visitas.groupby([COL_VIS_ID_PDV, COL_VIS_EMPLEADO, "_mes_vis", "_anio_vis"]).size().reset_index(name="_frec_real")
-    frec_real.columns = [COL_ID_PDV, COL_EMPLEADO, COL_MES, COL_ANIO, "_frec_real"]
-    df = df.merge(frec_real, on=[COL_ID_PDV, COL_EMPLEADO, COL_MES, COL_ANIO], how="left")
+    if not df_visitas.empty:
+        df_visitas["_mes_vis"] = df_visitas[COL_VIS_FECHA].dt.month
+        df_visitas["_anio_vis"] = df_visitas[COL_VIS_FECHA].dt.year
+        frec_real = df_visitas.groupby([COL_VIS_ID_PDV, COL_VIS_EMPLEADO, "_mes_vis", "_anio_vis"]).size().reset_index(name="_frec_real")
+        frec_real.columns = [COL_ID_PDV, COL_EMPLEADO, COL_MES, COL_ANIO, "_frec_real"]
+        df = df.merge(frec_real, on=[COL_ID_PDV, COL_EMPLEADO, COL_MES, COL_ANIO], how="left")
+    else:
+        df["_frec_real"] = 0
 
     def frec_referencia(row):
         perfil = str(row[COL_PERFIL_EMP]).upper()
+        frec_real_val = row.get("_frec_real", 0)
         if perfil == PERFIL_PLAN:
-            return row["_frec_plan"] if pd.notna(row["_frec_plan"]) and row["_frec_plan"] > 0 else row["_frec_real"]
-        return row["_frec_real"]
+            frec_plan_val = row.get("_frec_plan", 0)
+            return frec_plan_val if pd.notna(frec_plan_val) and frec_plan_val > 0 else frec_real_val
+        return frec_real_val
 
     df["_frec_ref"] = df.apply(frec_referencia, axis=1)
     KEY = [COL_MES, COL_ANIO, COL_ID_PDV, COL_EXHIBICIONES, COL_MARCA_GC, COL_TIPO_EXHIB_GC, COL_PERFIL_EMP, COL_EMPLEADO]
 
     def evaluar_cumplimiento(grupo):
         semanas_distintas = grupo["_semana_mes"].nunique()
-        frec_ref = grupo["_frec_ref"].iloc[0]
+        frec_ref = grupo["_frec_ref"].iloc[0] if not grupo.empty else 0
         cumple = semanas_distintas >= 2 if frec_ref > 1 else semanas_distintas >= 1
         if cumple:
             cant_sem = grupo.groupby("_semana_mes")["Cantidad"].sum()
@@ -433,8 +498,9 @@ def calcular_gratis_concurso(df_enc, df_plan, df_visitas) -> pd.DataFrame:
 
 def calcular_pagadas(df_enc) -> pd.DataFrame:
     df = df_enc[df_enc[COL_EXHIBICIONES] == EXHIB_PAGADA].copy()
+    if df.empty:
+        return pd.DataFrame(columns=[COL_MES, COL_ANIO, COL_ID_PDV, "Tipo Exhibición", "Marca", "Cantidad", COL_EMPLEADO, COL_PERFIL_EMP, "Categoría"])
     
-    # ── Búsqueda flexible de la columna de implementación (evita errores por 'le' vs 'el' o tildes) ──
     col_impl = None
     for c in df.columns:
         c_low = c.lower()
@@ -443,15 +509,18 @@ def calcular_pagadas(df_enc) -> pd.DataFrame:
             break
             
     if not col_impl:
-        raise KeyError("❌ No se encontró ninguna columna que contenga 'implementada' y 'planning' en las encuestas.")
+        print("    ⚠️ No se encontró columna de implementación planning para pagadas. Se omite.")
+        return pd.DataFrame(columns=[COL_MES, COL_ANIO, COL_ID_PDV, "Tipo Exhibición", "Marca", "Cantidad", COL_EMPLEADO, COL_PERFIL_EMP, "Categoría"])
 
     df["_impl_norm"] = df[col_impl].astype(str).str.strip().str.lower()
-    df["_causal_norm"] = df[COL_CAUSAL].astype(str).str.strip().str.lower()
+    df["_causal_norm"] = df[COL_CAUSAL].astype(str).str.strip().str.lower() if COL_CAUSAL in df.columns else ""
     
     m_si = df["_impl_norm"] == "si"
     m_contra = (df["_impl_norm"] == "no") & (df["_causal_norm"] == CAUSAL_CONTRA.lower())
 
     def extraer(sub, t, m, c):
+        if sub.empty:
+            return pd.DataFrame(columns=[COL_MES, COL_ANIO, COL_ID_PDV, "Tipo Exhibición", "Marca", "Cantidad", COL_EMPLEADO, COL_PERFIL_EMP])
         return pd.DataFrame({
             COL_MES: sub[COL_MES], COL_ANIO: sub[COL_ANIO], COL_ID_PDV: sub[COL_ID_PDV],
             "Tipo Exhibición": sub[t], "Marca": sub[m],
@@ -493,7 +562,11 @@ def run(spec: pr.PeriodoSpec):
 
     print("\n── Consolidando y escribiendo en SharePoint ─────")
     df_out = pd.concat([df_pag, df_gc], ignore_index=True)
-    df_out = df_out.merge(df_nivel, on="Tipo Exhibición", how="left")
+    if not df_nivel.empty:
+        df_out = df_out.merge(df_nivel, on="Tipo Exhibición", how="left")
+    else:
+        df_out["Nivel Impacto"] = "SIN NIVEL"
+        
     df_out[COL_MES] = df_out[COL_MES].astype("Int64")
     df_out[COL_ANIO] = df_out[COL_ANIO].astype("Int64")
     df_out["Mes-Año"] = df_out[COL_MES].astype(str).str.zfill(2) + "-" + df_out[COL_ANIO].astype(str)
@@ -660,6 +733,11 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
     _upload_sharepoint_file(path_hist, buf_hist)
     print(f"  ✅ Histórico actualizado en SharePoint → {os.path.basename(str(path_hist))}")
 
+    try:
+        _subir_kpis_supabase(resumen, "exhibiciones_gratis_kpis")
+    except Exception as ex_cloud:
+        print(f"  ⚠ ADVERTENCIA EN CARGA SUPABASE: {ex_cloud}")
+
 
 if __name__ == "__main__":
     import argparse
@@ -678,7 +756,7 @@ if __name__ == "__main__":
     for i, spec in enumerate(specs, 1):
         if len(specs) > 1:
             print(f"\n▶ Periodo {i}/{len(specs)}: {spec.etiqueta}")
-        print(f"\n🎯 ETL Exh Gratis — procesando periodo {spec.etiqueta} ({spec})")
+        print(f"\n🎯 ETL Exh Gratis — procesandoperiodo {spec.etiqueta} ({spec})")
 
         try:
             if "full" in pasos: run(spec)
