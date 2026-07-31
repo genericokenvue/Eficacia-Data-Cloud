@@ -1,3 +1,12 @@
+# Archivos de configuración y credenciales
+config.env
 .env
+
+# Archivos de Excel (salidas, reportes o bases locales)
+*.xlsx
+*.xls
+*.xlsm
+
+# Caché de Python
 __pycache__/
 *.pyc
