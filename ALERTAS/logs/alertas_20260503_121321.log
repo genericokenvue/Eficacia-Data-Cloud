@@ -1,0 +1,5 @@
+2026-05-03 12:13:21  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\logs\alertas_20260503_121321.log
+2026-05-03 12:13:21  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular'] | prueba=False
+2026-05-03 12:13:21  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-05-03 12:13:31  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 04/2026 | gestores=124 supervisores=24 adjuntos=24
+2026-05-03 12:13:31  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 9.6s

@@ -1,0 +1,10 @@
+2026-07-14 14:45:10  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\ALERTAS\logs\alertas_20260714_144510.log
+2026-07-14 14:45:10  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram', 'email'] | prueba=False
+2026-07-14 14:45:10  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-07-14 14:47:45  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37
+2026-07-14 14:49:33  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=24 fallidos=0 sin_chat_id=15 prueba=False
+2026-07-14 14:50:16  [etl.alertas_email]  ✓ INFO      [macro] 2026-07-14 14:49:39 | INFO | EnviarTodos: inicio
+2026-07-14 14:50:16  [etl.alertas_email]  ✓ INFO      [macro] 2026-07-14 14:50:16 | INFO | Resumen -- enviados=34 errores=0 total=34
+2026-07-14 14:50:16  [etl.alertas_email]  ✓ INFO      Email — enviados=34 errores=0 total=34
+2026-07-14 14:50:16  [etl.alertas_email]  ✓ INFO      Email — filas_cola=34 macro_ok=True prueba=False
+2026-07-14 14:50:16  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 306.4s

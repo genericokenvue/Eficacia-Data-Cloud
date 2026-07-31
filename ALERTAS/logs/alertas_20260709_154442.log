@@ -1,0 +1,11 @@
+2026-07-09 15:44:42  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\ALERTAS\logs\alertas_20260709_154442.log
+2026-07-09 15:44:42  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram', 'email'] | prueba=False
+2026-07-09 15:44:42  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-07-09 15:49:04  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37
+2026-07-09 15:49:06  [etl.alertas_telegram]  ✗ ERROR     Error leyendo BASE PUNTOS DE VENTA: Worksheet named 'Informe_Punto_de_Venda' not found
+2026-07-09 15:50:53  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=23 fallidos=0 sin_chat_id=14 prueba=False
+2026-07-09 15:51:36  [etl.alertas_email]  ✓ INFO      [macro] 2026-07-09 15:50:59 | INFO | EnviarTodos: inicio
+2026-07-09 15:51:36  [etl.alertas_email]  ✓ INFO      [macro] 2026-07-09 15:51:36 | INFO | Resumen -- enviados=35 errores=0 total=35
+2026-07-09 15:51:36  [etl.alertas_email]  ✓ INFO      Email — enviados=35 errores=0 total=35
+2026-07-09 15:51:36  [etl.alertas_email]  ✓ INFO      Email — filas_cola=35 macro_ok=True prueba=False
+2026-07-09 15:51:36  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 414.7s

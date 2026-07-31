@@ -1,0 +1,4 @@
+2026-06-22 05:48:40  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\logs\alertas_20260622_054840.log
+2026-06-22 05:48:40  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['telegram'] | prueba=True
+2026-06-22 05:48:44  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=37 fallidos=0 sin_chat_id=0 prueba=True
+2026-06-22 05:48:44  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 3.8s

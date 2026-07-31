@@ -1,0 +1,4 @@
+2026-06-02 21:36:03  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\logs\alertas_20260602_213603.log
+2026-06-02 21:36:03  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['email'] | prueba=True
+2026-06-02 21:36:04  [etl.alertas_email]  ✓ INFO      Email — filas_cola=34 macro_ok=True prueba=True
+2026-06-02 21:36:04  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 0.8s

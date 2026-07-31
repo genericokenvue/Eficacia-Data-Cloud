@@ -1,0 +1,15 @@
+2026-05-01 18:35:09  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\logs\alertas_20260501_183509.log
+2026-05-01 18:35:09  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram', 'email'] | prueba=False
+2026-05-01 18:35:10  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-05-01 18:35:14  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 04/2026 | 124 mercaderistas | 22 supervisores | 22 adjuntos
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=14 fallidos=8 sin_chat_id=0 prueba=False
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: ANA CAROLINA TEHERAN MAESTRE → Error de conexión: ('Connection aborted.', ConnectionResetError(10054, 'Se ha forzado la interrupción de una conexión existente por el host remoto', None, 10054, None))
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: CHRISTIAN ORLANDO CABRERA MENDEZ → Error de conexión: ('Connection aborted.', ConnectionResetError(10054, 'Se ha forzado la interrupción de una conexión existente por el host remoto', None, 10054, None))
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: DANIELA TORO GOMEZ → Error de conexión: ('Connection aborted.', ConnectionResetError(10054, 'Se ha forzado la interrupción de una conexión existente por el host remoto', None, 10054, None))
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: FERNANDA MILENA BURBANO SALAZAR → Error de conexión: ('Connection aborted.', ConnectionResetError(10054, 'Se ha forzado la interrupción de una conexión existente por el host remoto', None, 10054, None))
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: JOHANA MONSALVE VALLE → Error de conexión: ('Connection aborted.', ConnectionResetError(10054, 'Se ha forzado la interrupción de una conexión existente por el host remoto', None, 10054, None))
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: JULIANA ANDREA GOMEZ GRAJALES → Error de conexión: ('Connection aborted.', ConnectionResetError(10054, 'Se ha forzado la interrupción de una conexión existente por el host remoto', None, 10054, None))
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: PAOLA ANDREA LEON BUITRAGO → Error de conexión: ('Connection aborted.', ConnectionResetError(10054, 'Se ha forzado la interrupción de una conexión existente por el host remoto', None, 10054, None))
+2026-05-01 18:35:48  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: YENUBY MILENA LEON LUNA → Error de conexión: ('Connection aborted.', ConnectionResetError(10054, 'Se ha forzado la interrupción de una conexión existente por el host remoto', None, 10054, None))
+2026-05-01 18:37:37  [etl.alertas_email]  ✓ INFO      Email — filas_cola=22 macro_ok=True prueba=False
+2026-05-01 18:37:37  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 148.3s

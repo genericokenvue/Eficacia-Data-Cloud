@@ -1,0 +1,4 @@
+2026-07-14 15:13:42  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\ALERTAS\logs\alertas_20260714_151342.log
+2026-07-14 15:13:42  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram', 'email'] | prueba=False
+2026-07-14 15:13:42  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-07-14 15:16:53  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37

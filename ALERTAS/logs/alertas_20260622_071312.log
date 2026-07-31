@@ -1,0 +1,11 @@
+2026-06-22 07:13:12  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\logs\alertas_20260622_071312.log
+2026-06-22 07:13:12  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram', 'email'] | prueba=False
+2026-06-22 07:13:12  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-06-22 07:15:52  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 05/2026 | gestores=172 supervisores=28 adjuntos=37
+2026-06-22 07:18:21  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=37 fallidos=0 sin_chat_id=0 prueba=False
+2026-06-22 07:19:02  [etl.alertas_email]  ✓ INFO      [macro] 2026-06-22 07:18:25 | INFO | EnviarTodos: inicio
+2026-06-22 07:19:02  [etl.alertas_email]  ✓ INFO      [macro] 2026-06-22 07:19:02 | INFO | Resumen -- enviados=37 errores=0 total=37
+2026-06-22 07:19:02  [etl.alertas_email]  ⚠ WARNING   No se pudo leer hoja COLA para resumen: [Errno 13] Permission denied: 'C:\\Users\\Usuario\\OneDrive - Universidad de los Andes\\Escritorio\\PROYECTO_EFICACIA\\ALERTAS\\EnviarCorreos.xlsm'
+2026-06-22 07:19:02  [etl.alertas_email]  ✓ INFO      Email — enviados=0 errores=0 pendientes=0
+2026-06-22 07:19:02  [etl.alertas_email]  ✓ INFO      Email — filas_cola=37 macro_ok=True prueba=False
+2026-06-22 07:19:02  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 350.4s

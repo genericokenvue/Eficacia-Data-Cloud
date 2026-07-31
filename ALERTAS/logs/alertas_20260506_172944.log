@@ -1,0 +1,7 @@
+2026-05-06 17:29:44  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\logs\alertas_20260506_172944.log
+2026-05-06 17:29:44  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram'] | prueba=False
+2026-05-06 17:29:45  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-05-06 17:30:18  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 04/2026 | gestores=166 supervisores=34 adjuntos=34
+2026-05-06 17:31:39  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=33 fallidos=1 sin_chat_id=0 prueba=False
+2026-05-06 17:31:39  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: DANIELA TORO GOMEZ → ConnReset/error de conexión: ConnectionError (tras 3 intentos)
+2026-05-06 17:31:39  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 114.9s

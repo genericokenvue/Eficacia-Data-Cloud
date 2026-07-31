@@ -1,0 +1,6 @@
+2026-07-09 16:08:58  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\ALERTAS\logs\alertas_20260709_160858.log
+2026-07-09 16:08:58  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram'] | prueba=False
+2026-07-09 16:08:59  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-07-09 16:10:23  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37
+2026-07-09 16:11:23  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=24 fallidos=0 sin_chat_id=14 prueba=False
+2026-07-09 16:11:23  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 145.1s

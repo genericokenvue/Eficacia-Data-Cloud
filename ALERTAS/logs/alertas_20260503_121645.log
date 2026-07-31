@@ -1,0 +1,9 @@
+2026-05-03 12:16:45  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\logs\alertas_20260503_121645.log
+2026-05-03 12:16:45  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram', 'email'] | prueba=False
+2026-05-03 12:16:45  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-05-03 12:16:53  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 04/2026 | gestores=124 supervisores=24 adjuntos=24
+2026-05-03 12:17:47  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=22 fallidos=2 sin_chat_id=0 prueba=False
+2026-05-03 12:17:47  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: DAYANA JULIETH DIAZ TORRES → Bad Request: chat not found
+2026-05-03 12:17:47  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: YENNYS PATRICIA LOPEZ ESPAÑOL → Bad Request: chat not found
+2026-05-03 12:25:34  [etl.alertas_email]  ✓ INFO      Email — filas_cola=22 macro_ok=False prueba=False
+2026-05-03 12:25:34  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 529.1s

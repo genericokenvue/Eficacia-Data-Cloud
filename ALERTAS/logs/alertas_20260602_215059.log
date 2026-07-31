@@ -1,0 +1,6 @@
+2026-06-02 21:50:59  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\Users\Usuario\OneDrive - Universidad de los Andes\Escritorio\PROYECTO_EFICACIA\ALERTAS\logs\alertas_20260602_215059.log
+2026-06-02 21:50:59  [etl.run_alertas]   ✓ INFO      Inicio sistema de alertas | fases=['calcular', 'telegram'] | prueba=True
+2026-06-02 21:50:59  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-06-02 21:51:22  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 04/2026 | gestores=166 supervisores=34 adjuntos=34
+2026-06-02 21:51:27  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=34 fallidos=0 sin_chat_id=0 prueba=True
+2026-06-02 21:51:27  [etl.run_alertas]   ✓ INFO      Sistema de alertas completado en 28.0s
