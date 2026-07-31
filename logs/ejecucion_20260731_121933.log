@@ -1,0 +1,3 @@
+2026-07-31 12:19:33  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260731_121933.log
+2026-07-31 12:19:33  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos
+2026-07-31 12:22:16  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37

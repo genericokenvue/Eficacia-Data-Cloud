@@ -1,50 +1,9 @@
-"""
-calcular_cumplimientos.py
-─────────────────────────
-Paso 1 del sistema de alertas de Eficacia.
-
-A) GENERAR MAESTRA DE SUPERVISORES (primera ejecución)
-   Si MAESTRO_SUPERVISORES.xlsx no existe, lo crea con los supervisores
-   extraídos de las tablas de salida. El usuario completa CORREO y
-   TELEGRAM_CHAT_ID a mano.
-
-B) CALCULAR CUMPLIMIENTOS  (según ESPECIFICACION_FASE1_ALERTAS.md)
-
-   ── CIF ──────────────────────────────────────────────────────────
-   Tres componentes por PDV × persona:
-     COBERTURA  = 1 si VISITAS_REAL ≥ 1, sino 0
-     FRECUENCIA = VISITAS_REAL / CANTIDAD_VISITAS              (gestor)
-                  VISITAS_REAL / (FREC_MENSUAL × FREC_SEMANAL)  (supervisor)
-     HORAS      = SUMA_TIEMPO_SERVICIO_HORAS_REAL / HORAS_MES_PLANEADO
-   Por gestor: promedio ponderado de los 3 componentes con
-   VENTAS_PROMEDIO_MES como peso. CIF = 0.5·COB + 0.2·FREC + 0.3·HRS.
-   Por supervisor: promedio aritmético de su componente "propio"
-   (ROL=SUPERVISOR) y "equipo" (gestores con SUPERVISOR_LIDER == sup),
-   luego CIF = 0.5·COB + 0.2·FREC + 0.3·HRS.
-
-   ── NP / PRECIOS / SOS ───────────────────────────────────────────
-   Por gestor: sum(EJECUTADA) / sum(PLANEADA), filtrando PLANEADA == 1.
-   Por supervisor: promedio aritmético entre componente propio y equipo.
-
-C) GENERAR ADJUNTOS POR SUPERVISOR  (7 hojas):
-     Hoja 1: Resumen Equipo (1 fila por gestor a cargo)
-     Hoja 2: CIF Detalle PDVs (incumplimientos del equipo)
-     Hoja 3: NP Detalle PDVs (PDVs con %_CUMPLIMIENTO_MES < 1)
-     Hoja 4: Precios y SOS Detalle PDVs (CAPTURA_EJECUTADA == 0)
-     Hoja 5: ListSant     (productos nuevos — segmento Sandia, PDVs target del sup)
-     Hoja 6: DoyPackBaby  (productos nuevos — DoyPack Baby, PDVs target del sup)
-     Hoja 7: CremasBaby   (productos nuevos — Cremas Baby, PDVs target del sup)
-   Hojas vacías muestran "Sin incumplimientos para este periodo" o
-   "No aplica para este rol", según corresponda.
-
-Umbrales (configurables en config.env)
-  UMBRAL_OK      = 0.90  →  ✅
-  UMBRAL_WARNING = 0.70  →  ⚠️
-  (< UMBRAL_WARNING)     →  ❌
-"""
-
 import os
 import sys
+import io
+import re
+import requests
+import urllib.parse
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -54,6 +13,11 @@ from openpyxl.styles import (
     Font, PatternFill, Alignment, Border, Side, numbers
 )
 from openpyxl.utils import get_column_letter
+from azure.identity import ClientSecretCredential
+from dotenv import load_dotenv
+
+# Cargar variables del .env
+load_dotenv()
 
 # Cargar config.env antes de leer UMBRAL_OK/WARNING desde os.environ
 from config_loader import cargar_config
@@ -73,15 +37,426 @@ import base_cupos as bcm
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CONFIGURACIÓN DE RUTAS
+# CONFIGURACIÓN DE CONEXIÓN NUBE (Microsoft Graph API usando Drive ID)
 # ─────────────────────────────────────────────────────────────────────────────
-BASE         = paths.BASE
-RUTA_CIF     = paths.CIF_OUT_FINAL
-RUTA_SOS     = paths.SOS_SALIDA / "Cumplimiento_Captura_SOS.xlsx"
-DIR_NP_OUT      = paths.NP_SALIDA
-DIR_PRECIOS_OUT = paths.PR_SALIDA
-DIR_ALERTAS   = paths.ALERTAS_DIR
-RUTA_MAESTRA  = paths.ALERTAS_MAESTRO
+AZURE_TENANT_ID = os.getenv("AZURE_TENANT_ID")
+AZURE_CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
+AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
+
+def _obtener_token_azure():
+    """Genera el token de acceso para la API de Microsoft Graph."""
+    credential = ClientSecretCredential(
+        tenant_id=AZURE_TENANT_ID,
+        client_id=AZURE_CLIENT_ID,
+        client_secret=AZURE_CLIENT_SECRET
+    )
+    return credential.get_token("https://graph.microsoft.com/.default").token
+
+_DRIVE_ID_CACHE: dict = {}
+
+
+def _obtener_default_drive_id(token: str) -> str:
+    """
+    Obtiene el ID del drive conectándose al sitio corporativo específico de
+    SharePoint. Usa `paths.SHAREPOINT_SITE_NAME` (ej. "JJ451") para buscar el
+    sitio correcto — antes esta función buscaba un texto fijo ("eficacia")
+    que no necesariamente coincide con el nombre real del sitio y podía
+    resolver el drive equivocado (causa típica de 404 en TODAS las rutas
+    candidatas, incluso siendo la ruta relativa correcta).
+    """
+    if "drive_id" in _DRIVE_ID_CACHE:
+        return _DRIVE_ID_CACHE["drive_id"]
+
+    headers = {"Authorization": f"Bearer {token}"}
+    nombre_sitio = getattr(paths, "SHAREPOINT_SITE_NAME", "eficacia")
+
+    # Búsqueda del sitio corporativo por el nombre configurado en paths.py
+    res_site = requests.get(
+        f"https://graph.microsoft.com/v1.0/sites?search={urllib.parse.quote(nombre_sitio)}",
+        headers=headers,
+    )
+    if res_site.status_code == 200:
+        sites = res_site.json().get("value", [])
+        if sites:
+            # Si hay varios resultados, preferir un match exacto de nombre.
+            site = next(
+                (s for s in sites
+                 if nombre_sitio.lower() in (s.get("name", "").lower(), s.get("displayName", "").lower())),
+                sites[0],
+            )
+            site_id = site.get("id")
+            print(f"    ℹ️  Sitio SharePoint resuelto: {site.get('displayName') or site.get('name')} "
+                  f"({site.get('webUrl')})")
+            res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+            if res_drive.status_code == 200:
+                drive = res_drive.json()
+                print(f"    ℹ️  Drive resuelto: {drive.get('name')} ({drive.get('webUrl')})")
+                _DRIVE_ID_CACHE["drive_id"] = drive.get("id")
+                return drive.get("id")
+
+    # Plan B: Si no lo encuentra por búsqueda, intenta con el raíz del tenant
+    res_root = requests.get("https://graph.microsoft.com/v1.0/sites/root", headers=headers)
+    if res_root.status_code == 200:
+        site_id = res_root.json().get("id")
+        res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+        if res_drive.status_code == 200:
+            print("    ⚠️  No se encontró el sitio por nombre; usando el sitio raíz del tenant como fallback.")
+            _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+            return res_drive.json().get("id")
+
+    raise Exception(f"No se pudo obtener el Drive ID del sitio SharePoint '{nombre_sitio}': {res_site.text}")
+
+def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
+    """
+    Normaliza separadores de la ruta relativa dentro del drive.
+    IMPORTANTE: NO remueve 'Equipo Información/' — esa es una carpeta REAL
+    dentro de la biblioteca 'Documentos compartidos' del sitio (así lo
+    define paths.SHAREPOINT_BASE_DIR), no un alias del nombre del sitio.
+    Solo se remueven prefijos que sí son alias genéricos del nombre de la
+    biblioteca documental por defecto.
+    """
+    ruta_sharepoint = ruta_sharepoint.replace("\\", "/")
+    for prefijo in [
+        "Documentos compartidos/",
+        "Shared Documents/",
+    ]:
+        if ruta_sharepoint.startswith(prefijo):
+            ruta_sharepoint = ruta_sharepoint.replace(prefijo, "", 1)
+    return ruta_sharepoint.lstrip("/")
+
+def _leer_excel_cloud(ruta_sharepoint: str, descripcion: str) -> pd.DataFrame:
+    """Lee un archivo Excel directamente desde SharePoint usando el Drive ID en Graph API con reintentos de ruta."""
+    print(f"  ⏳ Leyendo {descripcion} desde SharePoint ({ruta_sharepoint})...")
+    token = _obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    
+    rutas_candidatas = [
+        ruta_limpia,
+        f"Documentos compartidos/{ruta_limpia}",
+    ]
+    
+    response = None
+    url_usada = ""
+    for r in rutas_candidatas:
+        ruta_codificada = urllib.parse.quote(r)
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta_codificada}:/content"
+        print(f"    🔍 Probando URL Graph API: {url}")
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            url_usada = url
+            break
+
+    if response is not None and response.status_code == 200:
+        print(f"    ✓ Archivo descargado exitosamente.")
+        return pd.read_excel(io.BytesIO(response.content))
+    else:
+        status = response.status_code if response is not None else "N/A"
+        text = response.text if response is not None else "Sin respuesta"
+        raise Exception(f"Error al descargar {descripcion} desde Graph API (404/Error). Última URL probada: {url_usada} | Status: {status} - {text}")
+
+def _guardar_excel_cloud(df: pd.DataFrame, ruta_sharepoint: str, descripcion: str):
+    """Sube un DataFrame convertido a Excel directamente a SharePoint vía Graph API usando el Drive ID."""
+    print(f"  ⏳ Guardando {descripcion} en SharePoint ({ruta_sharepoint})...")
+    token = _obtener_token_azure()
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    }
+    
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False)
+    excel_bytes = output.getvalue()
+    
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    ruta_codificada = urllib.parse.quote(ruta_limpia)
+    
+    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta_codificada}:/content"
+    response = requests.put(url, headers=headers, data=excel_bytes)
+    if response.status_code in [200, 201]:
+        print(f"  ✓ {descripcion} guardado exitosamente en SharePoint")
+    else:
+        raise Exception(f"Error al subir {descripcion} a Graph API: {response.status_code} - {response.text}")
+
+
+def _listar_hijos_cloud(ruta_carpeta: str) -> list:
+    """
+    Lista los archivos/subcarpetas de `ruta_carpeta` en SharePoint vía Graph
+    API (equivalente en la nube de recorrer un directorio local). Cada
+    elemento devuelto es el dict nativo de Graph (trae 'name',
+    'lastModifiedDateTime' y 'file' o 'folder' según el tipo de ítem).
+    """
+    token = _obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_carpeta)
+    ruta_codificada = urllib.parse.quote(ruta_limpia)
+
+    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta_codificada}:/children"
+    items = []
+    while url:
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise Exception(
+                f"Error al listar carpeta '{ruta_carpeta}' en Graph API: "
+                f"{response.status_code} - {response.text}"
+            )
+        data = response.json()
+        items.extend(data.get("value", []))
+        url = data.get("@odata.nextLink")
+    return items
+
+
+def _resolver_exhib_data_dir_cloud() -> str:
+    """
+    Equivalente en la nube de `paths._resolver_exhib_data_dir()`: la carpeta
+    de BASES de Exhibiciones suele contener subcarpetas tipo "01. ...",
+    "02. ..." (una por corte/actualización); se toma la más reciente. Si no
+    hay subcarpetas que matcheen el patrón, se usa la carpeta raíz tal cual.
+    """
+    raiz = paths.RUTA_CARPETA_BASES_EXHIB
+    try:
+        hijos = _listar_hijos_cloud(raiz)
+    except Exception:
+        return raiz
+    candidatos = [
+        h for h in hijos
+        if h.get("folder") and re.match(r"^\d{2}\.\s", h.get("name", ""))
+    ]
+    if not candidatos:
+        return raiz
+    candidatos.sort(key=lambda h: h.get("lastModifiedDateTime", ""), reverse=True)
+    return f"{raiz}/{candidatos[0]['name']}"
+
+
+def _buscar_archivo_cloud(ruta_carpeta: str, patron_regex: str, contexto: str) -> str:
+    """
+    Localiza UN único archivo cuyo nombre matchee `patron_regex` dentro de
+    `ruta_carpeta` en SharePoint. Equivalente en la nube de
+    `periodo_resolver._find_unico`. Ignora temporales de Excel (~$*).
+    Devuelve la ruta SharePoint completa del archivo encontrado.
+    """
+    hijos = _listar_hijos_cloud(ruta_carpeta)
+    matches = [
+        h["name"] for h in hijos
+        if h.get("file") and re.match(patron_regex, h.get("name", ""))
+        and not h["name"].startswith("~$")
+    ]
+    if not matches:
+        raise FileNotFoundError(
+            f"[{contexto}] No se encontró archivo con patrón '{patron_regex}' en {ruta_carpeta}"
+        )
+    if len(matches) > 1:
+        raise RuntimeError(
+            f"[{contexto}] Múltiples coincidencias en {ruta_carpeta}: {matches}. Esperaba exactamente uno."
+        )
+    return f"{ruta_carpeta}/{matches[0]}"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONFIGURACIÓN DE RUTAS USANDO EXCLUSIVAMENTE `paths.py`
+# ─────────────────────────────────────────────────────────────────────────────
+RUTA_CIF = f"{paths.RUTA_CARPETA_SALIDAS_CIF}/Plan de trabajo.xlsx"
+RUTA_SOS = f"{paths.RUTA_CARPETA_SALIDAS_SOS}/Cumplimiento_Captura_SOS.xlsx"
+
+DIR_NP_OUT      = paths.RUTA_CARPETA_SALIDAS_NP
+DIR_PRECIOS_OUT = paths.RUTA_CARPETA_SALIDAS_PRECIOS
+DIR_ALERTAS     = getattr(paths, 'ALERTAS_DIR', f"{paths._SALIDAS_ROOT}/ALERTAS")
+RUTA_MAESTRA    = getattr(paths, 'ALERTAS_MAESTRO', f"{DIR_ALERTAS}/maestra_supervisores.xlsx")
+
+# paths.py sólo define el directorio local de ALERTAS (ALERTAS_DIR, usado para
+# cachear adjuntos antes de enviarlos por correo). No existe un
+# `RUTA_CARPETA_SALIDAS_ALERTAS` en la nube, así que lo construimos aquí
+# siguiendo la misma convención que el resto de módulos (_SALIDAS_ROOT/<módulo>).
+RUTA_CARPETA_SALIDAS_ALERTAS = f"{paths._SALIDAS_ROOT}/ALERTAS"
+RUTA_MAESTRA_CLOUD           = f"{RUTA_CARPETA_SALIDAS_ALERTAS}/maestro_supervisores.xlsx"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# F) PUNTO DE ENTRADA
+# ─────────────────────────────────────────────────────────────────────────────
+
+def main() -> dict:
+    """
+    Ejecuta el cálculo completo conectado a la nube usando paths.py.
+    Devuelve dict para alertas_telegram.py y alertas_email.py:
+      {df_detalle, df_resumen, rutas_adjuntos, mes, anio}
+    """
+    print("\n" + "═" * 55)
+    print("  CALCULAR CUMPLIMIENTOS — Eficacia (Cloud via paths.py)")
+    print("═" * 55)
+    _log.info("Iniciando cálculo de cumplimientos en la nube con paths.py")
+
+    # ── Cargar archivos de detalle desde la Nube usando paths ─────────────
+    print("\nCargando archivos de detalle:")
+    df_cif = _leer_excel_cloud(RUTA_CIF, "CIF (Plan de trabajo.xlsx)")
+    df_sos = _leer_excel_cloud(RUTA_SOS, "SOS")
+    
+    ruta_np_cloud = f"{DIR_NP_OUT}/REPORTE_NO_PRESENCIA.xlsx"
+    ruta_pr_cloud = f"{DIR_PRECIOS_OUT}/REPORTE_CAPTURA_PRECIOS.xlsx"
+    
+    df_np = _leer_excel_cloud(ruta_np_cloud, "No Presencia")
+    df_pr = _leer_excel_cloud(ruta_pr_cloud, "Precios")
+    
+    df_cif_pdv = df_cif
+
+    # ── Cargar Base cupos (tabla maestra de personas, llave ACRONIMO) ────
+    print("\nCargando tabla maestra de personas (Base cupos):")
+    df_bc   = bcm.cargar()
+    universo = bcm.universo_personas(df_bc)
+    sups_bc  = bcm.supervisores(df_bc)
+    nombres_sups_bc = set(sups_bc["NOMBRE"].astype(str).str.upper())
+    
+    if "ES_GDD" in df_bc.columns:
+        nombres_sups_bc.update(
+            df_bc[df_bc["ES_GDD"] == True]["NOMBRE"].astype(str).str.upper()
+        )
+    if "ES_LIDER" in df_bc.columns:
+        nombres_sups_bc.update(
+            df_bc[df_bc["ES_LIDER"] == True]["NOMBRE"].astype(str).str.upper()
+        )
+    idx_bc = bcm.construir_indices(df_bc)
+    print(f"  ✓ Universo: {len(universo)} personas activas | {len(sups_bc)} supervisores")
+
+    # ── Maestra de supervisores ──────────────────────────────────────────
+    print("\nVerificando maestra de supervisores:")
+    generar_maestra(df_np, df_pr, df_sos)
+
+    # ── KPIs V3 ──────────────────────────────────────────────────────────
+    print("\nLeyendo KPIs V3 pre-calculados por los ETLs:")
+    kpis_v3 = cargar_kpis_v3(idx_bc, nombres_sups_bc)
+    df_cif_gest = kpis_v3["cif_gest"]
+    df_np_gest  = kpis_v3["np_gest"]
+    df_pr_gest  = kpis_v3["pr_gest"]
+    df_sos_gest = kpis_v3["sos_gest"]
+    df_exp_gest = kpis_v3.get("exp_gest", pd.DataFrame())
+    df_egr_gest = kpis_v3.get("egr_gest", pd.DataFrame())
+    
+    df_cif_sup = pd.DataFrame()
+    df_np_sup  = pd.DataFrame()
+    df_pr_sup  = pd.DataFrame()
+    df_sos_sup = pd.DataFrame()
+    print(f"  ✓ CIF        — {len(df_cif_gest)} personas")
+    print(f"  ✓ NP         — {len(df_np_gest)} personas")
+    print(f"  ✓ Precios    — {len(df_pr_gest)} personas")
+    print(f"  ✓ SOS        — {len(df_sos_gest)} personas")
+    print(f"  ✓ Exh PAG    — {len(df_exp_gest)} empleados")
+    print(f"  ✓ Exh GRATIS — {len(df_egr_gest)} empleados")
+
+    # ── Periodo activo ────────────────────────────────────────────────────
+    ahora = datetime.now()
+    if not df_cif_gest.empty and "MES" in df_cif_gest.columns:
+        mes  = int(pd.to_numeric(df_cif_gest["MES"], errors="coerce").dropna().mode().iloc[0])
+        anio = int(pd.to_numeric(df_cif_gest["AÑO"], errors="coerce").dropna().mode().iloc[0])
+    else:
+        mes, anio = ahora.month, ahora.year
+    print(f"  Periodo activo: {mes:02d}/{anio}")
+
+    # ── KPIs D&P ──────────────────────────────────────────────────────────
+    kpis_dyp = cumplimiento_dyp.calcular_kpis_dyp(
+        mes, anio,
+        base_cupos_idx=idx_bc,
+        nombres_supervisores_bc=nombres_sups_bc,
+    )
+    df_dyp_gest = kpis_dyp["gestor"]
+    df_dyp_sup  = kpis_dyp["supervisor"]
+
+    # ── Ensamblaje final ──────────────────────────────────────────────────
+    print("\nEnsamblando detalle consolidado:")
+    df_detalle = ensamblar_detalle(
+        universo,
+        df_cif_gest, df_cif_sup,
+        df_np_gest,  df_np_sup,
+        df_pr_gest,  df_pr_sup,
+        df_sos_gest, df_sos_sup,
+        df_dyp_gest=df_dyp_gest,
+        df_dyp_sup=df_dyp_sup,
+        df_exp_gest=df_exp_gest,
+        df_egr_gest=df_egr_gest,
+        mes=mes, anio=anio,
+    )
+
+    n_gest = (df_detalle["ES_SUPERVISOR"] == False).sum()
+    n_sup  = (df_detalle["ES_SUPERVISOR"] == True).sum()
+    print(f"  Personas en detalle: {len(df_detalle)} (gestores: {n_gest} | supervisores: {n_sup})")
+
+    # ── Resumen ───────────────────────────────────────────────────────────
+    print("\nCalculando resumen por supervisor:")
+    df_resumen = calcular_resumen(df_detalle, universo)
+    print(f"  Supervisores en resumen: {len(df_resumen)}")
+
+    # ── Guardar archivos usando las rutas de `paths.py` ────────────────────
+    print("\nGuardando archivos de salida en SharePoint:")
+    ruta_salida_detalle = f"{paths._SALIDAS_ROOT}/Detalle_Cumplimientos_{anio}_{mes:02d}.xlsx"
+    ruta_salida_resumen = f"{paths._SALIDAS_ROOT}/Resumen_Supervisores_{anio}_{mes:02d}.xlsx"
+    
+    _guardar_excel_cloud(df_detalle, ruta_salida_detalle, "Detalle Consolidado")
+    _guardar_excel_cloud(df_resumen, ruta_salida_resumen, "Resumen por Supervisor")
+
+    def _agregar_acr_sup(df, col_sup_origen="SUPERVISOR_LIDER"):
+        if df is None or df.empty or col_sup_origen not in df.columns:
+            return df
+        df = df.copy()
+        df["ACRONIMO_SUP"] = df[col_sup_origen].apply(
+            lambda s: _resolver_acr_supervisor(s, nombres_sups_bc, idx_bc)
+        )
+        return df
+
+    df_cif_pdv_e = _agregar_acr_sup(df_cif_pdv)
+    df_np_e      = _agregar_acr_sup(df_np)
+    df_pr_e      = _agregar_acr_sup(df_pr)
+    df_sos_e     = _agregar_acr_sup(df_sos)
+
+    print("\nPre-cargando insumos D&P para hojas de productos nuevos:")
+    seg_data = _precargar_segmentos_nuevos(mes, anio, idx_bc, nombres_sups_bc)
+    if seg_data.get("rutero") is not None:
+        n_sups_con_pdvs = len(seg_data.get("pdvs_por_sup") or {})
+        print(f"  ✓ Segmentos listos — supervisores con PDVs en periodo: {n_sups_con_pdvs}")
+
+    rutas_adj = generar_adjuntos_por_supervisor(
+        df_detalle, df_cif_pdv_e, df_np_e, df_pr_e, df_sos_e, mes, anio,
+        seg_data=seg_data,
+    )
+
+    _log.info(
+        f"Cálculo completado (Cloud vía paths) — periodo {mes:02d}/{anio} | "
+        f"gestores={n_gest} supervisores={n_sup} adjuntos={len(rutas_adj)}"
+    )
+    print("\n" + "═" * 55)
+    print(f"  ✅ Proceso completado en la Nube (SharePoint) — {mes:02d}/{anio}")
+    print("═" * 55 + "\n")
+
+    rango_periodo = detectar_rango_periodo(mes, anio)
+    if rango_periodo.get("rango_legible"):
+        print(f"\n  📆 Periodo de corte detectado: {rango_periodo['rango_legible']}"
+              f" | avance esperado del mes: {rango_periodo['avance_esperado_pct']*100:.0f}%")
+
+    return {
+        "df_detalle"     : df_detalle,
+        "df_resumen"     : df_resumen,
+        "rutas_adjuntos" : rutas_adj,
+        "mes"            : mes,
+        "anio"           : anio,
+        "rango_periodo"  : rango_periodo,
+        "df_cif_pdv"     : df_cif_pdv_e,
+        "df_np"          : df_np_e,
+        "df_pr"          : df_pr_e,
+        "df_sos"         : df_sos_e,
+    }
+
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+
+
+
+
 
 
 def _ultimo_archivo(directorio: Path, patron: str) -> Path:
@@ -101,11 +476,6 @@ UMBRAL_WARNING = float(os.environ.get("UMBRAL_WARNING", "0.70"))
 # ─────────────────────────────────────────────────────────────────────────────
 # UMBRALES POR KPI (Sprint 13.4)  — defaults D17
 # ─────────────────────────────────────────────────────────────────────────────
-# Cada KPI puede tener su propio UMBRAL_OK. Si no se sobreescribe en
-# config.env, se aplica el default por KPI listado abajo.
-#   NP/PRECIOS/SOS/EXHIB_PAG/MSL = 1.00  (100% obligatorio)
-#   CIF/VENTA/IMPACTOS = 0.90
-#   PROD_NUEVOS = 0.70 (más permisivo, es producto nuevo)
 def _umbral(kpi: str, default: float) -> float:
     return float(os.environ.get(f"UMBRAL_OK_{kpi}", str(default)))
 
@@ -133,10 +503,10 @@ COL_A_KPI = {
     "PRECIOS_%":          "PRECIOS",
     "SOS_%":              "SOS",
     "EXHIB_PAG_%":        "EXHIB_PAG",
-    "EXHIB_PAG_CAPTURA_%":"EXHIB_PAG_CAPTURA",   # Sprint 17
+    "EXHIB_PAG_CAPTURA_%":"EXHIB_PAG_CAPTURA",    # Sprint 17
     "EXHIB_GRA_ALTO_%":   "EXHIB_GRA_ALTO",      # Sprint 17
     "EXHIB_GRA_MEDIO_%":  "EXHIB_GRA_MEDIO",     # Sprint 17
-    "EXHIB_GRATIS_PROM_%":"EXHIB_GRATIS_PROM",   # Sprint 17.13
+    "EXHIB_GRATIS_PROM_%":"EXHIB_GRATIS_PROM",    # Sprint 17.13
     "VENTA_%":            "VENTA",
     "IMPACTOS_%":         "IMPACTOS",
     "MSL_%":              "MSL",
@@ -152,23 +522,21 @@ def umbral_de(col_o_kpi: str) -> float:
 
 
 # Roles usados como filtros en adjuntos / detalle.
-# PESOS CIF (0.5·COB + 0.2·INT + 0.3·FREC) viven ahora en SCRIPTS/etl_cif.py
-# generar_resumen_kpis_8() — este módulo solo consume el resultado.
 ROL_GESTOR     = "GESTOR"
 ROL_SUPERVISOR = "SUPERVISOR"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# RANGO DE FECHAS DEL PERIODO (Sprint 13.1)
+# RANGO DE FECHAS DEL PERIODO (Sprint 13.1 - Adaptado a Nube)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def detectar_rango_periodo(mes: int, anio: int) -> dict:
     """
     Detecta el rango de fechas activas del periodo desde
-    informe_visitas_procesado.csv (FECHA_VISITA).
+    el reporte de visitas procesado en SharePoint (FECHA_VISITA).
 
     Devuelve dict con:
-      fecha_inicio_dt, fecha_fin_dt   — datetime.date | None
+      fecha_inicio_dt, fecha_fin_dt    — datetime.date | None
       fecha_inicio, fecha_fin          — strings "DD de MES"
       rango_legible                    — "1 al 6 de abril" o "1 de marzo al 6 de abril"
       dias_transcurridos, dias_mes_total, avance_esperado_pct
@@ -184,8 +552,21 @@ def detectar_rango_periodo(mes: int, anio: int) -> dict:
     }
 
     try:
+        ruta_visitas_cloud = f"{paths.RUTA_CARPETA_SALIDAS_CIF}/informe_visitas_procesado.csv"
+        token = _obtener_token_azure()
+        headers = {"Authorization": f"Bearer {token}"}
+        drive_id = _obtener_default_drive_id(token)
+        ruta_limpia = _limpiar_ruta_graph(ruta_visitas_cloud)
+        
+        url_codificada = urllib.parse.quote(ruta_limpia)
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{url_codificada}:/content"
+        
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            return rango
+            
         df = pd.read_csv(
-            str(paths.CIF_INVOLVES_PROCESADO),
+            io.BytesIO(response.content),
             sep=";", encoding="utf-8-sig", usecols=["FECHA_VISITA"],
         )
         df["F"] = pd.to_datetime(df["FECHA_VISITA"], dayfirst=True, errors="coerce")
@@ -213,9 +594,8 @@ def detectar_rango_periodo(mes: int, anio: int) -> dict:
     else:
         rango["rango_legible"] = f"{rango['fecha_inicio']} al {rango['fecha_fin']}"
 
-    # D15=A+B: días transcurridos y avance esperado lineal
     dias_mes = calendar.monthrange(anio, mes)[1]
-    dias_trans = f_fin.day  # último día de corte dentro del mes activo
+    dias_trans = f_fin.day  
     rango["dias_mes_total"] = dias_mes
     rango["dias_transcurridos"] = dias_trans
     rango["avance_esperado_pct"] = (dias_trans / dias_mes) if dias_mes > 0 else 0.0
@@ -233,13 +613,13 @@ COLOR_ERROR      = "FFC7CE"
 COLOR_FILA_PAR   = "F2F2F2"
 COLOR_MAESTRA_HDR= "2E4057"
 
-FMT_PCT   = "0.00%"             # Sprint 17.17 — 2 decimales en porcentajes
+FMT_PCT   = "0.00%"            
 FMT_VENTA = '"$"#,##0'
-FMT_NUM   = "0.####"            # Sprint 17.17 — números genéricos: máx 4 decimales
+FMT_NUM   = "0.####"            
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# UTILIDADES
+# UTILIDADES (Adaptadas a Nube)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _semaforo(valor) -> str:
@@ -268,16 +648,31 @@ def _safe_div(num: pd.Series, den: pd.Series) -> pd.Series:
     return num.where(den > 0, other=np.nan) / den.where(den > 0, other=np.nan)
 
 
-def _leer(ruta: Path, nombre: str) -> pd.DataFrame:
-    """Carga un Excel con manejo descriptivo de error."""
-    if not ruta.exists():
-        print(f"  ⚠️  [{nombre}] Archivo no encontrado: {ruta}")
-        print(f"       Este módulo no se incluirá en el cálculo.")
+def _leer(ruta_sharepoint: str, nombre: str) -> pd.DataFrame:
+    """Carga un Excel desde SharePoint utilizando Graph API con manejo descriptivo de error."""
+    try:
+        print(f"    ⏳ Leyendo [{nombre}] desde SharePoint ({ruta_sharepoint})...")
+        token = _obtener_token_azure()
+        headers = {"Authorization": f"Bearer {token}"}
+        drive_id = _obtener_default_drive_id(token)
+        ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+        
+        url_codificada = urllib.parse.quote(ruta_limpia)
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{url_codificada}:/content"
+        
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            print(f"    ⚠️  [{nombre}] No se pudo encontrar el archivo en la ruta: {ruta_sharepoint}")
+            print(f"        Este módulo no se incluirá en el cálculo.")
+            return pd.DataFrame()
+            
+        df = pd.read_excel(io.BytesIO(response.content))
+        df.columns = df.columns.str.strip()
+        print(f"    ✓ [{nombre}] {len(df):,} filas cargadas desde la nube")
+        return df
+    except Exception as e:
+        print(f"    ⚠️  [{nombre}] Error al cargar desde la nube: {e}")
         return pd.DataFrame()
-    df = pd.read_excel(ruta)
-    df.columns = df.columns.str.strip()
-    print(f"  ✓ [{nombre}] {len(df):,} filas cargadas")
-    return df
 
 
 def _normalizar_nombre(serie: pd.Series) -> pd.Series:
@@ -450,7 +845,7 @@ def _enriquecer_acronimo_supervisor(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# A.5) CARGA DE KPIS V3 (Sprint 10)
+# A.5) CARGA DE KPIS V3 (Sprint 10 - Adaptado a Nube)
 # ─────────────────────────────────────────────────────────────────────────────
 # Los ETLs ahora producen *_KPIS.xlsx con los cumplimientos por gestor
 # ya pre-calculados (Sprints 7/8/9). Esta función reemplaza el cálculo
@@ -475,18 +870,40 @@ def cargar_kpis_v3(
     anio_filtro: int | None = None,
 ) -> dict:
     """
-    Lee los 4 archivos *_KPIS.xlsx (CIF/SOS/NP/Precios) y los devuelve en
-    el formato que espera ensamblar_detalle. Filtra opcionalmente por
-    (mes_filtro, anio_filtro) — por defecto toma el periodo más reciente
-    presente en KPIS_CIF.xlsx.
+    Lee los archivos *_KPIS.xlsx (CIF/SOS/NP/Precios/Exhibiciones) generados
+    por los ETLs y los devuelve en el formato que espera ensamblar_detalle.
+    Filtra opcionalmente por (mes_filtro, anio_filtro).
+
+    Los ETLs actuales guardan estos archivos en disco LOCAL
+    (paths.CIF_OUT_KPIS, paths.SOS_OUT_KPIS, etc. — carpeta SALIDA/<módulo>
+    definida en paths.py), no en SharePoint. Por eso se leen primero de ahí.
+    Esto funciona igual corriendo en GitHub Actions: los ETLs y este script
+    corren como pasos del mismo job, sobre el mismo workspace del runner, así
+    que el archivo local que dejó el ETL sigue disponible para este paso.
+    Si el archivo local no existe, se intenta como respaldo la misma ruta
+    en SharePoint (por si en el futuro los ETLs empiezan a subir estos KPIs
+    a la nube con el mismo nombre).
     """
-    def _read_kpi(ruta: Path) -> pd.DataFrame:
-        if not ruta.exists():
-            print(f"  ⚠️  KPI no encontrado: {ruta} — devuelvo vacío")
-            return pd.DataFrame()
-        df = pd.read_excel(ruta, engine="openpyxl")
-        df.columns = df.columns.str.strip()
-        return df
+    def _read_kpi(ruta_local, nombre_kpi: str, ruta_cloud: str | None = None) -> pd.DataFrame:
+        ruta_local = Path(ruta_local)
+        if ruta_local.is_file():
+            try:
+                print(f"    ⏳ Leyendo KPI [{nombre_kpi}] ({ruta_local})...")
+                df = pd.read_excel(ruta_local, engine="openpyxl")
+                df.columns = df.columns.str.strip()
+                print(f"    ✓ KPI [{nombre_kpi}] {len(df):,} filas cargadas (local)")
+                return df
+            except Exception as e:
+                print(f"    ⚠️  KPI [{nombre_kpi}] Error al leer archivo local ({ruta_local}): {e}")
+
+        if ruta_cloud:
+            print(f"    ⏳ KPI [{nombre_kpi}] no está en disco local, probando SharePoint...")
+            df = _leer(ruta_cloud, nombre_kpi)
+            if not df.empty:
+                return df
+
+        print(f"    ⚠️  KPI [{nombre_kpi}] No se encontró (¿ya corriste el ETL de este módulo para el periodo?): {ruta_local}")
+        return pd.DataFrame()
 
     def _filtrar_periodo(df, col_mes="MES", col_anio="AÑO"):
         if df.empty or col_mes not in df.columns or col_anio not in df.columns:
@@ -501,13 +918,12 @@ def cargar_kpis_v3(
         return df
 
     # ── CIF (V3): COBERTURA / INTENSIDAD / FRECUENCIA / TOTAL ────────────
-    df_cif_kpi = _filtrar_periodo(_read_kpi(paths.CIF_OUT_KPIS))
+    ruta_cif_kpis = paths.CIF_OUT_KPIS
+    df_cif_kpi = _filtrar_periodo(_read_kpi(
+        ruta_cif_kpis, "CIF",
+        ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_CIF}/{ruta_cif_kpis.name}",
+    ))
     if not df_cif_kpi.empty:
-        # Renombramos a las columnas que espera ensamblar_detalle.
-        # IMPORTANTE: en V3, "INTENSIDAD" reemplaza el rol que antes tenía "HRS"
-        # pero con la nueva ponderación 0.5·COB + 0.2·INT + 0.3·FREC.
-        # Conservamos el nombre interno CIF_HRS_% por compatibilidad con el
-        # adjunto y los consumidores (alertas_telegram); el VALOR es INTENSIDAD.
         df_cif_kpi = df_cif_kpi.rename(columns={
             "CUMPLIMIENTO COBERTURA":  "CIF_COB_%",
             "CUMPLIMIENTO INTENSIDAD": "CIF_HRS_%",
@@ -518,45 +934,59 @@ def cargar_kpis_v3(
     df_cif_gest = df_cif_kpi.copy()
 
     # ── SOS ──────────────────────────────────────────────────────────────
-    df_sos_kpi = _filtrar_periodo(_read_kpi(paths.SOS_OUT_KPIS))
+    ruta_sos_kpis = paths.SOS_OUT_KPIS
+    df_sos_kpi = _filtrar_periodo(_read_kpi(
+        ruta_sos_kpis, "SOS",
+        ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_SOS}/{ruta_sos_kpis.name}",
+    ))
     if not df_sos_kpi.empty:
         df_sos_kpi = df_sos_kpi.rename(columns={"CUMPLIMIENTO": "SOS_%"})
         df_sos_kpi["NOMBRE"] = df_sos_kpi["NOMBRE"].astype(str).str.strip().str.upper()
     df_sos_gest = df_sos_kpi.copy()
 
     # ── NP (col EJECUCION) ───────────────────────────────────────────────
-    df_np_kpi = _filtrar_periodo(_read_kpi(paths.NP_OUT_KPIS))
+    ruta_np_kpis = paths.NP_OUT_KPIS
+    df_np_kpi = _filtrar_periodo(_read_kpi(
+        ruta_np_kpis, "NP",
+        ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_NP}/{ruta_np_kpis.name}",
+    ))
     if not df_np_kpi.empty:
         df_np_kpi = df_np_kpi.rename(columns={"EJECUCION": "NP_%"})
         df_np_kpi["NOMBRE"] = df_np_kpi["NOMBRE"].astype(str).str.strip().str.upper()
     df_np_gest = df_np_kpi.copy()
 
     # ── PRECIOS ──────────────────────────────────────────────────────────
-    df_pr_kpi = _filtrar_periodo(_read_kpi(paths.PR_OUT_KPIS))
+    ruta_pr_kpis = paths.PR_OUT_KPIS
+    df_pr_kpi = _filtrar_periodo(_read_kpi(
+        ruta_pr_kpis, "PRECIOS",
+        ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_PRECIOS}/{ruta_pr_kpis.name}",
+    ))
     if not df_pr_kpi.empty:
         df_pr_kpi = df_pr_kpi.rename(columns={"CUMPLIMIENTO": "PRECIOS_%"})
         df_pr_kpi["NOMBRE"] = df_pr_kpi["NOMBRE"].astype(str).str.strip().str.upper()
     df_pr_gest = df_pr_kpi.copy()
 
     # ── EXHIBICIONES PAGADAS (V3 — Sprint 9 / Sprint 17 captura) ─────────
-    # KPIs:
-    #   • EXHIB_PAG_% = #exhibiciones ejecutadas / #planeadas (granularidad EMPLEADO).
-    #   • EXHIB_PAG_CAPTURA_% = #PDVs del PLANNING que respondieron formulario
-    #                          / #PDVs del PLANNING (Sprint 17).
-    df_exp_kpi = _filtrar_periodo(_read_kpi(paths.EXHIB_PAG_OUT_KPIS))
+    ruta_exp_kpis = paths.EXHIB_PAG_OUT_KPIS
+    df_exp_kpi = _filtrar_periodo(_read_kpi(
+        ruta_exp_kpis, "EXHIB_PAG",
+        ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/{ruta_exp_kpis.name}",
+    ))
     if not df_exp_kpi.empty:
         df_exp_kpi = df_exp_kpi.rename(columns={
-            "CUMPLIMIENTO":         "EXHIB_PAG_%",
+            "CUMPLIMIENTO":        "EXHIB_PAG_%",
             "CUMPLIMIENTO_CAPTURA": "EXHIB_PAG_CAPTURA_%",
-            "EMPLEADO":             "NOMBRE",
+            "EMPLEADO":            "NOMBRE",
         })
         df_exp_kpi["NOMBRE"] = df_exp_kpi["NOMBRE"].astype(str).str.strip().str.upper()
     df_exp_gest = df_exp_kpi.copy()
 
     # ── EXHIBICIONES GRATIS (V3 — Sprint 9 / Sprint 17 cumplimiento) ────
-    # Cantidades + cumplimiento vs targets (3 ALTO, 5 MEDIO por mercaderista).
-    df_egr_kpi = _filtrar_periodo(_read_kpi(paths.EXHIB_GRA_OUT_KPIS),
-                                    col_mes="Mes", col_anio="Año")
+    ruta_egr_kpis = paths.EXHIB_GRA_OUT_KPIS
+    df_egr_kpi = _filtrar_periodo(_read_kpi(
+        ruta_egr_kpis, "EXHIB_GRA",
+        ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/{ruta_egr_kpis.name}",
+    ), col_mes="Mes", col_anio="Año")
     if not df_egr_kpi.empty:
         df_egr_kpi = df_egr_kpi.rename(columns={
             "Mes":           "MES",
@@ -580,7 +1010,6 @@ def cargar_kpis_v3(
             return df
         df = df.copy()
         df["ACRONIMO"] = df["NOMBRE"].map(nombre_a_acr).fillna("")
-        # Si quedó vacío, intentar armonización por palabras (typo/truncamiento)
         falta = df["ACRONIMO"] == ""
         if falta.any():
             df.loc[falta, "ACRONIMO"] = df.loc[falta, "NOMBRE"].apply(
@@ -611,9 +1040,7 @@ def cargar_kpis_v3(
     df_sos_gest = _add_acr_sup(df_sos_gest)
     df_np_gest  = _add_acr_sup(df_np_gest)
     df_pr_gest  = _add_acr_sup(df_pr_gest)
-    # Exhibiciones no traen SUPERVISOR_LIDER. Construimos un mapa
-    # ACRONIMO→ACRONIMO_SUP a partir de los KPIs que sí lo tienen (con
-    # prioridad CIF > NP > PR > SOS, por cobertura típica).
+    
     acr_a_sup: dict = {}
     for src in (df_cif_gest, df_np_gest, df_pr_gest, df_sos_gest):
         if src is None or src.empty:
@@ -640,52 +1067,49 @@ def cargar_kpis_v3(
         "sos_gest": df_sos_gest,
         "np_gest":  df_np_gest,
         "pr_gest":  df_pr_gest,
-        "exp_gest": df_exp_gest,   # Exhibiciones pagadas
-        "egr_gest": df_egr_gest,   # Exhibiciones gratis
+        "exp_gest": df_exp_gest,   
+        "egr_gest": df_egr_gest,   
     }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# A) GENERAR / VERIFICAR MAESTRA DE SUPERVISORES
+# A) GENERAR / VERIFICAR MAESTRA DE SUPERVISORES (Adaptado a Nube)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFrame) -> None:
     """
-    Genera o actualiza MAESTRO_SUPERVISORES.xlsx desde Base cupos.
-
-    Comportamiento
-    ──────────────
-    • Si la maestra NO existe: la crea con todos los supervisores de
-      Base cupos (ES_SUPERVISOR=True), correo y chat_id vacíos.
-    • Si la maestra YA existe: la fusiona con Base cupos:
-        - Conserva todas las filas existentes (correos y chat_ids).
-        - Agrega los supervisores nuevos detectados en Base cupos
-          (con correo/chat_id vacíos).
-    Esto permite que el usuario complete a mano los nuevos supervisores
-    sin perder los que ya estaban diligenciados.
-
-    El parámetro df_np/df_pr/df_sos se conserva por compatibilidad pero
-    ya no se usa (Base cupos es la fuente única de supervisores).
+    Genera o actualiza MAESTRO_SUPERVISORES.xlsx desde Base cupos en la nube.
     """
     DIR_ALERTAS.mkdir(parents=True, exist_ok=True)
 
-    # ── Supervisores desde Base cupos ────────────────────────────────────
     df_bc   = bcm.cargar()
     sups_bc = bcm.supervisores(df_bc)
     nombres_bc = sorted(sups_bc["NOMBRE"].dropna().unique())
 
-    # ── Cargar maestra existente para preservar correos/chat_ids ─────────
     existente = pd.DataFrame(columns=["NOMBRE_SUPERVISOR", "CORREO", "TELEGRAM_CHAT_ID"])
-    if RUTA_MAESTRA.exists():
-        try:
-            existente = pd.read_excel(RUTA_MAESTRA)
+
+    # Ruta de la maestra en SharePoint — definida SIEMPRE antes del try para
+    # que esté disponible más abajo incluso si la lectura falla.
+    ruta_maestra_cloud = RUTA_MAESTRA_CLOUD
+
+    # Lectura de la maestra desde SharePoint en lugar de disco local
+    try:
+        print(f"    ⏳ Leyendo maestra de supervisores desde SharePoint...")
+        token = _obtener_token_azure()
+        headers = {"Authorization": f"Bearer {token}"}
+        drive_id = _obtener_default_drive_id(token)
+        ruta_limpia = _limpiar_ruta_graph(ruta_maestra_cloud)
+        
+        url_codificada = urllib.parse.quote(ruta_limpia)
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{url_codificada}:/content"
+        
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            existente = pd.read_excel(io.BytesIO(response.content))
             existente.columns = existente.columns.str.strip().str.upper()
             existente["NOMBRE_SUPERVISOR"] = (
                 existente["NOMBRE_SUPERVISOR"].astype(str).str.strip().str.upper()
             )
-            # Limpiar filas basura: NaN, vacías, o la línea de instrucción
-            # "⚠ Completa..." que escribimos al final de la maestra y se cuela
-            # como si fuera un supervisor en la siguiente lectura.
             existente = existente[
                 existente["NOMBRE_SUPERVISOR"].notna()
                 & (existente["NOMBRE_SUPERVISOR"] != "")
@@ -693,9 +1117,9 @@ def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFra
                 & (~existente["NOMBRE_SUPERVISOR"].str.contains(r"[⚠✓✗]", na=False))
                 & (~existente["NOMBRE_SUPERVISOR"].str.contains(r"^COMPLETA", na=False))
             ].reset_index(drop=True)
-        except Exception as e:
-            print(f"  ⚠️  No pude leer la maestra existente ({e}); recreando")
-            existente = pd.DataFrame(columns=["NOMBRE_SUPERVISOR", "CORREO", "TELEGRAM_CHAT_ID"])
+    except Exception as e:
+        print(f"    ⚠️  No pude leer la maestra existente desde la nube ({e}); recreando")
+        existente = pd.DataFrame(columns=["NOMBRE_SUPERVISOR", "CORREO", "TELEGRAM_CHAT_ID"])
 
     nombres_existentes = set(existente["NOMBRE_SUPERVISOR"]) if not existente.empty else set()
     nombres_nuevos = [n for n in nombres_bc if n not in nombres_existentes]
@@ -704,14 +1128,8 @@ def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFra
         if n and n != "NAN" and n not in set(nombres_bc)
     ]
 
-    # ¿Hay que reescribir? Sí si:
-    #   • hay supervisores nuevos por agregar, o
-    #   • el archivo en disco trae filas basura (la nota / NaN) que el
-    #     filtro de lectura ya descartó (en cuyo caso 'existente' es más
-    #     pequeño que el conteo crudo del archivo).
     try:
-        crudo = pd.read_excel(RUTA_MAESTRA) if RUTA_MAESTRA.exists() else None
-        crudo_n = len(crudo) if crudo is not None else 0
+        crudo_n = len(existente)
     except Exception:
         crudo_n = len(existente)
     hay_basura = crudo_n > len(existente)
@@ -728,9 +1146,7 @@ def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFra
         print(f"  ✓ Maestra al día: {len(existente)} supervisores")
         return
 
-    # Ensamblar la maestra final = existente + nuevos
     if not existente.empty:
-        # Reordenar columnas para incluir solo las 3 estándar
         existente = existente[["NOMBRE_SUPERVISOR", "CORREO", "TELEGRAM_CHAT_ID"]].copy()
         nuevos_df = pd.DataFrame({
             "NOMBRE_SUPERVISOR": nombres_nuevos,
@@ -792,14 +1208,31 @@ def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFra
             cell.border    = borde
 
     ws.freeze_panes = "A2"
-    # Nota: anteriormente se escribía un mensaje "⚠ Completa..." como fila
-    # al final del archivo, pero pandas lo leía como un supervisor más en
-    # las re-ejecuciones. Lo movemos al título de la pestaña para evitar
-    # ese efecto de "auto-contaminación".
     ws.title = "Supervisores - Completa CORREO y TELEGRAM_CHAT_ID"
 
-    wb.save(RUTA_MAESTRA)
-    print(f"  ✅ Maestra guardada con {len(df_maestra)} supervisores: {RUTA_MAESTRA}")
+    # Guardar en la ruta local temporal y luego subir a SharePoint (o guardar directo si se usa BytesIO)
+    output_io = io.BytesIO()
+    wb.save(output_io)
+    output_io.seek(0)
+    
+    # Subida a SharePoint usando Graph API
+    try:
+        token = _obtener_token_azure()
+        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
+        drive_id = _obtener_default_drive_id(token)
+        ruta_limpia = _limpiar_ruta_graph(ruta_maestra_cloud)
+        
+        url_codificada = urllib.parse.quote(ruta_limpia)
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{url_codificada}:/content"
+        
+        response = requests.put(url, headers=headers, data=output_io.getvalue())
+        if response.status_code in [200, 201]:
+            print(f"  ✅ Maestra guardada en SharePoint con {len(df_maestra)} supervisores: {ruta_maestra_cloud}")
+        else:
+            print(f"  ⚠️ Error al subir la maestra a SharePoint: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"  ⚠️ Excepción al subir la maestra a SharePoint: {e}")
+
     if nombres_nuevos:
         print(f"     → Completa CORREO y TELEGRAM_CHAT_ID para los {len(nombres_nuevos)} nuevos.\n")
 
@@ -2118,25 +2551,59 @@ def _hoja_segmento_nuevo(
 # HOJAS ADICIONALES SPRINT 17.10 — Exhibiciones (no capturadas / fuera de regla)
 # ─────────────────────────────────────────────────────────────────────────────
 
+_CACHE_EXH_PLANNING: dict = {}
+
+
 def _hoja_exh_pagadas_no_capturadas(ws, acr_sup: str, mes: int, anio: int,
                                      df_cif_pdv: pd.DataFrame | None = None) -> None:
     """
     Lista los PDVs del PLANNING de exhibiciones pagadas asignados al equipo
     del supervisor que NO respondieron la encuesta para el periodo.
     Granularidad: (PDV, gestor, marca, tipo). Filtrado al equipo del supervisor.
-    """
-    import periodo_resolver as pr_mod
-    spec = pr_mod.resolver(mes, anio)
-    try:
-        ruta_plan = pr_mod.exh_planning_master(spec)
-        ruta_enc  = pr_mod.exh_base_planning(spec)
-    except FileNotFoundError as e:
-        ws.cell(row=1, column=1, value=f"No disponible: {e}")
-        ws.column_dimensions["A"].width = 80
-        return
 
-    df_plan = pd.read_excel(ruta_plan, engine="openpyxl")
-    df_enc  = pd.read_excel(ruta_enc,  engine="openpyxl")
+    Los archivos de planning se localizan y leen directamente desde
+    SharePoint (Graph API), replicando en la nube la convención de nombres
+    de `periodo_resolver.exh_planning_master` / `exh_base_planning`.
+
+    Esta hoja se genera una vez POR SUPERVISOR (llamada desde
+    `generar_adjuntos_por_supervisor`), pero el planning del periodo es el
+    mismo para todos — se cachea en `_CACHE_EXH_PLANNING` para no volver a
+    descargar los mismos 2 archivos de SharePoint una vez por cada
+    supervisor (con 30+ supervisores, eso son 60+ descargas evitables).
+    """
+    cache_key = (mes, anio)
+    if cache_key in _CACHE_EXH_PLANNING:
+        cached = _CACHE_EXH_PLANNING[cache_key]
+        if isinstance(cached, Exception):
+            ws.cell(row=1, column=1, value=f"No disponible: {cached}")
+            ws.column_dimensions["A"].width = 80
+            return
+        df_plan, df_enc = cached[0].copy(), cached[1].copy()
+    else:
+        import periodo_resolver as pr_mod
+        spec = pr_mod.resolver(mes, anio)
+        try:
+            carpeta_exhib = _resolver_exhib_data_dir_cloud()
+            ruta_plan_cloud = _buscar_archivo_cloud(
+                carpeta_exhib,
+                rf"^PLANNING DE {re.escape(spec.mes_str_upper)} {spec.anio}\.xlsx$",
+                contexto=f"Exh/Planning maestro {spec.etiqueta}",
+            )
+            ruta_enc_cloud = _buscar_archivo_cloud(
+                carpeta_exhib,
+                rf"^Base Exhibiciones Planning {re.escape(spec.mes_str)} {spec.anio}\.xlsx$",
+                contexto=f"Exh/Base Planning {spec.etiqueta}",
+            )
+        except (FileNotFoundError, RuntimeError) as e:
+            _CACHE_EXH_PLANNING[cache_key] = e
+            ws.cell(row=1, column=1, value=f"No disponible: {e}")
+            ws.column_dimensions["A"].width = 80
+            return
+
+        df_plan = _leer_excel_cloud(ruta_plan_cloud, "Exh Planning Maestro")
+        df_enc  = _leer_excel_cloud(ruta_enc_cloud,  "Exh Base Planning")
+        _CACHE_EXH_PLANNING[cache_key] = (df_plan, df_enc)
+        df_plan, df_enc = df_plan.copy(), df_enc.copy()
 
     col_pdv_p = next((c for c in df_plan.columns if "punto de venta" in str(c).lower()), None)
     col_emp_p = next((c for c in df_plan.columns if "empleado"       in str(c).lower()), None)
@@ -2218,19 +2685,30 @@ def _hoja_exh_pagadas_no_capturadas(ws, acr_sup: str, mes: int, anio: int,
             ws.cell(row=r_idx, column=c_idx, value=val)
 
 
+_CACHE_EXH_GRATIS_FUERA_REGLA: dict = {}
+
+
 def _hoja_exh_gratis_fuera_regla(ws, acr_sup: str, mes: int, anio: int,
                                   df_cif_pdv: pd.DataFrame | None = None) -> None:
     """
     Lista las exhibiciones gratis del equipo que NO cumplieron la regla de
     "≥2 semanas distintas" cuando frecuencia de referencia > 1. Persistido
-    por el ETL en SALIDA/EXHIBICIONES/Exh_Gratis_Fuera_de_Regla.xlsx.
+    por el ETL en SharePoint, en
+    RUTA_CARPETA_SALIDAS_EXHIB/Exh_Gratis_Fuera_de_Regla.xlsx.
+
+    Se cachea a nivel de módulo (`_CACHE_EXH_GRATIS_FUERA_REGLA`) porque
+    esta hoja se genera una vez por supervisor pero el archivo fuente es el
+    mismo para todos — sin caché se re-descargaba desde SharePoint una vez
+    por cada supervisor.
     """
-    ruta = paths.EXHIB_SALIDA / "Exh_Gratis_Fuera_de_Regla.xlsx"
-    if not ruta.exists():
+    if "df" not in _CACHE_EXH_GRATIS_FUERA_REGLA:
+        ruta_cloud = f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/Exh_Gratis_Fuera_de_Regla.xlsx"
+        _CACHE_EXH_GRATIS_FUERA_REGLA["df"] = _leer(ruta_cloud, "Exh Gratis Fuera de Regla")
+    df = _CACHE_EXH_GRATIS_FUERA_REGLA["df"]
+    if df.empty:
         ws.cell(row=1, column=1, value="No hay archivo de fuera de regla (no se generó este periodo).")
         ws.column_dimensions["A"].width = 70
         return
-    df = pd.read_excel(ruta, engine="openpyxl")
     col_mes  = "Mes del año" if "Mes del año" in df.columns else "Mes"
     col_anio = "Año" if "Año" in df.columns else next((c for c in df.columns if "año" in str(c).lower()), None)
     if col_mes in df.columns and col_anio:
@@ -2388,190 +2866,6 @@ def generar_adjuntos_por_supervisor(
     return rutas
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# F) PUNTO DE ENTRADA
-# ─────────────────────────────────────────────────────────────────────────────
-
-def main() -> dict:
-    """
-    Ejecuta el cálculo completo. Devuelve dict para alertas_telegram.py
-    y alertas_email.py:
-      {df_detalle, df_resumen, rutas_adjuntos, mes, anio}
-    """
-    print("\n" + "═" * 55)
-    print("  CALCULAR CUMPLIMIENTOS — Eficacia")
-    print("═" * 55)
-    _log.info("Iniciando cálculo de cumplimientos")
-
-    # ── Cargar archivos de detalle ───────────────────────────────────────
-    # Estos detalles los siguen consumiendo los ADJUNTOS y alertas_telegram
-    # (para desglose por perfil PDV). El CÁLCULO de los KPIs por gestor ya
-    # se hace en cada ETL — aquí solo los leemos vía cargar_kpis_v3().
-    print("\nCargando archivos de detalle:")
-    ruta_np      = _ultimo_archivo(DIR_NP_OUT,      "REPORTE_NO_PRESENCIA_*.xlsx")
-    ruta_precios = _ultimo_archivo(DIR_PRECIOS_OUT, "REPORTE_CAPTURA_PRECIOS_*.xlsx")
-    df_cif = _leer(RUTA_CIF,     "CIF (Plan de trabajo.xlsx)")
-    df_np  = _leer(ruta_np,      "No Presencia")
-    df_pr  = _leer(ruta_precios, "Precios")
-    df_sos = _leer(RUTA_SOS,     "SOS")
-    # df_cif_pdv = detalle CIF (PDV × persona) listo para adjuntos.
-    # Los ETLs V3 ya escriben COBERTURA/INTENSIDAD/FRECUENCIA por fila.
-    df_cif_pdv = df_cif
-
-    # ── Cargar Base cupos (tabla maestra de personas, llave ACRONIMO) ────
-    print("\nCargando tabla maestra de personas (Base cupos):")
-    df_bc    = bcm.cargar()
-    universo = bcm.universo_personas(df_bc)
-    sups_bc  = bcm.supervisores(df_bc)
-    nombres_sups_bc = set(sups_bc["NOMBRE"].astype(str).str.upper())
-    # Sprint 17.19 — incluir GDDs y líderes para que el fallback por subset
-    # de palabras también resuelva sus nombres truncados (ej. "ROSA PANTOJA"
-    # → "ROSA ELENA PANTOJA" / LE001).
-    if "ES_GDD" in df_bc.columns:
-        nombres_sups_bc.update(
-            df_bc[df_bc["ES_GDD"] == True]["NOMBRE"].astype(str).str.upper()
-        )
-    if "ES_LIDER" in df_bc.columns:
-        nombres_sups_bc.update(
-            df_bc[df_bc["ES_LIDER"] == True]["NOMBRE"].astype(str).str.upper()
-        )
-    idx_bc = bcm.construir_indices(df_bc)
-    print(f"  ✓ Universo: {len(universo)} personas activas | {len(sups_bc)} supervisores")
-
-    # ── Maestra de supervisores (correo + telegram) ──────────────────────
-    print("\nVerificando maestra de supervisores:")
-    generar_maestra(df_np, df_pr, df_sos)
-
-    # ── KPIs V3 — leídos directo de los *_KPIS.xlsx que producen los ETLs
-    # (Sprints 7, 8, 9). YA no se calculan aquí desde el detalle. ────────
-    print("\nLeyendo KPIs V3 pre-calculados por los ETLs:")
-    kpis_v3 = cargar_kpis_v3(idx_bc, nombres_sups_bc)
-    df_cif_gest = kpis_v3["cif_gest"]
-    df_np_gest  = kpis_v3["np_gest"]
-    df_pr_gest  = kpis_v3["pr_gest"]
-    df_sos_gest = kpis_v3["sos_gest"]
-    df_exp_gest = kpis_v3.get("exp_gest", pd.DataFrame())
-    df_egr_gest = kpis_v3.get("egr_gest", pd.DataFrame())
-    # Los KPIs V3 no separan gestor/supervisor — cada persona aparece con
-    # su propio cálculo. Los DataFrames "_sup" quedan vacíos por compat.
-    df_cif_sup = pd.DataFrame()
-    df_np_sup  = pd.DataFrame()
-    df_pr_sup  = pd.DataFrame()
-    df_sos_sup = pd.DataFrame()
-    print(f"  ✓ CIF        — {len(df_cif_gest)} personas")
-    print(f"  ✓ NP         — {len(df_np_gest)} personas")
-    print(f"  ✓ Precios    — {len(df_pr_gest)} personas")
-    print(f"  ✓ SOS        — {len(df_sos_gest)} personas")
-    print(f"  ✓ Exh PAG    — {len(df_exp_gest)} empleados")
-    print(f"  ✓ Exh GRATIS — {len(df_egr_gest)} empleados")
-
-    # ── Periodo activo (de KPIS_CIF) ─────────────────────────────────────
-    ahora = datetime.now()
-    if not df_cif_gest.empty and "MES" in df_cif_gest.columns:
-        mes  = int(pd.to_numeric(df_cif_gest["MES"], errors="coerce").dropna().mode().iloc[0])
-        anio = int(pd.to_numeric(df_cif_gest["AÑO"], errors="coerce").dropna().mode().iloc[0])
-    else:
-        mes, anio = ahora.month, ahora.year
-    print(f"  Periodo activo: {mes:02d}/{anio}")
-
-    # ── KPIs D&P (Venta + Impactos + MSL + ProdNuevos), keyed por ACRONIMO ─
-    # (D&P sigue calculándose aquí — V3 no toca D&P)
-    kpis_dyp = cumplimiento_dyp.calcular_kpis_dyp(
-        mes, anio,
-        base_cupos_idx=idx_bc,
-        nombres_supervisores_bc=nombres_sups_bc,
-    )
-    df_dyp_gest = kpis_dyp["gestor"]
-    df_dyp_sup  = kpis_dyp["supervisor"]
-
-    # ── Ensamblaje final ─────────────────────────────────────────────────
-    print("\nEnsamblando detalle consolidado:")
-    df_detalle = ensamblar_detalle(
-        universo,
-        df_cif_gest, df_cif_sup,
-        df_np_gest,  df_np_sup,
-        df_pr_gest,  df_pr_sup,
-        df_sos_gest, df_sos_sup,
-        df_dyp_gest=df_dyp_gest,
-        df_dyp_sup=df_dyp_sup,
-        df_exp_gest=df_exp_gest,
-        df_egr_gest=df_egr_gest,
-        mes=mes, anio=anio,
-    )
-
-    n_gest = (df_detalle["ES_SUPERVISOR"] == False).sum()
-    n_sup  = (df_detalle["ES_SUPERVISOR"] == True).sum()
-    print(f"  Personas en detalle: {len(df_detalle)} (gestores: {n_gest} | supervisores: {n_sup})")
-
-    # ── Resumen ──────────────────────────────────────────────────────────
-    print("\nCalculando resumen por supervisor:")
-    df_resumen = calcular_resumen(df_detalle, universo)
-    print(f"  Supervisores en resumen: {len(df_resumen)}")
-
-    # ── Guardar archivos ─────────────────────────────────────────────────
-    print("\nGuardando archivos de salida:")
-    guardar_detalle(df_detalle, mes, anio)
-    guardar_resumen(df_resumen, mes, anio)
-
-    # Enriquecer las fuentes de detalle por PDV con ACRONIMO_SUP, para que
-    # las hojas del adjunto puedan filtrar el equipo de cada supervisor
-    # consistentemente.
-    def _agregar_acr_sup(df, col_sup_origen="SUPERVISOR_LIDER"):
-        if df is None or df.empty or col_sup_origen not in df.columns:
-            return df
-        df = df.copy()
-        df["ACRONIMO_SUP"] = df[col_sup_origen].apply(
-            lambda s: _resolver_acr_supervisor(s, nombres_sups_bc, idx_bc)
-        )
-        return df
-
-    df_cif_pdv_e = _agregar_acr_sup(df_cif_pdv)
-    df_np_e      = _agregar_acr_sup(df_np)
-    df_pr_e      = _agregar_acr_sup(df_pr)
-    df_sos_e     = _agregar_acr_sup(df_sos)
-
-    # Pre-cargar insumos de segmentos D&P para las hojas de productos nuevos
-    print("\nPre-cargando insumos D&P para hojas de productos nuevos:")
-    seg_data = _precargar_segmentos_nuevos(mes, anio, idx_bc, nombres_sups_bc)
-    if seg_data.get("rutero") is not None:
-        n_sups_con_pdvs = len(seg_data.get("pdvs_por_sup") or {})
-        print(f"  ✓ Segmentos listos — supervisores con PDVs en periodo: {n_sups_con_pdvs}")
-
-    rutas_adj = generar_adjuntos_por_supervisor(
-        df_detalle, df_cif_pdv_e, df_np_e, df_pr_e, df_sos_e, mes, anio,
-        seg_data=seg_data,
-    )
-
-    _log.info(
-        f"Cálculo completado — periodo {mes:02d}/{anio} | "
-        f"gestores={n_gest} supervisores={n_sup} adjuntos={len(rutas_adj)}"
-    )
-    print("\n" + "═" * 55)
-    print(f"  ✅ Proceso completado — {mes:02d}/{anio}")
-    print("═" * 55 + "\n")
-
-    # Rango de fechas del periodo (Sprint 13.1)
-    rango_periodo = detectar_rango_periodo(mes, anio)
-    if rango_periodo.get("rango_legible"):
-        print(f"\n  📆 Periodo de corte detectado: {rango_periodo['rango_legible']}"
-              f" | avance esperado del mes: {rango_periodo['avance_esperado_pct']*100:.0f}%")
-
-    return {
-        "df_detalle"     : df_detalle,
-        "df_resumen"     : df_resumen,
-        "rutas_adjuntos" : rutas_adj,
-        "mes"            : mes,
-        "anio"           : anio,
-        "rango_periodo"  : rango_periodo,   # Sprint 13.1
-        # DataFrames crudos enriquecidos con ACRONIMO_SUP — los consume
-        # alertas_telegram.py para desglosar CIF/NP/Precios/SOS por perfil
-        # de PDV (Directo/Droguerías vs Proximity).
-        "df_cif_pdv"     : df_cif_pdv_e,
-        "df_np"          : df_np_e,
-        "df_pr"          : df_pr_e,
-        "df_sos"         : df_sos_e,
-    }
-
-
 if __name__ == "__main__":
     main()
+
