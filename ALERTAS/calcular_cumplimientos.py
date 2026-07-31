@@ -2,6 +2,7 @@ import os
 import sys
 import io
 import re
+import tempfile
 import requests
 import urllib.parse
 import pandas as pd
@@ -183,6 +184,25 @@ def _guardar_excel_cloud(df: pd.DataFrame, ruta_sharepoint: str, descripcion: st
         raise Exception(f"Error al subir {descripcion} a Graph API: {response.status_code} - {response.text}")
 
 
+def _subir_bytes_cloud(data: bytes, ruta_sharepoint: str, descripcion: str,
+                       content_type: str = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"):
+    """
+    Sube bytes ya generados (p.ej. un Workbook de openpyxl volcado a BytesIO)
+    directamente a SharePoint vía Graph API. Equivalente a
+    `_guardar_excel_cloud` pero sin pasar por un DataFrame, para archivos con
+    formato/multiples hojas.
+    """
+    token = _obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": content_type}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_codificada = urllib.parse.quote(_limpiar_ruta_graph(ruta_sharepoint))
+    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta_codificada}:/content"
+    response = requests.put(url, headers=headers, data=data)
+    if response.status_code in (200, 201):
+        return True
+    raise Exception(f"Error al subir {descripcion} a Graph API: {response.status_code} - {response.text}")
+
+
 def _listar_hijos_cloud(ruta_carpeta: str) -> list:
     """
     Lista los archivos/subcarpetas de `ruta_carpeta` en SharePoint vía Graph
@@ -274,6 +294,9 @@ RUTA_MAESTRA    = getattr(paths, 'ALERTAS_MAESTRO', f"{DIR_ALERTAS}/maestra_supe
 # siguiendo la misma convención que el resto de módulos (_SALIDAS_ROOT/<módulo>).
 RUTA_CARPETA_SALIDAS_ALERTAS = f"{paths._SALIDAS_ROOT}/ALERTAS"
 RUTA_MAESTRA_CLOUD           = f"{RUTA_CARPETA_SALIDAS_ALERTAS}/maestro_supervisores.xlsx"
+# Carpeta en la nube donde deben quedar los adjuntos por supervisor
+# (…/BI/INVOLVES/SALIDAS/ALERTAS/ADJUNTOS)
+RUTA_CARPETA_ADJUNTOS_CLOUD  = f"{RUTA_CARPETA_SALIDAS_ALERTAS}/ADJUNTOS"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -2792,7 +2815,11 @@ def generar_adjuntos_por_supervisor(
 
     Devuelve un dict {NOMBRE_SUPERVISOR: ruta_archivo}.
     """
-    dir_adj = DIR_ALERTAS / "ADJUNTOS"
+    # Los adjuntos definitivos viven en la NUBE:
+    #   Equipo Información/BI/INVOLVES/SALIDAS/ALERTAS/ADJUNTOS
+    # Localmente sólo se deja una copia temporal, necesaria para que
+    # `alertas_email` pueda adjuntar el archivo al correo.
+    dir_adj = Path(tempfile.gettempdir()) / "alertas_adjuntos"
     dir_adj.mkdir(parents=True, exist_ok=True)
 
     seg_data = seg_data or {}
@@ -2857,12 +2884,26 @@ def generar_adjuntos_por_supervisor(
             ws_seg = wb.create_sheet(nombre_segmento)
             _hoja_segmento_nuevo(ws_seg, nombre_segmento, seg_data, acr_sup)
 
+        # Copia temporal local (para adjuntar al correo)
         wb.save(ruta)
+
+        # Subida a la nube — destino oficial de los adjuntos
+        buffer = io.BytesIO()
+        wb.save(buffer)
+        try:
+            _subir_bytes_cloud(
+                buffer.getvalue(),
+                f"{RUTA_CARPETA_ADJUNTOS_CLOUD}/{nombre_archivo}",
+                f"adjunto {nombre_archivo}",
+            )
+        except Exception as e:
+            _log.warning("Fallo al subir adjunto %s a la nube: %s", nombre_archivo, e)
+
         # Indexamos el dict por NOMBRE del supervisor (lo que usa alertas_email
         # para resolver el destinatario).
         rutas[nombre_sup.upper()] = str(ruta)
 
-    print(f"  ✅ {len(rutas)} adjuntos generados (9 hojas c/u) en: {dir_adj}")
+    print(f"  ✅ {len(rutas)} adjuntos generados (9 hojas c/u)")
     return rutas
 
 
