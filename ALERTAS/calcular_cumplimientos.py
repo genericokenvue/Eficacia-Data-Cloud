@@ -2575,6 +2575,7 @@ def _hoja_segmento_nuevo(
 # ─────────────────────────────────────────────────────────────────────────────
 
 _CACHE_EXH_PLANNING: dict = {}
+_CACHE_BASE_CUPOS: dict = {}
 
 
 def _hoja_exh_pagadas_no_capturadas(ws, acr_sup: str, mes: int, anio: int,
@@ -2644,7 +2645,13 @@ def _hoja_exh_pagadas_no_capturadas(ws, acr_sup: str, mes: int, anio: int,
     )
 
     # Mapa EMPLEADO_N → ACRONIMO_SUP via Base cupos.
-    bc = pd.read_excel(paths.DYP_BASE_CUPOS, sheet_name="Tabla total roles")
+    # Se usa bcm.cargar() (ya migrado a SharePoint) en vez de leer el Excel
+    # local directamente. Se cachea a nivel de módulo porque esta hoja se
+    # genera una vez por supervisor y bcm.cargar() es una descarga + proceso
+    # completo (incluye la auditoría) — sin caché se repetía 30+ veces.
+    if "bc" not in _CACHE_BASE_CUPOS:
+        _CACHE_BASE_CUPOS["bc"] = bcm.cargar()
+    bc = _CACHE_BASE_CUPOS["bc"].copy()
     bc["NOMBRE_N"] = (
         bc["NOMBRE"].astype(str).str.strip().str.upper()
         .str.replace(r"\s+", " ", regex=True)
