@@ -2909,5 +2909,3 @@ def generar_adjuntos_por_supervisor(
 
 if __name__ == "__main__":
     main()
-
-

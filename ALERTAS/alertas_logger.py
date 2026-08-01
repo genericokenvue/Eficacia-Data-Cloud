@@ -18,21 +18,34 @@ Por defecto, ALERTAS/logs/alertas_<timestamp>.log. Se puede sobreescribir
 pasando ruta_log a inicializar_logging() desde run_alertas.py.
 """
 
+import os
 import sys
 from pathlib import Path
 from datetime import datetime
 
-# SCRIPTS/ es hermana de ALERTAS/. Preferimos el sibling del archivo actual
-# (dev). Si no existe, caemos a la ruta de producción. El orden importa
-# cuando ambas existen (máquinas con OneDrive sincronizado y checkout local).
-_DEV_SCRIPTS  = Path(__file__).resolve().parent.parent / "SCRIPTS"
-_PROD_SCRIPTS = Path(r"C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS")
-_CANDIDATAS_SCRIPTS = [_DEV_SCRIPTS, _PROD_SCRIPTS]
+# ALERTAS/ vive DENTRO de SCRIPTS/ (SCRIPTS/ALERTAS/alertas_logger.py), no es
+# su hermana. `Path(__file__).resolve().parent.parent` YA apunta a SCRIPTS/
+# — no hay que volver a agregarle "/SCRIPTS" (ese era el bug: generaba
+# .../SCRIPTS/SCRIPTS, que no existe en ningún entorno, ni local ni CI).
+# Esta resolución es multiplataforma (Windows y Linux/GitHub Actions) porque
+# es relativa a la ubicación real del archivo, no a una ruta fija de disco.
+#
+# EFICACIA_BASE (la misma variable que ya usa paths.py) sigue disponible
+# como override explícito, por si el checkout vive en otra carpeta.
+_OVERRIDE = os.environ.get("EFICACIA_BASE", "").strip()
+
+_CANDIDATAS_SCRIPTS = []
+if _OVERRIDE:
+    _CANDIDATAS_SCRIPTS.append(Path(_OVERRIDE) / "SCRIPTS")
+_CANDIDATAS_SCRIPTS.append(Path(__file__).resolve().parent.parent)  # ALERTAS/.. = SCRIPTS/
+
 _SCRIPTS_DIR = next((p for p in _CANDIDATAS_SCRIPTS if p.is_dir()), None)
 if _SCRIPTS_DIR is None:
     raise RuntimeError(
         "No se encontró el directorio SCRIPTS/ (con etl_logger.py). "
-        f"Probadas: {[str(p) for p in _CANDIDATAS_SCRIPTS]}"
+        f"Probadas: {[str(p) for p in _CANDIDATAS_SCRIPTS]}. "
+        "En GitHub Actions define la variable de entorno EFICACIA_BASE "
+        "apuntando a la raíz del checkout (la carpeta que contiene SCRIPTS/)."
     )
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
