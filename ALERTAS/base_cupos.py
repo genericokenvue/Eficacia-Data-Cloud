@@ -22,11 +22,15 @@ Roles excluidos (sin meta de cumplimiento estándar)
 
 from __future__ import annotations
 
+import io
 import sys
+import urllib.parse
+import tempfile
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import requests
 
 # Asegurar SCRIPTS/ en sys.path (paths.py vive ahí)
 _SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "SCRIPTS"
@@ -34,6 +38,96 @@ if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
 import paths
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONEXIÓN A LA NUBE (SharePoint vía Microsoft Graph API)
+# ─────────────────────────────────────────────────────────────────────────────
+# Reutiliza paths.obtener_token_azure() (misma fuente de credenciales que el
+# resto del pipeline) en vez de duplicar lógica de autenticación aquí.
+_DRIVE_ID_CACHE: dict = {}
+
+
+def _obtener_default_drive_id(token: str) -> str:
+    """Resuelve el Drive ID del sitio SharePoint configurado en paths.SHAREPOINT_SITE_NAME."""
+    if "drive_id" in _DRIVE_ID_CACHE:
+        return _DRIVE_ID_CACHE["drive_id"]
+
+    headers = {"Authorization": f"Bearer {token}"}
+    nombre_sitio = getattr(paths, "SHAREPOINT_SITE_NAME", "eficacia")
+
+    res_site = requests.get(
+        f"https://graph.microsoft.com/v1.0/sites?search={urllib.parse.quote(nombre_sitio)}",
+        headers=headers,
+    )
+    if res_site.status_code == 200:
+        sites = res_site.json().get("value", [])
+        if sites:
+            site = next(
+                (s for s in sites
+                 if nombre_sitio.lower() in (s.get("name", "").lower(), s.get("displayName", "").lower())),
+                sites[0],
+            )
+            site_id = site.get("id")
+            res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+            if res_drive.status_code == 200:
+                drive = res_drive.json()
+                _DRIVE_ID_CACHE["drive_id"] = drive.get("id")
+                return drive.get("id")
+
+    res_root = requests.get("https://graph.microsoft.com/v1.0/sites/root", headers=headers)
+    if res_root.status_code == 200:
+        site_id = res_root.json().get("id")
+        res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+        if res_drive.status_code == 200:
+            _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+            return res_drive.json().get("id")
+
+    raise Exception(f"No se pudo obtener el Drive ID del sitio SharePoint '{nombre_sitio}': {res_site.text}")
+
+
+def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
+    """Normaliza separadores. NO remueve 'Equipo Información/' — es una carpeta real del sitio."""
+    ruta_sharepoint = ruta_sharepoint.replace("\\", "/")
+    for prefijo in ["Documentos compartidos/", "Shared Documents/"]:
+        if ruta_sharepoint.startswith(prefijo):
+            ruta_sharepoint = ruta_sharepoint.replace(prefijo, "", 1)
+    return ruta_sharepoint.lstrip("/")
+
+
+def _leer_excel_cloud(ruta_sharepoint: str, descripcion: str, sheet_name=0) -> pd.DataFrame:
+    """Lee un archivo Excel (opcionalmente una hoja específica) directamente desde SharePoint vía Graph API."""
+    print(f"  ⏳ Leyendo {descripcion} desde SharePoint ({ruta_sharepoint})...")
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+
+    rutas_candidatas = [ruta_limpia, f"Documentos compartidos/{ruta_limpia}"]
+
+    response = None
+    url_usada = ""
+    for r in rutas_candidatas:
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(r)}:/content"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            url_usada = url
+            break
+
+    if response is not None and response.status_code == 200:
+        print(f"    ✓ {descripcion} descargado exitosamente desde la nube.")
+        return pd.read_excel(io.BytesIO(response.content), sheet_name=sheet_name)
+
+    status = response.status_code if response is not None else "N/A"
+    text = response.text if response is not None else "Sin respuesta"
+    raise FileNotFoundError(
+        f"No se pudo descargar {descripcion} desde SharePoint. "
+        f"Última URL probada: {url_usada or rutas_candidatas} | Status: {status} - {text}"
+    )
+
+
+# Ruta en la nube de la tabla maestra de personas.
+RUTA_BASE_CUPOS_CLOUD = f"{paths.RUTA_CARPETA_BASES_DYP}/Base_cupos.xlsx"
 
 
 ROLES_EXCLUIDOS = {
@@ -81,14 +175,7 @@ def cargar() -> pd.DataFrame:
     Filtra registros sin ACRONIMO o sin NOMBRE.
     Genera automáticamente un archivo de auditoría Excel en caliente para depuración.
     """
-    if not paths.DYP_BASE_CUPOS.is_file():
-        raise FileNotFoundError(
-            f"No existe la tabla maestra de personas: {paths.DYP_BASE_CUPOS}\n"
-            "Asegúrate de tenerla en BASES/D&P/Base_cupos.xlsx (hoja "
-            "'Tabla total roles')."
-        )
-
-    df = pd.read_excel(paths.DYP_BASE_CUPOS, sheet_name="Tabla total roles")
+    df = _leer_excel_cloud(RUTA_BASE_CUPOS_CLOUD, "Base_cupos.xlsx", sheet_name="Tabla total roles")
     df_original_raw = df.copy()  # Respaldamos el estado crudo para el reporte de auditoría
 
     df = df.rename(columns={
@@ -134,7 +221,7 @@ def cargar() -> pd.DataFrame:
     # ⚙️ EXPORTACIÓN AUTOMÁTICA DE AUDITORÍA (SISTEMA DE DEPURACIÓN EN CALIENTE)
     # ─────────────────────────────────────────────────────────────────────────
     try:
-        ruta_debug = paths.DYP_BASE_CUPOS.parent / "DEBUG_Base_Cupos_Normalizada.xlsx"
+        ruta_debug = Path(tempfile.gettempdir()) / "DEBUG_Base_Cupos_Normalizada.xlsx"
         
         # Construimos un reporte estructurado con múltiples hojas para análisis
         with pd.ExcelWriter(ruta_debug, engine="openpyxl") as writer:
