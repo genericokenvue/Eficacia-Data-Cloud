@@ -1,0 +1,2 @@
+2026-08-01 14:03:40  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260801_140340.log
+2026-08-01 14:03:40  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos en la nube con paths.py

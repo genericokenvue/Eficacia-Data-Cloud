@@ -21,21 +21,28 @@ Cambios V2 respecto a V1
     tendencia mensual y tabla por supervisor con columnas mensuales.
   • Split por SKU si segmento tiene ≤ SPLIT_SKU_MAX EANs (default 5).
 
-Inputs requeridos
-─────────────────
-  • paths.DYP_OUT_VENTAS    (lo produce etl_ventas)
-  • paths.DYP_LISTAS_FILE   (MSL + 4 hojas de segmento)
-  • paths.DYP_RUTERO_FILE   (hoja "PLAN DE TRABAJO", skiprows=13)
+Inputs requeridos (SharePoint, vía Microsoft Graph API)
+────────────────────────────────────────────────────────
+  • {RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Ventas_<MES>_<AÑO>.csv (todos los
+    periodos disponibles, subidos por etl_ventas.py — se descargan y
+    concatenan para reconstruir el histórico completo)
+  • {RUTA_CARPETA_BASES_DYP}/Listas/MSL & Listas Target Catman.xlsx
+  • {RUTA_CARPETA_BASES_DYP}/Rutero/RUTERO <MES> <AÑO> D&P.xlsx (el más
+    reciente por fecha de modificación), hoja "PLAN DE TRABAJO"
 
-Output
-──────
-  • paths.DYP_OUT_SEGMENTOS  (Excel con Resumen + segmentos formateados)
+Output (SharePoint)
+────────────────────
+  • {RUTA_CARPETA_SALIDAS_DYP}/impacto_segmentos.xlsx
+    (Excel con Resumen + segmentos formateados)
 """
 
 from __future__ import annotations
 
+import io
 import os
+import re
 import sys
+import urllib.parse
 
 # UTF-8 stdout en Windows (cp1252 explota con ═/─/▶)
 try:
@@ -45,6 +52,7 @@ except AttributeError:
 
 from datetime import datetime
 
+import requests
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
@@ -52,6 +60,147 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 import paths
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONEXIÓN A LA NUBE (SharePoint vía Microsoft Graph API)
+# ─────────────────────────────────────────────────────────────────────────────
+# Los 3 insumos (Rutero, Listas, Consolidado_Ventas) y el Excel de salida
+# (impacto_segmentos.xlsx) ya no viven en disco local — se leen/escriben
+# directamente en SharePoint, mismo patrón que el resto del pipeline.
+_DRIVE_ID_CACHE: dict = {}
+
+
+def _obtener_default_drive_id(token: str) -> str:
+    if "drive_id" in _DRIVE_ID_CACHE:
+        return _DRIVE_ID_CACHE["drive_id"]
+    headers = {"Authorization": f"Bearer {token}"}
+    nombre_sitio = getattr(paths, "SHAREPOINT_SITE_NAME", "eficacia")
+    res_site = requests.get(
+        f"https://graph.microsoft.com/v1.0/sites?search={urllib.parse.quote(nombre_sitio)}",
+        headers=headers,
+    )
+    if res_site.status_code == 200:
+        sites = res_site.json().get("value", [])
+        if sites:
+            site = next(
+                (s for s in sites
+                 if nombre_sitio.lower() in (s.get("name", "").lower(), s.get("displayName", "").lower())),
+                sites[0],
+            )
+            res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site.get('id')}/drive", headers=headers)
+            if res_drive.status_code == 200:
+                _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+                return _DRIVE_ID_CACHE["drive_id"]
+    res_root = requests.get("https://graph.microsoft.com/v1.0/sites/root", headers=headers)
+    if res_root.status_code == 200:
+        site_id = res_root.json().get("id")
+        res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+        if res_drive.status_code == 200:
+            _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+            return _DRIVE_ID_CACHE["drive_id"]
+    raise Exception(f"No se pudo obtener el Drive ID del sitio SharePoint '{nombre_sitio}': {res_site.text}")
+
+
+def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
+    ruta_sharepoint = ruta_sharepoint.replace("\\", "/")
+    for prefijo in ["Documentos compartidos/", "Shared Documents/"]:
+        if ruta_sharepoint.startswith(prefijo):
+            ruta_sharepoint = ruta_sharepoint.replace(prefijo, "", 1)
+    return ruta_sharepoint.lstrip("/")
+
+
+def _listar_hijos_cloud(ruta_carpeta: str) -> list:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_codificada = urllib.parse.quote(_limpiar_ruta_graph(ruta_carpeta))
+    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta_codificada}:/children"
+    items = []
+    while url:
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise Exception(f"Error al listar carpeta '{ruta_carpeta}': {response.status_code} - {response.text}")
+        data = response.json()
+        items.extend(data.get("value", []))
+        url = data.get("@odata.nextLink")
+    return items
+
+
+def _descargar_bytes_cloud(ruta_sharepoint: str, descripcion: str) -> bytes:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    response = None
+    for r in (ruta_limpia, f"Documentos compartidos/{ruta_limpia}"):
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(r)}:/content"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return response.content
+    status = response.status_code if response is not None else "N/A"
+    text = response.text if response is not None else "Sin respuesta"
+    raise FileNotFoundError(f"No se pudo descargar {descripcion} desde SharePoint ({ruta_sharepoint}): {status} - {text}")
+
+
+def _subir_bytes_cloud(contenido: bytes, ruta_sharepoint: str, content_type: str) -> None:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": content_type}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(ruta_limpia)}:/content"
+    response = requests.put(url, headers=headers, data=contenido)
+    if response.status_code not in (200, 201):
+        raise Exception(f"Error al subir '{ruta_sharepoint}' a SharePoint: {response.status_code} - {response.text}")
+
+
+def _descargar_rutero_cloud() -> bytes:
+    """Toma el RUTERO*.xlsx / Rutero*.xlsx más reciente en
+    {RUTA_CARPETA_BASES_DYP}/Rutero (mismo criterio que paths._resolver_rutero_dyp:
+    el de fecha de modificación más reciente)."""
+    carpeta = f"{paths.RUTA_CARPETA_BASES_DYP}/Rutero"
+    hijos = _listar_hijos_cloud(carpeta)
+    candidatos = [
+        h for h in hijos
+        if h.get("file") and re.match(r"^(RUTERO|Rutero).*\.xlsx$", h.get("name", ""))
+        and not h["name"].startswith("~$")
+    ]
+    if not candidatos:
+        raise FileNotFoundError(f"No se encontró ningún RUTERO*.xlsx en SharePoint ({carpeta})")
+    candidatos.sort(key=lambda h: h.get("lastModifiedDateTime", ""), reverse=True)
+    nombre = candidatos[0]["name"]
+    return _descargar_bytes_cloud(f"{carpeta}/{nombre}", f"Rutero ({nombre})")
+
+
+def _descargar_listas_cloud() -> bytes:
+    ruta = f"{paths.RUTA_CARPETA_BASES_DYP}/Listas/MSL & Listas Target Catman.xlsx"
+    return _descargar_bytes_cloud(ruta, "Listas D&P (MSL/Prod Nuevos)")
+
+
+def _descargar_ventas_historico_cloud() -> list[bytes]:
+    """
+    Lista TODOS los `Consolidado_Ventas_<MES>_<AÑO>.csv` en SALIDAS/DYP y
+    descarga cada uno. etl_ventas.py sube un archivo POR PERIODO (no un
+    único CSV acumulado), así que para reconstruir el histórico completo
+    (necesario para la tendencia mensual del dashboard) hay que juntarlos
+    todos aquí.
+    """
+    carpeta = paths.RUTA_CARPETA_SALIDAS_DYP
+    hijos = _listar_hijos_cloud(carpeta)
+    candidatos = [
+        h for h in hijos
+        if h.get("file") and re.match(r"^Consolidado_Ventas_.*\.csv$", h.get("name", ""))
+    ]
+    if not candidatos:
+        raise FileNotFoundError(
+            f"No se encontró ningún Consolidado_Ventas_<MES>_<AÑO>.csv en SharePoint ({carpeta}). "
+            "Ejecuta primero etl_ventas.py."
+        )
+    bloques = []
+    for h in candidatos:
+        print(f"      Leyendo consolidado: {carpeta}/{h['name']}")
+        bloques.append(_descargar_bytes_cloud(f"{carpeta}/{h['name']}", f"Consolidado de ventas ({h['name']})"))
+    return bloques
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -103,15 +252,31 @@ CUSTOM_TAB_NAMES = {
 # 1. CARGA DE FUENTES
 # ─────────────────────────────────────────────────────────────────────────────
 
-def cargar_rutero(path: os.PathLike) -> pd.DataFrame:
+def cargar_rutero(path) -> pd.DataFrame:
     """Carga el rutero. Auto-detecta la fila del header buscando "ID ECOM"
     en las primeras 20 filas (algunos exports vienen con 13 filas de
     basura arriba, otros con el header en la fila 1). Devuelve sólo las
-    columnas listadas en RUTERO_COLS_SALIDA (con ID ECOM como string)."""
+    columnas listadas en RUTERO_COLS_SALIDA (con ID ECOM como string).
+
+    Acepta una ruta de archivo local O un BytesIO/bytes (descargado de
+    SharePoint). Si es BytesIO/bytes, se normaliza a bytes crudos una sola
+    vez y se abre un BytesIO NUEVO en cada llamada a pd.read_excel — un
+    mismo objeto BytesIO se agota (EOF) después de la primera lectura.
+    """
+    if isinstance(path, io.BytesIO):
+        contenido = path.getvalue()
+    elif isinstance(path, bytes):
+        contenido = path
+    else:
+        contenido = None  # es una ruta de archivo local; se usa tal cual
+
+    def _fuente():
+        return io.BytesIO(contenido) if contenido is not None else path
+
     skip_detectado = None
     for skip in range(0, 20):
         try:
-            preview = pd.read_excel(path, sheet_name="PLAN DE TRABAJO",
+            preview = pd.read_excel(_fuente(), sheet_name="PLAN DE TRABAJO",
                                      skiprows=skip, nrows=0)
             cols_upper = {str(c).upper() for c in preview.columns}
             if "ID ECOM" in cols_upper:
@@ -124,7 +289,7 @@ def cargar_rutero(path: os.PathLike) -> pd.DataFrame:
             "No se encontró la columna 'ID ECOM' en el rutero "
             f"(busqué en skiprows 0..19). Archivo: {path}"
         )
-    df = pd.read_excel(path, sheet_name="PLAN DE TRABAJO",
+    df = pd.read_excel(_fuente(), sheet_name="PLAN DE TRABAJO",
                         skiprows=skip_detectado,
                         dtype={"ID ECOM": str})
     # Asegurar que todas las columnas sean strings (algunas vienen como datetime)
@@ -146,18 +311,31 @@ def cargar_rutero(path: os.PathLike) -> pd.DataFrame:
     return df[cols].drop_duplicates(subset=["ID ECOM"]).reset_index(drop=True)
 
 
-def cargar_listas(path: os.PathLike) -> dict:
+def cargar_listas(path) -> dict:
     """Carga MSL + los 4 segmentos V2 desde `MSL & Listas Target Catman.xlsx`.
 
     Devuelve:
       { nombre_segmento: {"eans": set(str), "pdvs": set(str) | None} }
       • MSL → pdvs=None (todo el rutero)
       • Otros → pdvs=set de targets
+
+    Acepta ruta local o BytesIO/bytes (ver nota en `cargar_rutero`: se
+    normaliza a bytes una vez y se abre un BytesIO nuevo por cada hoja).
     """
+    if isinstance(path, io.BytesIO):
+        contenido = path.getvalue()
+    elif isinstance(path, bytes):
+        contenido = path
+    else:
+        contenido = None
+
+    def _fuente():
+        return io.BytesIO(contenido) if contenido is not None else path
+
     listas: dict[str, dict] = {}
 
     # MSL — solo EANs, sin target de PDVs
-    df_msl = pd.read_excel(path, sheet_name="MSL", dtype=str)
+    df_msl = pd.read_excel(_fuente(), sheet_name="MSL", dtype=str)
     listas["MustStock"] = {
         "eans": set(df_msl["EAN"].dropna().str.strip()),
         "pdvs": None,
@@ -165,7 +343,7 @@ def cargar_listas(path: os.PathLike) -> dict:
 
     # 4 segmentos de productos nuevos
     for nombre_segmento in SEGMENTOS_PRODNUEVOS:
-        df = pd.read_excel(path, sheet_name=nombre_segmento, dtype=str)
+        df = pd.read_excel(_fuente(), sheet_name=nombre_segmento, dtype=str)
         eans: set[str] = set()
         for v in df["EAN PRODUCTO"].dropna():
             try:
@@ -180,15 +358,15 @@ def cargar_listas(path: os.PathLike) -> dict:
     return listas
 
 
-def cargar_ventas_desde_csv(csv_path: os.PathLike) -> tuple[pd.DataFrame, dict]:
-    """Lee el Consolidado_Ventas.csv. Devuelve (ventas_df, desc_map)."""
-    if not os.path.isfile(csv_path):
-        raise FileNotFoundError(
-            f"No existe el consolidado de ventas: {csv_path}\n"
-            f"Ejecuta primero `etl_ventas` (run_all.py --solo ventas)."
-        )
-
-    print(f"      Leyendo consolidado: {csv_path}")
+def cargar_ventas_desde_csv(csv_source) -> tuple[pd.DataFrame, dict]:
+    """
+    Lee el/los consolidado(s) de ventas. Acepta:
+      - una ruta de archivo local (compatibilidad hacia atrás)
+      - un único `bytes` (un CSV ya descargado de la nube)
+      - una lista de `bytes` (varios CSV, uno por periodo — se concatenan;
+        así se reconstruye el histórico completo para la tendencia mensual)
+    Devuelve (ventas_df, desc_map).
+    """
     cols_necesarias = [
         "Cod. Cliente", "Cod. EAN Producto",
         "Cantidades Totales", "Ventas Totales",
@@ -196,12 +374,30 @@ def cargar_ventas_desde_csv(csv_path: os.PathLike) -> tuple[pd.DataFrame, dict]:
     ]
     cols_opt = [COL_DESC_PRODUCTO]
 
-    df = pd.read_csv(
-        csv_path, sep="|", decimal=",", encoding="utf-8",
-        dtype={"Cod. Cliente": str, "Cod. EAN Producto": str,
-               "MES": str, "AÑO": str, COL_DESC_PRODUCTO: str},
-        low_memory=False,
-    )
+    def _leer_uno(fuente) -> pd.DataFrame:
+        return pd.read_csv(
+            fuente, sep="|", decimal=",", encoding="utf-8",
+            dtype={"Cod. Cliente": str, "Cod. EAN Producto": str,
+                   "MES": str, "AÑO": str, COL_DESC_PRODUCTO: str},
+            low_memory=False,
+        )
+
+    if isinstance(csv_source, (list, tuple)):
+        if not csv_source:
+            raise FileNotFoundError("No se encontraron consolidados de ventas en la nube.")
+        partes = [_leer_uno(io.BytesIO(b) if isinstance(b, bytes) else b) for b in csv_source]
+        df = pd.concat(partes, ignore_index=True)
+    elif isinstance(csv_source, bytes):
+        df = _leer_uno(io.BytesIO(csv_source))
+    elif isinstance(csv_source, (str, os.PathLike)) and os.path.isfile(csv_source):
+        print(f"      Leyendo consolidado: {csv_source}")
+        df = _leer_uno(csv_source)
+    else:
+        raise FileNotFoundError(
+            f"No existe el consolidado de ventas: {csv_source}\n"
+            f"Ejecuta primero `etl_ventas.py`."
+        )
+
     # Usar solo las cols que existen
     cols_usar = cols_necesarias + [c for c in cols_opt if c in df.columns]
     df = df[cols_usar].copy()
@@ -711,25 +907,38 @@ def escribir_excel(
     bds: dict,
     bds_detalle: dict,
     bds_sku_splits: dict,
-    salida: os.PathLike,
+    salida: str,
     mes_actual: str,
 ) -> None:
-    salida = str(salida)
-    os.makedirs(os.path.dirname(salida) or ".", exist_ok=True)
+    """
+    Construye el Excel en memoria (BytesIO) y lo sube a SharePoint en
+    `salida` (ruta SharePoint tipo 'Equipo Información/.../impacto_segmentos.xlsx').
+    Ya no escribe a disco local.
+    """
+    buffer = io.BytesIO()
 
     # 1) Escribir hojas de detalle
-    with pd.ExcelWriter(salida, engine="openpyxl") as writer:
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         for nombre, df in bds_detalle.items():
             df.to_excel(writer, sheet_name=nombre, index=False)
+    buffer.seek(0)
 
-    # 2) Formato + dashboard
-    wb = load_workbook(salida)
+    # 2) Formato + dashboard (openpyxl puede recargar desde el mismo buffer)
+    wb = load_workbook(buffer)
     for nombre, df in bds_detalle.items():
         aplicar_formato(wb[nombre], df)
     escribir_dashboard(wb, bds, bds_sku_splits, mes_actual)
-    wb.save(salida)
 
-    print(f"\n✅ Archivo generado: {salida}")
+    buffer_final = io.BytesIO()
+    wb.save(buffer_final)
+    contenido = buffer_final.getvalue()
+
+    _subir_bytes_cloud(
+        contenido, salida,
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+    print(f"\n✅ Archivo generado y subido a SharePoint: {salida}")
     print(f"\n   Resumen por pestaña (período {mes_actual}):")
     print(f"   {'Segmento':<32} {'PDVs':>8} {'Con impacto':>13} {'Sin impacto':>13}")
     print(f"   {'-' * 70}")
@@ -746,36 +955,28 @@ def escribir_excel(
 
 def run() -> None:
     print("=" * 55)
-    print("  ETL — Impacto por Segmento (V2)")
+    print("  ETL — Impacto por Segmento (V2, Cloud)")
     print("=" * 55)
 
-    if not paths.DYP_OUT_VENTAS.is_file():
-        print(
-            f"❌ Falta el consolidado de ventas: {paths.DYP_OUT_VENTAS}\n"
-            f"   Ejecuta primero: python run_all.py --solo ventas"
-        )
-        return
+    ruta_salida_cloud = f"{paths.RUTA_CARPETA_SALIDAS_DYP}/impacto_segmentos.xlsx"
 
-    if not paths.DYP_LISTAS_FILE.is_file():
-        print(
-            f"❌ Falta el archivo de listas: {paths.DYP_LISTAS_FILE}\n"
-            f"   Hojas requeridas: MSL + {', '.join(SEGMENTOS_PRODNUEVOS)}"
-        )
+    print("\n[1/5] Descargando rutero desde SharePoint...")
+    try:
+        rutero_bytes = _descargar_rutero_cloud()
+    except Exception as e:
+        print(f"❌ {e}")
         return
-
-    if not paths.DYP_RUTERO_FILE.is_file():
-        print(
-            f"❌ Falta el rutero: {paths.DYP_RUTERO_FILE}\n"
-            f"   Hoja requerida: PLAN DE TRABAJO (skiprows=13)"
-        )
-        return
-
-    print("\n[1/5] Cargando rutero...")
-    rutero = cargar_rutero(paths.DYP_RUTERO_FILE)
+    rutero = cargar_rutero(io.BytesIO(rutero_bytes))
     print(f"      {len(rutero):,} PDVs en el rutero")
 
-    print("\n[2/5] Cargando listas de referencia...")
-    listas = cargar_listas(paths.DYP_LISTAS_FILE)
+    print("\n[2/5] Descargando listas de referencia desde SharePoint...")
+    try:
+        listas_bytes = _descargar_listas_cloud()
+    except Exception as e:
+        print(f"❌ Falta el archivo de listas en SharePoint: {e}\n"
+              f"   Hojas requeridas: MSL + {', '.join(SEGMENTOS_PRODNUEVOS)}")
+        return
+    listas = cargar_listas(io.BytesIO(listas_bytes))
     for nombre, datos in listas.items():
         pdv_info = (
             f"{len(datos['pdvs']):,} PDVs target"
@@ -783,8 +984,13 @@ def run() -> None:
         )
         print(f"      {nombre:<20}: {len(datos['eans']):>3} EANs | {pdv_info}")
 
-    print("\n[3/5] Cargando ventas desde el consolidado...")
-    ventas, desc_map = cargar_ventas_desde_csv(paths.DYP_OUT_VENTAS)
+    print("\n[3/5] Descargando ventas consolidadas desde SharePoint...")
+    try:
+        ventas_bytes_list = _descargar_ventas_historico_cloud()
+    except Exception as e:
+        print(f"❌ {e}")
+        return
+    ventas, desc_map = cargar_ventas_desde_csv(ventas_bytes_list)
     print(f"      {len(ventas):,} registros (PDV × EAN × periodo)")
     print(f"      {len(desc_map):,} descripciones de producto capturadas")
 
@@ -836,8 +1042,8 @@ def run() -> None:
         else:
             bds_detalle[nombre] = df_seg
 
-    print("\n[5/5] Escribiendo Excel + dashboard...")
-    escribir_excel(bds, bds_detalle, bds_sku_splits, paths.DYP_OUT_SEGMENTOS, mes_actual)
+    print("\n[5/5] Escribiendo Excel + dashboard en SharePoint...")
+    escribir_excel(bds, bds_detalle, bds_sku_splits, ruta_salida_cloud, mes_actual)
 
 
 if __name__ == "__main__":

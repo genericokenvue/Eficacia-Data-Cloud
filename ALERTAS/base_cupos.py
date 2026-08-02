@@ -33,7 +33,11 @@ import pandas as pd
 import requests
 
 # Asegurar SCRIPTS/ en sys.path (paths.py vive ahí)
-_SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "SCRIPTS"
+# ALERTAS/ vive DENTRO de SCRIPTS/ (SCRIPTS/ALERTAS/base_cupos.py), no es su
+# hermana. `Path(__file__).resolve().parent.parent` YA apunta a SCRIPTS/ —
+# no hay que agregarle "/SCRIPTS" de nuevo (eso generaba .../SCRIPTS/SCRIPTS,
+# que no existe en ningún entorno).
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 

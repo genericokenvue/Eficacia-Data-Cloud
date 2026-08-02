@@ -64,8 +64,11 @@ Modo de ejecución
     )
 """
 
+import io
 import os
+import re
 import time
+import urllib.parse
 import requests
 import pandas as pd
 from pathlib import Path
@@ -86,7 +89,114 @@ _log = get_logger("alertas_telegram")
 import paths
 BASE         = paths.BASE
 DIR_ALERTAS  = paths.ALERTAS_DIR
-RUTA_MAESTRA = paths.ALERTAS_MAESTRO
+RUTA_MAESTRA_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/maestro_supervisores.xlsx"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONEXIÓN A LA NUBE (SharePoint vía Microsoft Graph API)
+# ─────────────────────────────────────────────────────────────────────────────
+_DRIVE_ID_CACHE: dict = {}
+
+
+def _obtener_default_drive_id(token: str) -> str:
+    if "drive_id" in _DRIVE_ID_CACHE:
+        return _DRIVE_ID_CACHE["drive_id"]
+    headers = {"Authorization": f"Bearer {token}"}
+    nombre_sitio = getattr(paths, "SHAREPOINT_SITE_NAME", "eficacia")
+    res_site = requests.get(
+        f"https://graph.microsoft.com/v1.0/sites?search={urllib.parse.quote(nombre_sitio)}",
+        headers=headers,
+    )
+    if res_site.status_code == 200:
+        sites = res_site.json().get("value", [])
+        if sites:
+            site = next(
+                (s for s in sites
+                 if nombre_sitio.lower() in (s.get("name", "").lower(), s.get("displayName", "").lower())),
+                sites[0],
+            )
+            res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site.get('id')}/drive", headers=headers)
+            if res_drive.status_code == 200:
+                _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+                return _DRIVE_ID_CACHE["drive_id"]
+    res_root = requests.get("https://graph.microsoft.com/v1.0/sites/root", headers=headers)
+    if res_root.status_code == 200:
+        site_id = res_root.json().get("id")
+        res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+        if res_drive.status_code == 200:
+            _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+            return _DRIVE_ID_CACHE["drive_id"]
+    raise Exception(f"No se pudo obtener el Drive ID del sitio SharePoint '{nombre_sitio}': {res_site.text}")
+
+
+def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
+    ruta_sharepoint = ruta_sharepoint.replace("\\", "/")
+    for prefijo in ["Documentos compartidos/", "Shared Documents/"]:
+        if ruta_sharepoint.startswith(prefijo):
+            ruta_sharepoint = ruta_sharepoint.replace(prefijo, "", 1)
+    return ruta_sharepoint.lstrip("/")
+
+
+def _listar_hijos_cloud(ruta_carpeta: str) -> list:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_codificada = urllib.parse.quote(_limpiar_ruta_graph(ruta_carpeta))
+    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta_codificada}:/children"
+    items = []
+    while url:
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise Exception(f"Error al listar carpeta '{ruta_carpeta}': {response.status_code} - {response.text}")
+        data = response.json()
+        items.extend(data.get("value", []))
+        url = data.get("@odata.nextLink")
+    return items
+
+
+def _leer_excel_cloud(ruta_sharepoint: str, descripcion: str, **kwargs) -> pd.DataFrame:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    for r in (ruta_limpia, f"Documentos compartidos/{ruta_limpia}"):
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(r)}:/content"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return pd.read_excel(io.BytesIO(response.content), **kwargs)
+    raise FileNotFoundError(f"No se pudo leer {descripcion} desde SharePoint ({ruta_sharepoint}).")
+
+
+def _ultimo_archivo_cloud(ruta_carpeta: str, patron_regex: str) -> str | None:
+    """Devuelve la ruta SharePoint del último archivo (orden alfabético/nombre,
+    igual que sorted(...)[-1] con glob local) que matchee patron_regex, o None."""
+    try:
+        hijos = _listar_hijos_cloud(ruta_carpeta)
+    except Exception as e:
+        _log.warning(f"No se pudo listar '{ruta_carpeta}' en SharePoint: {e}")
+        return None
+    nombres = sorted(
+        h["name"] for h in hijos
+        if h.get("file") and re.match(patron_regex, h.get("name", "")) and not h["name"].startswith("~$")
+    )
+    if not nombres:
+        return None
+    return f"{ruta_carpeta}/{nombres[-1]}"
+
+
+def _resolver_exhib_data_dir_cloud() -> str:
+    """Equivalente en la nube de paths._resolver_exhib_data_dir(): toma la
+    subcarpeta más reciente tipo '01. ...' dentro de BASES/EXHIBICIONES."""
+    raiz = paths.RUTA_CARPETA_BASES_EXHIB
+    try:
+        hijos = _listar_hijos_cloud(raiz)
+    except Exception:
+        return raiz
+    candidatos = [h for h in hijos if h.get("folder") and re.match(r"^\d{2}\.\s", h.get("name", ""))]
+    if not candidatos:
+        return raiz
+    candidatos.sort(key=lambda h: h.get("lastModifiedDateTime", ""), reverse=True)
+    return f"{raiz}/{candidatos[0]['name']}"
 
 
 def _cargar_token() -> str:
@@ -167,23 +277,19 @@ def _cargar_perfiles_pdv() -> dict[str, str]:
 
     Si el archivo no existe, devuelve dict vacío y avisa por log.
     """
-    ruta = paths.CIF_BASE_VENTAS
-    if not ruta.exists():
-        _log.warning(
-            f"BASE PUNTOS DE VENTA no encontrada en {ruta} — "
-            "el desglose por perfil no se podrá hacer."
-        )
-        return {}
-
+    ruta_cloud = f"{paths.RUTA_CARPETA_BASES_CIF}/Base_Ventas.xlsx"
     try:
-        df = pd.read_excel(
-            ruta,
+        df = _leer_excel_cloud(
+            ruta_cloud, "Base_Ventas",
             sheet_name="Informe_Punto_de_Venda",
             usecols=["ID", "Perfil del PDV"],
             dtype={"ID": str},
         )
     except Exception as e:
-        _log.error(f"Error leyendo BASE PUNTOS DE VENTA: {e}")
+        _log.warning(
+            f"Base_Ventas no se pudo leer desde SharePoint ({ruta_cloud}): {e} — "
+            "el desglose por perfil no se podrá hacer."
+        )
         return {}
 
     df["ID"] = df["ID"].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
@@ -332,12 +438,12 @@ def _cargar_exhibiciones_pagadas() -> pd.DataFrame:
     if _EXH_PAG_CACHE is not None:
         return _EXH_PAG_CACHE
 
-    candidatos = sorted(paths.EXHIB_SALIDA.glob("Resultado_exhibiciones_pagadas*.xlsx"))
+    candidatos = _ultimo_archivo_cloud(paths.RUTA_CARPETA_SALIDAS_EXHIB, r"^Resultado_exhibiciones_pagadas.*\.xlsx$")
     if not candidatos:
         _EXH_PAG_CACHE = pd.DataFrame()
         return _EXH_PAG_CACHE
 
-    df = pd.read_excel(candidatos[-1], engine="openpyxl")
+    df = _leer_excel_cloud(candidatos, "Resultado exhibiciones pagadas")
     df["ID_PDV_INVOLVES"] = (
         df.get("ID_PDV_INVOLVES", "").astype(str).str.strip()
           .str.replace(r"\.0$", "", regex=True)
@@ -356,12 +462,13 @@ def _cargar_exhibiciones_gratis() -> pd.DataFrame:
     if _EXH_GRA_CACHE is not None:
         return _EXH_GRA_CACHE
 
-    ruta = paths.EXHIB_SALIDA / "Resultado exhibiciones gratis.xlsx"
-    if not ruta.exists():
+    ruta_cloud = f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/Resultado exhibiciones gratis.xlsx"
+    try:
+        df = _leer_excel_cloud(ruta_cloud, "Resultado exhibiciones gratis")
+    except Exception:
         _EXH_GRA_CACHE = pd.DataFrame()
         return _EXH_GRA_CACHE
 
-    df = pd.read_excel(ruta, engine="openpyxl")
     df.columns = [str(c).strip() for c in df.columns]
     df["ID PDV"]  = df.get("ID PDV", "").astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
     df["Empleado_N"] = df.get("Empleado", "").astype(str).str.strip().str.upper()
@@ -434,11 +541,12 @@ def _cargar_planning_master() -> pd.DataFrame:
     global _EXH_PLANNING_CACHE
     if _EXH_PLANNING_CACHE is not None:
         return _EXH_PLANNING_CACHE
-    candidatos = sorted(paths.EXHIB_DATA_DIR.glob("PLANNING DE *.xlsx"))
-    if not candidatos:
+    carpeta = _resolver_exhib_data_dir_cloud()
+    ruta_cloud = _ultimo_archivo_cloud(carpeta, r"^PLANNING DE .*\.xlsx$")
+    if not ruta_cloud:
         _EXH_PLANNING_CACHE = pd.DataFrame()
         return _EXH_PLANNING_CACHE
-    df = pd.read_excel(candidatos[-1], engine="openpyxl")
+    df = _leer_excel_cloud(ruta_cloud, "Planning Maestro")
     col_pdv = next((c for c in df.columns if "punto de venta" in str(c).lower()), None)
     col_emp = next((c for c in df.columns if "empleado" in str(c).lower()), None)
     if not (col_pdv and col_emp):
@@ -457,11 +565,12 @@ def _cargar_encuestas_planning() -> set[str]:
     global _EXH_ENCUESTAS_CACHE
     if _EXH_ENCUESTAS_CACHE is not None:
         return set(_EXH_ENCUESTAS_CACHE["PDV_N"].unique())
-    candidatos = sorted(paths.EXHIB_DATA_DIR.glob("Base Exhibiciones Planning *.xlsx"))
-    if not candidatos:
+    carpeta = _resolver_exhib_data_dir_cloud()
+    ruta_cloud = _ultimo_archivo_cloud(carpeta, r"^Base Exhibiciones Planning .*\.xlsx$")
+    if not ruta_cloud:
         _EXH_ENCUESTAS_CACHE = pd.DataFrame(columns=["PDV_N"])
         return set()
-    df = pd.read_excel(candidatos[-1], engine="openpyxl")
+    df = _leer_excel_cloud(ruta_cloud, "Base Exhibiciones Planning")
     col_pdv = "PDV" if "PDV" in df.columns else next(
         (c for c in df.columns if str(c).strip().upper() == "PDV"), None)
     if not col_pdv:
@@ -1264,9 +1373,13 @@ if __name__ == "__main__":
     df_sos        = out.get("df_sos")
     rango_periodo = out.get("rango_periodo")
 
-    df_maestro = pd.read_excel(RUTA_MAESTRA) if RUTA_MAESTRA.exists() else pd.DataFrame()
+    try:
+        df_maestro = _leer_excel_cloud(RUTA_MAESTRA_CLOUD, "Maestra de supervisores")
+    except Exception as e:
+        print(f"❌ MAESTRO_SUPERVISORES.xlsx no encontrado en SharePoint: {e}")
+        exit(1)
     if df_maestro.empty:
-        print("❌ MAESTRO_SUPERVISORES.xlsx no encontrado o vacío.")
+        print("❌ MAESTRO_SUPERVISORES.xlsx vacío.")
         exit(1)
 
     enviar_resumen_telegram(

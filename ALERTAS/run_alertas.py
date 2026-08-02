@@ -26,19 +26,97 @@ Uso
     python run_alertas.py --solo email
 """
 
+import io
 import sys
 import time
 import argparse
+import urllib.parse
 import pandas as pd
+import requests
 from pathlib import Path
 from datetime import datetime
 
 from alertas_logger import inicializar_logging, get_logger, ruta_log_actual
 import paths   # alertas_logger ya añadió SCRIPTS/ a sys.path
 
-BASE         = paths.BASE
-DIR_ALERTAS  = paths.ALERTAS_DIR
-RUTA_MAESTRA = paths.ALERTAS_MAESTRO
+BASE = paths.BASE
+
+# La maestra de supervisores y los archivos de Detalle/Resumen ya no viven
+# en disco local (paths.ALERTAS_DIR) — calcular_cumplimientos.py los guarda
+# en SharePoint. Se leen aquí con los mismos helpers Graph API que usa el
+# resto del pipeline.
+RUTA_MAESTRA_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/maestro_supervisores.xlsx"
+
+_DRIVE_ID_CACHE: dict = {}
+
+
+def _obtener_default_drive_id(token: str) -> str:
+    if "drive_id" in _DRIVE_ID_CACHE:
+        return _DRIVE_ID_CACHE["drive_id"]
+    headers = {"Authorization": f"Bearer {token}"}
+    nombre_sitio = getattr(paths, "SHAREPOINT_SITE_NAME", "eficacia")
+    res_site = requests.get(
+        f"https://graph.microsoft.com/v1.0/sites?search={urllib.parse.quote(nombre_sitio)}",
+        headers=headers,
+    )
+    if res_site.status_code == 200:
+        sites = res_site.json().get("value", [])
+        if sites:
+            site = next(
+                (s for s in sites
+                 if nombre_sitio.lower() in (s.get("name", "").lower(), s.get("displayName", "").lower())),
+                sites[0],
+            )
+            res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site.get('id')}/drive", headers=headers)
+            if res_drive.status_code == 200:
+                _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+                return _DRIVE_ID_CACHE["drive_id"]
+    res_root = requests.get("https://graph.microsoft.com/v1.0/sites/root", headers=headers)
+    if res_root.status_code == 200:
+        site_id = res_root.json().get("id")
+        res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+        if res_drive.status_code == 200:
+            _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+            return _DRIVE_ID_CACHE["drive_id"]
+    raise Exception(f"No se pudo obtener el Drive ID del sitio SharePoint '{nombre_sitio}': {res_site.text}")
+
+
+def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
+    ruta_sharepoint = ruta_sharepoint.replace("\\", "/")
+    for prefijo in ["Documentos compartidos/", "Shared Documents/"]:
+        if ruta_sharepoint.startswith(prefijo):
+            ruta_sharepoint = ruta_sharepoint.replace(prefijo, "", 1)
+    return ruta_sharepoint.lstrip("/")
+
+
+def _listar_hijos_cloud(ruta_carpeta: str) -> list:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_codificada = urllib.parse.quote(_limpiar_ruta_graph(ruta_carpeta))
+    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta_codificada}:/children"
+    items = []
+    while url:
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise Exception(f"Error al listar carpeta '{ruta_carpeta}': {response.status_code} - {response.text}")
+        data = response.json()
+        items.extend(data.get("value", []))
+        url = data.get("@odata.nextLink")
+    return items
+
+
+def _leer_excel_cloud(ruta_sharepoint: str, descripcion: str) -> pd.DataFrame:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    for r in (ruta_limpia, f"Documentos compartidos/{ruta_limpia}"):
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(r)}:/content"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return pd.read_excel(io.BytesIO(response.content))
+    raise FileNotFoundError(f"No se pudo leer {descripcion} desde SharePoint ({ruta_sharepoint}).")
 
 
 def main():
@@ -88,23 +166,37 @@ def main():
         from calcular_cumplimientos import main as calcular
         resultado_calculo = calcular()
     else:
-        # Re-leer desde disco si se saltan el cálculo
-        candidatos = sorted(DIR_ALERTAS.glob("DETALLE_CUMPLIMIENTO_*.xlsx"), reverse=True)
+        # Re-leer desde SharePoint si se saltan el cálculo (los archivos ya
+        # no viven en disco local — calcular_cumplimientos.py los guarda en
+        # Equipo Información/BI/INVOLVES/SALIDAS/).
+        try:
+            candidatos = sorted(
+                (h["name"] for h in _listar_hijos_cloud(paths._SALIDAS_ROOT)
+                 if h.get("file") and h["name"].startswith("Detalle_Cumplimientos_")),
+                reverse=True,
+            )
+        except Exception as e:
+            print(f"❌ No se pudo listar SALIDAS en SharePoint: {e}")
+            sys.exit(1)
+
         if candidatos:
-            ruta = candidatos[0]
-            partes = ruta.stem.split("_")
-            mes  = int(partes[-2]) if len(partes) >= 2 else datetime.now().month
-            anio = int(partes[-1]) if len(partes) >= 1 else datetime.now().year
-            df_det = pd.read_excel(ruta)
-            # Resumen también
-            ruta_res = DIR_ALERTAS / f"RESUMEN_CUMPLIMIENTO_{mes:02d}_{anio}.xlsx"
-            df_res = pd.read_excel(ruta_res) if ruta_res.exists() else pd.DataFrame()
-            # Adjuntos
-            rutas_adj = {
-                f.stem.replace(f"Detalle_", "").rsplit("_", 2)[0].replace("_", " ").upper(): str(f)
-                for f in (DIR_ALERTAS / "ADJUNTOS").glob("Detalle_*.xlsx")
-            }
-            # Sprint 13.1: detectar el rango del periodo aunque saltemos calcular
+            nombre = candidatos[0]  # p.ej. Detalle_Cumplimientos_2026_07.xlsx
+            partes = Path(nombre).stem.split("_")
+            anio = int(partes[-2]) if len(partes) >= 2 else datetime.now().year
+            mes  = int(partes[-1]) if len(partes) >= 1 else datetime.now().month
+            df_det = _leer_excel_cloud(f"{paths._SALIDAS_ROOT}/{nombre}", "Detalle Consolidado")
+
+            nombre_res = f"Resumen_Supervisores_{anio}_{mes:02d}.xlsx"
+            try:
+                df_res = _leer_excel_cloud(f"{paths._SALIDAS_ROOT}/{nombre_res}", "Resumen por Supervisor")
+            except Exception:
+                df_res = pd.DataFrame()
+
+            # Los adjuntos ya no se listan localmente: alertas_email.py los
+            # descarga de la nube automáticamente por supervisor si no
+            # encuentra copia local (esto pasa cuando se saltó 'calcular').
+            rutas_adj = {}
+
             try:
                 from calcular_cumplimientos import detectar_rango_periodo
                 rango_periodo = detectar_rango_periodo(mes, anio)
@@ -120,16 +212,17 @@ def main():
                 "rango_periodo" : rango_periodo,
             }
         else:
-            print("❌ No se encontraron archivos de cumplimiento calculados.")
+            print("❌ No se encontraron archivos de cumplimiento calculados en SharePoint.")
             print("   Ejecuta primero con: python run_alertas.py --solo calcular")
             sys.exit(1)
 
-    # Cargar maestra
-    if not RUTA_MAESTRA.exists():
-        print("❌ MAESTRO_SUPERVISORES.xlsx no encontrado.")
+    # Cargar maestra (SharePoint)
+    try:
+        df_maestro = _leer_excel_cloud(RUTA_MAESTRA_CLOUD, "Maestra de supervisores")
+    except Exception as e:
+        print(f"❌ MAESTRO_SUPERVISORES.xlsx no encontrado en SharePoint: {e}")
         print("   Ejecuta primero: python run_alertas.py --solo calcular")
         sys.exit(1)
-    df_maestro = pd.read_excel(RUTA_MAESTRA)
 
     # ── Fase B: Telegram ──────────────────────────────────────────────────
     if "telegram" in fases and resultado_calculo:

@@ -13,11 +13,13 @@ dejar accidentalmente al pegar tokens.
 import os
 from pathlib import Path
 
-# Preferimos el directorio donde vive este archivo (dev = sibling de SCRIPTS).
-# Si no existe (ej. ejecución desde otra ruta), caemos al directorio de PROD.
-_DEV_DIR  = Path(__file__).resolve().parent
-_PROD_DIR = Path(r"C:\1\OneDrive - Eficacia\Escritorio\ETLS\ALERTAS")
-DIR_ALERTAS = _DEV_DIR if _DEV_DIR.is_dir() else _PROD_DIR
+# La carpeta del propio archivo (ALERTAS/) SIEMPRE existe — es donde vive
+# config.env junto a los demás scripts de Fase 2. El fallback anterior a
+# una ruta fija de Windows era código muerto (nunca se alcanzaba) y además
+# no tenía sentido fuera de esa máquina (p. ej. GitHub Actions). Se deja
+# EFICACIA_BASE como override explícito por consistencia con paths.py.
+_OVERRIDE = os.environ.get("EFICACIA_BASE", "").strip()
+DIR_ALERTAS = (Path(_OVERRIDE) / "SCRIPTS" / "ALERTAS") if _OVERRIDE else Path(__file__).resolve().parent
 RUTA_ENV    = DIR_ALERTAS / "config.env"
 
 

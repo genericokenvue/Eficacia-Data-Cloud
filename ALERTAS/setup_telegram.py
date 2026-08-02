@@ -24,9 +24,12 @@ Salida:
     ALERTAS/telegram_chat_ids.csv
 """
 
+import io
 import os
 import csv
 import json
+import sys
+import urllib.parse
 import requests
 from pathlib import Path
 from datetime import datetime
@@ -34,11 +37,94 @@ from zoneinfo import ZoneInfo
 
 from config_loader import cargar_config
 
+# ALERTAS/ vive DENTRO de SCRIPTS/ (SCRIPTS/ALERTAS/setup_telegram.py), no es
+# su hermana — mismo patrón de resolución que el resto del pipeline.
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import paths
 
-DIR_ALERTAS = Path(r"C:\1\OneDrive - Eficacia\Escritorio\ETLS\ALERTAS")
-CSV_SALIDA = DIR_ALERTAS / "telegram_chat_ids.csv"
+DIR_ALERTAS = paths.ALERTAS_DIR  # local: solo se usa para logs/temporales
+
+# El CSV histórico de chat_ids ya NO vive en disco local — antes se perdía
+# entre corridas de GitHub Actions (cada job arranca con disco vacío). Ahora
+# vive en SharePoint, junto a la maestra de supervisores.
+RUTA_CARPETA_ALERTAS_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS"
+CSV_SALIDA    = f"{RUTA_CARPETA_ALERTAS_CLOUD}/telegram_chat_ids.csv"      # ruta SharePoint
+RUTA_OFFSET_CLOUD = f"{RUTA_CARPETA_ALERTAS_CLOUD}/telegram_bot_offset.txt"
 
 ZONA_HORARIA = ZoneInfo("America/Bogota")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONEXIÓN A LA NUBE (SharePoint vía Microsoft Graph API)
+# ─────────────────────────────────────────────────────────────────────────────
+_DRIVE_ID_CACHE: dict = {}
+
+
+def _obtener_default_drive_id(token: str) -> str:
+    if "drive_id" in _DRIVE_ID_CACHE:
+        return _DRIVE_ID_CACHE["drive_id"]
+    headers = {"Authorization": f"Bearer {token}"}
+    nombre_sitio = getattr(paths, "SHAREPOINT_SITE_NAME", "eficacia")
+    res_site = requests.get(
+        f"https://graph.microsoft.com/v1.0/sites?search={urllib.parse.quote(nombre_sitio)}",
+        headers=headers,
+    )
+    if res_site.status_code == 200:
+        sites = res_site.json().get("value", [])
+        if sites:
+            site = next(
+                (s for s in sites
+                 if nombre_sitio.lower() in (s.get("name", "").lower(), s.get("displayName", "").lower())),
+                sites[0],
+            )
+            res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site.get('id')}/drive", headers=headers)
+            if res_drive.status_code == 200:
+                _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+                return _DRIVE_ID_CACHE["drive_id"]
+    res_root = requests.get("https://graph.microsoft.com/v1.0/sites/root", headers=headers)
+    if res_root.status_code == 200:
+        site_id = res_root.json().get("id")
+        res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+        if res_drive.status_code == 200:
+            _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+            return _DRIVE_ID_CACHE["drive_id"]
+    raise Exception(f"No se pudo obtener el Drive ID del sitio SharePoint '{nombre_sitio}': {res_site.text}")
+
+
+def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
+    ruta_sharepoint = ruta_sharepoint.replace("\\", "/")
+    for prefijo in ["Documentos compartidos/", "Shared Documents/"]:
+        if ruta_sharepoint.startswith(prefijo):
+            ruta_sharepoint = ruta_sharepoint.replace(prefijo, "", 1)
+    return ruta_sharepoint.lstrip("/")
+
+
+def _descargar_bytes_cloud(ruta_sharepoint: str, descripcion: str) -> bytes:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    response = None
+    for r in (ruta_limpia, f"Documentos compartidos/{ruta_limpia}"):
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(r)}:/content"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return response.content
+    status = response.status_code if response is not None else "N/A"
+    raise FileNotFoundError(f"No se pudo descargar {descripcion} desde SharePoint ({ruta_sharepoint}): {status}")
+
+
+def _subir_bytes_cloud(contenido: bytes, ruta_sharepoint: str, content_type: str) -> None:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": content_type}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(ruta_limpia)}:/content"
+    response = requests.put(url, headers=headers, data=contenido)
+    if response.status_code not in (200, 201):
+        raise Exception(f"Error al subir '{ruta_sharepoint}' a SharePoint: {response.status_code} - {response.text}")
 
 
 def _cargar_token() -> str:
@@ -58,33 +144,32 @@ def _ahora_colombia() -> str:
     return datetime.now(ZONA_HORARIA).strftime("%Y-%m-%d %H:%M:%S")
 
 
-def _leer_csv_existente(path_csv: Path) -> dict:
+def _leer_csv_existente(ruta_cloud: str) -> dict:
     """
-    Lee el CSV existente y devuelve un diccionario indexado por chat_id.
-    Esto permite mantener un histórico acumulado.
+    Lee el CSV histórico desde SharePoint (ruta_cloud) y devuelve un
+    diccionario indexado por chat_id. Antes leía de disco local; el CSV
+    ya no vive ahí (se perdía entre corridas de GitHub Actions).
     """
     registros = {}
+    try:
+        contenido = _descargar_bytes_cloud(ruta_cloud, "telegram_chat_ids.csv")
+    except Exception:
+        return registros  # no existe aún en SharePoint — primera corrida
 
-    if not path_csv.exists():
-        return registros
-
-    with path_csv.open("r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-
-        for row in reader:
-            chat_id = str(row.get("chat_id", "")).strip()
-            if chat_id:
-                registros[chat_id] = row
+    texto = contenido.decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(texto))
+    for row in reader:
+        chat_id = str(row.get("chat_id", "")).strip()
+        if chat_id:
+            registros[chat_id] = row
 
     return registros
 
 
-def _guardar_csv(path_csv: Path, registros: dict) -> None:
+def _guardar_csv(ruta_cloud: str, registros: dict) -> None:
     """
-    Guarda el histórico completo en CSV.
+    Guarda el histórico completo como CSV en SharePoint (ruta_cloud).
     """
-    path_csv.parent.mkdir(parents=True, exist_ok=True)
-
     campos = [
         "chat_id",
         "chat_type",
@@ -104,10 +189,13 @@ def _guardar_csv(path_csv: Path, registros: dict) -> None:
         key=lambda x: str(x.get("nombre_telegram", "")).lower()
     )
 
-    with path_csv.open("w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=campos)
-        writer.writeheader()
-        writer.writerows(registros_ordenados)
+    buffer = io.StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=campos)
+    writer.writeheader()
+    writer.writerows(registros_ordenados)
+    contenido = buffer.getvalue().encode("utf-8-sig")
+
+    _subir_bytes_cloud(contenido, ruta_cloud, "text/csv; charset=utf-8-sig")
 
 
 def _extraer_desde_message(update: dict, tipo_update: str) -> dict | None:

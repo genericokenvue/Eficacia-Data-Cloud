@@ -1,39 +1,70 @@
-name: Ejecutar Calcular Cumplimientos
+name: Ejecutar Sistema de Alertas
 
 on:
   workflow_dispatch:
     inputs:
-      argumentos:
-        description: 'Parámetros opcionales (Ej: --mes 7 --anio 2026)'
+      script:
+        description: 'Qué correr'
+        required: true
+        type: choice
+        default: 'run_alertas'
+        options:
+          - run_alertas            # Fases A+B+C (calcular + telegram + email)
+          - calcular_cumplimientos # Solo Fase A (calcula y guarda en SharePoint)
+          - alertas_telegram       # Solo Fase B (requiere haber corrido calcular antes)
+          - alertas_email          # Solo Fase C (requiere haber corrido calcular antes)
+      fases:
+        description: 'Solo para run_alertas: fases a correr, separadas por espacio (ej: "calcular telegram"). Vacío = todas.'
         required: false
         default: ''
+      modo_prueba:
+        description: 'Modo prueba (no envía Telegram/correos reales — solo aplica a run_alertas/alertas_telegram/alertas_email)'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Descargar todo el código del repositorio
-      uses: actions/checkout@v4
+      - name: Descargar todo el código del repositorio
+        uses: actions/checkout@v4
 
-    - name: Configurar entorno de Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        cache: 'pip'
+      - name: Configurar entorno de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
 
-    - name: Instalar dependencias del proyecto
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Instalar dependencias del proyecto
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Ejecutar Script de Cumplimientos
-      env:
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      run: |
-        echo "Ejecutando script de cumplimientos..."
-        python ALERTAS/calcular_cumplimientos.py ${{ github.event.inputs.argumentos }}
+      - name: Ejecutar
+        env:
+          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          SUPABASE_URL:        ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY:        ${{ secrets.SUPABASE_KEY }}
+          TELEGRAM_TOKEN:      ${{ secrets.TELEGRAM_TOKEN }}
+          CORREO_REMITENTE:    ${{ secrets.CORREO_REMITENTE }}
+          # Opcionales — si no se definen, el código usa sus valores por defecto:
+          # UMBRAL_OK, UMBRAL_WARNING, ANALISTA_NOMBRE, ANALISTA_EMAIL
+        run: |
+          SCRIPT="${{ inputs.script }}"
+          ARGS=""
+
+          # --prueba solo lo entienden run_alertas / alertas_telegram / alertas_email
+          # (calcular_cumplimientos.py no envía nada, así que no aplica ahí).
+          if [ "${{ inputs.modo_prueba }}" = "true" ] && [ "$SCRIPT" != "calcular_cumplimientos" ]; then
+            ARGS="$ARGS --prueba"
+          fi
+
+          if [ "$SCRIPT" = "run_alertas" ] && [ -n "${{ inputs.fases }}" ]; then
+            ARGS="$ARGS --solo ${{ inputs.fases }}"
+          fi
+
+          echo "Ejecutando ALERTAS/${SCRIPT}.py ${ARGS}"
+          python "ALERTAS/${SCRIPT}.py" $ARGS

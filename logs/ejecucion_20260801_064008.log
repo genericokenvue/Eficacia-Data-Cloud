@@ -1,0 +1,14 @@
+2026-08-01 06:40:08  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260801_064008.log
+2026-08-01 06:40:09  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos en la nube con paths.py
+2026-08-01 06:43:29  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado (Cloud vía paths) — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37
+2026-08-01 06:43:41  [etl.alertas_telegram]  ⚠ WARNING   BASE PUNTOS DE VENTA no se pudo leer desde SharePoint (Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/BASE PUNTOS DE VENTA.xlsx): No se pudo leer BASE PUNTOS DE VENTA desde SharePoint (Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/BASE PUNTOS DE VENTA.xlsx). — el desglose por perfil no se podrá hacer.
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=0 fallidos=9 sin_chat_id=28 prueba=False
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: ANGELA MARIA HERNANDEZ LONDOÑO → Bad Request: chat not found
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: DANIELA TAPASCO HIGUITA → Bad Request: chat not found
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: DOLY MILENA MORALES CARRILLO → Bad Request: chat not found
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: FREDDY ENRIQUE GUERRA SMITH → Bad Request: chat not found
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: INGRID MENDOZA TRUJILLO → Bad Request: chat not found
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: MARTHA DEL CARMEN PAREJA POLO → Bad Request: chat not found
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: ROSA ELENA PANTOJA → Bad Request: chat not found
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: STEVE OROZCO CARDONA → Bad Request: chat not found
+2026-08-01 06:43:56  [etl.alertas_telegram]  ✗ ERROR     Telegram fallo: YALEINY LAMOS FORERO → Bad Request: chat not found

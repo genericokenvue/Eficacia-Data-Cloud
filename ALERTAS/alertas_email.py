@@ -3,41 +3,47 @@ alertas_email.py
 ────────────────
 Fase C del sistema de alertas de Eficacia.
 
-Genera los adjuntos Excel por supervisor y dispara la macro VBA
-de EnviarCorreos.xlsm para que Outlook envíe los correos.
+Genera los adjuntos Excel por supervisor y envía los correos directamente
+vía Microsoft Graph API (sendMail), sin depender de Outlook Desktop, Excel
+COM ni macros VBA — así corre igual en Windows local que en un runner de
+GitHub Actions (Linux, sin GUI).
 
 Flujo de trabajo
 ────────────────
-1. Lee MAESTRO_SUPERVISORES.xlsx para obtener correos.
+1. Lee MAESTRO_SUPERVISORES.xlsx (SharePoint) para obtener correos.
 2. Lee los adjuntos ya generados por calcular_cumplimientos.py
-   (uno por supervisor en ALERTAS/ADJUNTOS/).
-3. Escribe la hoja "COLA" de EnviarCorreos.xlsm con:
-      CORREO | ASUNTO | CUERPO_HTML | RUTA_ADJUNTO | ENVIADO
-4. Abre EnviarCorreos.xlsm con win32com (Excel COM) y ejecuta
-   la macro Sub EnviarTodos().
-5. Excel+VBA itera la cola y envía cada correo via Outlook Desktop.
+   (locales si el mismo proceso los generó en esta corrida —vía
+   generar_adjuntos_por_supervisor—, o desde SharePoint como respaldo si
+   se reutilizan de una corrida anterior, p.ej. con --solo email).
+3. Por cada supervisor con correo configurado, arma el asunto + cuerpo
+   HTML + adjunto y llama a Microsoft Graph `/users/{remitente}/sendMail`.
 
-Por qué win32com → VBA en lugar de win32com → Outlook directo
-──────────────────────────────────────────────────────────────
-  • VBA maneja mejor los diálogos de seguridad de Outlook.
-  • La macro puede marcar cada fila como ENVIADO antes de avanzar,
-    dando trazabilidad sin escribir desde Python mientras COM está activo.
-  • Si un envío falla, la macro lo registra en la columna ESTADO
-    sin detener los demás.
+Antes esto lo hacía una macro VBA (EnviarCorreos.xlsm) disparada con
+win32com + Outlook Desktop — sólo podía correr en una máquina Windows con
+Outlook abierto y sesión activa. Ese mecanismo quedó reemplazado por
+completo; EnviarCorreos.xlsm / EnviarCorreos.bas ya no se usan.
 
 Prerequisitos
 ─────────────
-  · win32com instalado: pip install pywin32
-  · Outlook Desktop abierto y con sesión activa
-  · MAESTRO_SUPERVISORES.xlsx con CORREO completo
-  · EnviarCorreos.xlsm en la carpeta ALERTAS/
-  · Adjuntos generados por calcular_cumplimientos.py
+  · Variables de entorno (mismo App Registration que usa paths.py para
+    SharePoint): AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET.
+  · El App Registration debe tener el permiso de aplicación (no delegado)
+    "Mail.Send" en Microsoft Graph, con consentimiento de administrador.
+  · CORREO_REMITENTE: la casilla (UPN, ej. alertas@eficaciacomco.com) desde
+    la que se envían los correos. Con permisos de aplicación, Graph exige
+    /users/{remitente}/sendMail (no existe "/me" en client credentials).
+  · MAESTRO_SUPERVISORES.xlsx con CORREO completo (en SharePoint).
+  · Adjuntos generados por calcular_cumplimientos.py.
 """
 
 import os
 import sys
+import io
 import time
+import base64
+import urllib.parse
 import pandas as pd
+import requests
 from pathlib import Path
 from datetime import datetime
 
@@ -53,7 +59,6 @@ BASE         = paths.BASE
 DIR_ALERTAS  = paths.ALERTAS_DIR
 DIR_ADJUNTOS = paths.ALERTAS_ADJUNTOS
 RUTA_MAESTRA = paths.ALERTAS_MAESTRO
-RUTA_XLSM    = paths.ALERTAS_XLSM
 
 UMBRAL_OK      = float(os.environ.get("UMBRAL_OK",      "0.90"))
 
@@ -61,6 +66,14 @@ UMBRAL_OK      = float(os.environ.get("UMBRAL_OK",      "0.90"))
 ANALISTA_NOMBRE = os.environ.get("ANALISTA_NOMBRE", "Giovanny Restrepo")
 ANALISTA_EMAIL  = os.environ.get("ANALISTA_EMAIL",  "giovanny_restrepo@eficacia.com.co")
 UMBRAL_WARNING = float(os.environ.get("UMBRAL_WARNING",  "0.70"))
+
+# Casilla remitente para Graph sendMail (requiere permiso de aplicación
+# Mail.Send sobre este buzón, con consentimiento de administrador).
+CORREO_REMITENTE = os.environ.get("CORREO_REMITENTE", "").strip()
+
+# Carpeta en la nube donde calcular_cumplimientos.py sube los adjuntos por
+# supervisor (respaldo cuando no hay copia local en disco, p.ej. --solo email).
+RUTA_CARPETA_ADJUNTOS_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/ADJUNTOS"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -292,46 +305,158 @@ def construir_cuerpo_html(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ESCRITURA DE LA HOJA COLA EN EnviarCorreos.xlsm
+# CONEXIÓN A LA NUBE (SharePoint + envío por Microsoft Graph API)
+# ─────────────────────────────────────────────────────────────────────────────
+_DRIVE_ID_CACHE: dict = {}
+
+
+def _obtener_default_drive_id(token: str) -> str:
+    """Resuelve el Drive ID del sitio SharePoint configurado en paths.SHAREPOINT_SITE_NAME."""
+    if "drive_id" in _DRIVE_ID_CACHE:
+        return _DRIVE_ID_CACHE["drive_id"]
+
+    headers = {"Authorization": f"Bearer {token}"}
+    nombre_sitio = getattr(paths, "SHAREPOINT_SITE_NAME", "eficacia")
+
+    res_site = requests.get(
+        f"https://graph.microsoft.com/v1.0/sites?search={urllib.parse.quote(nombre_sitio)}",
+        headers=headers,
+    )
+    if res_site.status_code == 200:
+        sites = res_site.json().get("value", [])
+        if sites:
+            site = next(
+                (s for s in sites
+                 if nombre_sitio.lower() in (s.get("name", "").lower(), s.get("displayName", "").lower())),
+                sites[0],
+            )
+            res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site.get('id')}/drive", headers=headers)
+            if res_drive.status_code == 200:
+                _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+                return _DRIVE_ID_CACHE["drive_id"]
+
+    res_root = requests.get("https://graph.microsoft.com/v1.0/sites/root", headers=headers)
+    if res_root.status_code == 200:
+        site_id = res_root.json().get("id")
+        res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+        if res_drive.status_code == 200:
+            _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+            return _DRIVE_ID_CACHE["drive_id"]
+
+    raise Exception(f"No se pudo obtener el Drive ID del sitio SharePoint '{nombre_sitio}': {res_site.text}")
+
+
+def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
+    """Normaliza separadores. NO remueve 'Equipo Información/' — es una carpeta real del sitio."""
+    ruta_sharepoint = ruta_sharepoint.replace("\\", "/")
+    for prefijo in ["Documentos compartidos/", "Shared Documents/"]:
+        if ruta_sharepoint.startswith(prefijo):
+            ruta_sharepoint = ruta_sharepoint.replace(prefijo, "", 1)
+    return ruta_sharepoint.lstrip("/")
+
+
+def _descargar_bytes_cloud(ruta_sharepoint: str, descripcion: str) -> bytes:
+    """Descarga el contenido crudo (bytes) de un archivo en SharePoint vía Graph API."""
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    rutas_candidatas = [ruta_limpia, f"Documentos compartidos/{ruta_limpia}"]
+
+    response = None
+    for r in rutas_candidatas:
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(r)}:/content"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return response.content
+
+    status = response.status_code if response is not None else "N/A"
+    text = response.text if response is not None else "Sin respuesta"
+    raise FileNotFoundError(f"No se pudo descargar {descripcion} desde SharePoint ({ruta_sharepoint}): {status} - {text}")
+
+
+def _leer_excel_cloud(ruta_sharepoint: str, descripcion: str) -> pd.DataFrame:
+    return pd.read_excel(io.BytesIO(_descargar_bytes_cloud(ruta_sharepoint, descripcion)))
+
+
+def _obtener_bytes_adjunto(nombre_sup: str, ruta_o_valor: str, nombre_archivo: str) -> bytes | None:
+    """
+    Devuelve los bytes del adjunto del supervisor. Si `calcular_cumplimientos`
+    corrió en este mismo proceso (caso normal de run_alertas.py), el archivo
+    sigue en el temporal local y se lee directo de disco. Si no existe (p.ej.
+    `--solo email` reutilizando una corrida anterior), se descarga como
+    respaldo desde SharePoint (RUTA_CARPETA_ADJUNTOS_CLOUD).
+    """
+    if ruta_o_valor:
+        p = Path(ruta_o_valor)
+        if p.is_file():
+            return p.read_bytes()
+    try:
+        return _descargar_bytes_cloud(f"{RUTA_CARPETA_ADJUNTOS_CLOUD}/{nombre_archivo}", f"adjunto de {nombre_sup}")
+    except Exception as e:
+        _log.warning(f"No se pudo obtener el adjunto de {nombre_sup} (ni local ni en la nube): {e}")
+        return None
+
+
+def _enviar_correo_graph(destinatario: str, asunto: str, cuerpo_html: str,
+                          nombre_adjunto: str | None, bytes_adjunto: bytes | None) -> None:
+    """Envía un correo vía Microsoft Graph `/users/{CORREO_REMITENTE}/sendMail`."""
+    if not CORREO_REMITENTE:
+        raise RuntimeError(
+            "Falta la variable de entorno CORREO_REMITENTE (la casilla desde la que "
+            "se envían los correos vía Graph — requiere permiso de aplicación Mail.Send)."
+        )
+
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+    mensaje = {
+        "subject": asunto,
+        "body": {"contentType": "HTML", "content": cuerpo_html},
+        "toRecipients": [{"emailAddress": {"address": destinatario}}],
+    }
+    if bytes_adjunto and nombre_adjunto:
+        mensaje["attachments"] = [{
+            "@odata.type": "#microsoft.graph.fileAttachment",
+            "name": nombre_adjunto,
+            "contentBytes": base64.b64encode(bytes_adjunto).decode(),
+        }]
+
+    url = f"https://graph.microsoft.com/v1.0/users/{urllib.parse.quote(CORREO_REMITENTE)}/sendMail"
+    response = requests.post(url, headers=headers, json={"message": mensaje, "saveToSentItems": "true"})
+    if response.status_code not in (200, 202):
+        raise Exception(f"Graph sendMail devolvió {response.status_code}: {response.text}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONSTRUCCIÓN DE LA COLA DE ENVÍOS (en memoria, ya no en un .xlsm)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def escribir_cola_envios(
+def construir_cola_envios(
     df_detalle: pd.DataFrame,
     df_maestro: pd.DataFrame,
     rutas_adjuntos: dict,
     mes: int,
     anio: int,
     rango_periodo: dict | None = None,
-) -> int:
+) -> list[dict]:
     """
-    Escribe la hoja COLA del xlsm con una fila por supervisor.
-    Devuelve el número de filas escritas.
-
-    Columnas de la hoja COLA:
-      CORREO | ASUNTO | CUERPO_HTML | RUTA_ADJUNTO | ESTADO
+    Arma la lista de correos a enviar (uno por supervisor/GDD/líder con
+    correo configurado). Cada elemento trae CORREO, ASUNTO, CUERPO_HTML,
+    NOMBRE_ADJUNTO y RUTA_ADJUNTO (local o vacío).
     """
-    from openpyxl import load_workbook
-
-    if not RUTA_XLSM.exists():
-        raise FileNotFoundError(
-            f"No se encontró EnviarCorreos.xlsm en: {RUTA_XLSM}\n"
-            "Asegúrate de que el archivo esté en la carpeta ALERTAS/."
-        )
-
     # Normalizar maestra
     df_m = df_maestro.copy()
     df_m.columns = df_m.columns.str.strip().str.upper()
     df_m["NOMBRE_SUPERVISOR"] = df_m["NOMBRE_SUPERVISOR"].astype(str).str.strip().str.upper()
     df_m["CORREO"]            = df_m["CORREO"].astype(str).str.strip()
 
-    # Construir filas de la cola
     meses_es = {
         1:"Enero", 2:"Febrero", 3:"Marzo", 4:"Abril",
         5:"Mayo", 6:"Junio", 7:"Julio", 8:"Agosto",
         9:"Septiembre", 10:"Octubre", 11:"Noviembre", 12:"Diciembre",
     }
     mes_nombre = meses_es.get(mes, str(mes))
-    # Sprint 13.1: el asunto incluye el rango de fechas si está disponible
     if rango_periodo and rango_periodo.get("rango_legible"):
         asunto_base = (
             f"Cumplimiento {mes_nombre} {anio} "
@@ -343,8 +468,7 @@ def escribir_cola_envios(
     filas = []
     sin_correo = []
 
-    # Sprint 17.15 — destinatarios: SUPERVISOR + GDD + LIDER.
-    # Cada uno recibe correo propio.
+    # Sprint 17.15 — destinatarios: SUPERVISOR + GDD + LIDER. Cada uno recibe correo propio.
     if {"ES_SUPERVISOR", "ES_GDD", "ES_LIDER"}.issubset(df_detalle.columns):
         sups_df = (
             df_detalle[
@@ -367,10 +491,6 @@ def escribir_cola_envios(
             "NOMBRE":   sorted(df_detalle["SUPERVISOR_LIDER"].dropna().unique()),
         })
 
-    # Mapping LIDER_POR_CIUDAD y helper para construir el equipo del líder
-    # (filtrado a canal DIRECTO + filas sintéticas con promedios del equipo)
-    # se importan de calcular_cumplimientos para mantener una sola fuente
-    # de verdad entre el adjunto Excel y el cuerpo HTML del correo.
     try:
         from calcular_cumplimientos import (
             LIDER_POR_CIUDAD as _LIDER_POR_CIUDAD,
@@ -392,7 +512,6 @@ def escribir_cola_envios(
             continue
         correo = correo_row["CORREO"].iloc[0]
 
-        # Sprint 17.15 — equipo según rol del destinatario.
         propio = df_detalle[df_detalle["ACRONIMO"] == acr_sup]
         es_gdd   = bool(propio["ES_GDD"].iloc[0])   if not propio.empty and "ES_GDD"   in propio.columns else False
         es_lider = bool(propio["ES_LIDER"].iloc[0]) if not propio.empty and "ES_LIDER" in propio.columns else False
@@ -401,25 +520,26 @@ def escribir_cola_envios(
         elif es_lider and _construir_equipo_lider is not None:
             df_equipo = _construir_equipo_lider(df_detalle, acr_sup)
         elif "ACRONIMO_SUP" in df_detalle.columns and acr_sup:
-            # SUPERVISOR — gestores a cargo + el propio supervisor.
             gestores = df_detalle[df_detalle["ACRONIMO_SUP"] == acr_sup]
             df_equipo = pd.concat([gestores, propio], ignore_index=True)
         else:
             df_equipo = df_detalle[df_detalle.get("SUPERVISOR_LIDER", "") == nombre_sup].copy()
 
-        cuerpo  = construir_cuerpo_html(
+        cuerpo = construir_cuerpo_html(
             nombre_sup, df_equipo, mes, anio,
             rango_periodo=rango_periodo,
             rol_destinatario=("GDD" if es_gdd else ("LIDER" if es_lider else "SUPERVISOR")),
         )
-        adjunto = rutas_adjuntos.get(nombre_sup, "")
+        ruta_adjunto   = rutas_adjuntos.get(nombre_sup, "")
+        nombre_adjunto = f"Detalle_{nombre_sup.replace(' ', '_')}_{mes:02d}_{anio}.xlsx"
 
         filas.append({
-            "CORREO"      : correo,
-            "ASUNTO"      : asunto_base,
-            "CUERPO_HTML" : cuerpo,
-            "RUTA_ADJUNTO": adjunto,
-            "ESTADO"      : "PENDIENTE",
+            "CORREO"        : correo,
+            "ASUNTO"        : asunto_base,
+            "CUERPO_HTML"   : cuerpo,
+            "NOMBRE_SUP"    : nombre_sup,
+            "RUTA_ADJUNTO"  : ruta_adjunto,
+            "NOMBRE_ADJUNTO": nombre_adjunto,
         })
 
     if sin_correo:
@@ -427,228 +547,8 @@ def escribir_cola_envios(
         for s in sin_correo:
             print(f"     · {s}")
 
-    # Abrir xlsm y escribir hoja COLA (o crearla si no existe)
-    wb = load_workbook(RUTA_XLSM, keep_vba=True)
-
-    if "COLA" in wb.sheetnames:
-        ws_cola = wb["COLA"]
-        # Limpiar filas anteriores (conservar encabezado)
-        for row in ws_cola.iter_rows(min_row=2):
-            for cell in row:
-                cell.value = None
-    else:
-        ws_cola = wb.create_sheet("COLA")
-
-    # Encabezados
-    headers = ["CORREO", "ASUNTO", "CUERPO_HTML", "RUTA_ADJUNTO", "ESTADO"]
-    for col_idx, hdr in enumerate(headers, start=1):
-        ws_cola.cell(row=1, column=col_idx, value=hdr)
-
-    # Datos
-    for row_idx, fila in enumerate(filas, start=2):
-        for col_idx, hdr in enumerate(headers, start=1):
-            ws_cola.cell(row=row_idx, column=col_idx, value=fila[hdr])
-
-    wb.save(RUTA_XLSM)
-    print(f"  ✓ Hoja COLA escrita: {len(filas)} filas en {RUTA_XLSM.name}")
-    return len(filas)
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# DISPARO DE LA MACRO VBA via win32com
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _emitir_log_macro_y_estados() -> dict:
-    """
-    Tras ejecutar la macro, lee:
-      1. ALERTAS/logs/macro_envio.log  (escrito por el VBA — INFO/WARN/ERROR).
-         De ahi extraemos el resumen enviados/errores (fuente autoritativa).
-      2. La columna ESTADO de la hoja COLA (best-effort) para detalles de error.
-         Reintenta si el archivo aun esta locked por Excel/OneDrive.
-    Emite al logger Python y devuelve un dict con resumen.
-    """
-    enviados = errores = total = 0
-    log_path = paths.ALERTAS_DIR / "logs" / "macro_envio.log"
-    if log_path.exists():
-        try:
-            with open(log_path, "r", encoding="utf-8", errors="replace") as f:
-                lineas = [ln.rstrip() for ln in f if ln.strip()]
-            for ln in lineas:
-                nivel = ln.split("|", 2)[1].strip().upper() if "|" in ln else "INFO"
-                msg = f"[macro] {ln}"
-                if nivel == "ERROR":   _log.error(msg)
-                elif nivel == "WARN":  _log.warning(msg)
-                else:                  _log.info(msg)
-                # Parse resumen final: "Resumen -- enviados=X errores=Y total=Z"
-                if "Resumen" in ln and "enviados=" in ln:
-                    import re
-                    m_e = re.search(r"enviados=(\d+)", ln)
-                    m_x = re.search(r"errores=(\d+)",  ln)
-                    m_t = re.search(r"total=(\d+)",    ln)
-                    if m_e: enviados = int(m_e.group(1))
-                    if m_x: errores  = int(m_x.group(1))
-                    if m_t: total    = int(m_t.group(1))
-            log_path.unlink()
-        except Exception as e:
-            _log.warning(f"No se pudo leer {log_path.name}: {e}")
-    else:
-        _log.warning("No se encontró logs/macro_envio.log — la macro no produjo log.")
-
-    # Detalles de error por fila desde la hoja COLA (best-effort, con reintentos).
-    detalles_error: list[str] = []
-    try:
-        from openpyxl import load_workbook
-        wb = None
-        ultimo_error = None
-        for intento in range(5):
-            try:
-                wb = load_workbook(RUTA_XLSM, read_only=True, keep_vba=True)
-                break
-            except PermissionError as pe:
-                ultimo_error = pe
-                time.sleep(0.5 * (intento + 1))
-        if wb is None:
-            _log.warning(f"No se pudo abrir COLA para detalles de error: {ultimo_error}")
-        else:
-            if "COLA" in wb.sheetnames:
-                ws = wb["COLA"]
-                for row in ws.iter_rows(min_row=2, values_only=True):
-                    if not row or row[0] is None:
-                        continue
-                    estado = str(row[4] or "").strip().upper()
-                    if estado.startswith("ERROR"):
-                        detalles_error.append(f"{row[0]} — {row[4]}")
-            wb.close()
-    except Exception as e:
-        _log.warning(f"No se pudo leer hoja COLA para detalles: {e}")
-
-    _log.info(f"Email — enviados={enviados} errores={errores} total={total}")
-    for d in detalles_error:
-        _log.error(f"[cola] {d}")
-    return {"enviados": enviados, "errores": errores, "total": total}
-
-
-def disparar_macro(modo_prueba: bool = False) -> bool:
-    """
-    Abre EnviarCorreos.xlsm con Excel COM y ejecuta Sub EnviarTodos().
-    La macro NO muestra MsgBox: escribe resumen y errores a
-    ALERTAS/logs/macro_envio.log, que Python lee y emite al logger
-    tras la ejecución.
-    Devuelve True si la macro terminó sin excepción.
-    """
-    if modo_prueba:
-        print("  ⚠️  MODO PRUEBA — la macro no se ejecutará")
-        print(f"  El archivo EnviarCorreos.xlsm está listo en: {RUTA_XLSM}")
-        return True
-
-    try:
-        import win32com.client as win32
-    except ImportError:
-        print("  ❌ win32com no está instalado.")
-        print("     Instala con: pip install pywin32")
-        print(f"     Alternativamente, abre {RUTA_XLSM} y ejecuta la macro manualmente.")
-        return False
-
-    print("  Abriendo Excel y ejecutando macro EnviarTodos()...")
-    xl   = None
-    wb   = None
-    ok   = False
-
-    # Defensive: matar cualquier EXCEL.EXE residual antes de Dispatch.
-    # Dispatch puede reutilizar un proceso existente, y si ese proceso tiene
-    # un dialogo modal o un workbook bloqueado, la llamada COM falla con
-    # RPC_E_CALL_REJECTED (-2147418111).
-    try:
-        import subprocess
-        subprocess.run(["taskkill", "/F", "/IM", "EXCEL.EXE"],
-                       capture_output=True, timeout=10)
-        time.sleep(1)
-    except Exception:
-        pass
-
-    try:
-        xl = win32.Dispatch("Excel.Application")
-        # Excel invisible: la macro ya no muestra MsgBox.
-        xl.Visible = False
-        xl.DisplayAlerts = False
-        try:
-            xl.AutomationSecurity = 1   # msoAutomationSecurityLow
-        except Exception:
-            pass
-
-        wb = xl.Workbooks.Open(str(RUTA_XLSM.resolve()))
-        time.sleep(2)               # esperar a que el VBA cargue
-
-        # El .xlsm puede estar en OneDrive/SharePoint sincronizado, en cuyo caso
-        # ThisWorkbook.Path en VBA devuelve la URL https y Open # falla (error 52).
-        # Le pasamos el path local absoluto del log en Hoja1!Y1 para que la
-        # macro escriba ahi.
-        log_path = paths.ALERTAS_DIR / "logs" / "macro_envio.log"
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            wb.Sheets("Hoja1").Range("Y1").Value = str(log_path.resolve())
-        except Exception:
-            pass
-
-        # Run con retry: Excel puede rechazar la llamada COM si esta
-        # procesando algo (RPC_E_CALL_REJECTED = -2147418111).
-        ultimo_error = None
-        for intento in range(5):
-            try:
-                xl.Run("EnviarCorreos.xlsm!EnviarTodos")
-                ultimo_error = None
-                break
-            except Exception as e:
-                ultimo_error = e
-                code = getattr(e, "args", [None])[0]
-                if code == -2147418111:
-                    print(f"     Reintento {intento+1}/5 tras RPC_E_CALL_REJECTED...")
-                    time.sleep(2 * (intento + 1))
-                    continue
-                raise
-        if ultimo_error is not None:
-            raise ultimo_error
-
-        # La macro VBA ya hace `ThisWorkbook.Save` al final, asi que el
-        # workbook esta persistido. Este Save Python es redundante y a
-        # veces falla con RPC_E_CALL_REJECTED porque OneDrive esta haciendo
-        # un sync en background — no es fatal.
-        try:
-            wb.Save()
-        except Exception as e_save:
-            print(f"     (wb.Save Python falló, no es fatal — VBA ya guardó: {e_save})")
-        print("  ✅ Macro ejecutada correctamente")
-        ok = True
-        return True
-
-    except Exception as e:
-        print(f"  ❌ Error ejecutando la macro: {e}")
-        print(f"     Puedes abrir {RUTA_XLSM} y ejecutar Sub EnviarTodos() manualmente.")
-        return False
-
-    finally:
-        # Cleanup: SaveChanges=False (ya guardamos arriba con wb.Save()).
-        # Sin MsgBox modales, Excel cierra limpio.
-        if wb is not None:
-            try:
-                wb.Close(SaveChanges=False)
-            except Exception:
-                pass
-        if xl is not None:
-            try:
-                xl.Quit()
-            except Exception:
-                pass
-        # Emitir el log de la macro y el resumen de la hoja COLA tras cerrar
-        # Excel (para evitar contención de archivo).
-        if ok:
-            try:
-                _emitir_log_macro_y_estados()
-            except Exception as e:
-                _log.warning(f"No se pudo emitir resumen post-macro: {e}")
-        # Liberar referencias COM explícitamente para forzar el GC
-        wb = None
-        xl = None
+    print(f"  ✓ Cola armada: {len(filas)} correos")
+    return filas
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -665,50 +565,61 @@ def enviar_correos(
     rango_periodo: dict | None = None,
 ) -> dict:
     """
-    Orquesta la generación de la cola y el disparo de la macro.
+    Arma la cola de correos y los envía uno a uno vía Microsoft Graph
+    (`/users/{CORREO_REMITENTE}/sendMail`). Corre igual en local que en
+    GitHub Actions — no depende de Outlook Desktop ni de Excel.
 
-    Parámetros
-    ──────────
-    df_detalle      : de calcular_cumplimientos.main()['df_detalle']
-    df_maestro      : leído de MAESTRO_SUPERVISORES.xlsx
-    rutas_adjuntos  : de calcular_cumplimientos.main()['rutas_adjuntos']
-    mes, anio       : periodo
-    modo_prueba     : si True, no abre Excel ni envía nada
-
-    Retorna dict con claves 'filas_cola', 'macro_ok'.
+    Retorna dict con 'filas_cola', 'enviados', 'errores', 'macro_ok'
+    (esta última clave se conserva por compatibilidad — True si no hubo
+    errores de envío).
     """
     print("\n" + "═" * 55)
-    print("  ALERTAS EMAIL — Eficacia")
+    print("  ALERTAS EMAIL — Eficacia (Graph API)")
     print("═" * 55)
 
     if modo_prueba:
-        print("  ⚠️  MODO PRUEBA — no se abrirá Excel ni se enviarán correos\n")
+        print("  ⚠️  MODO PRUEBA — se arma la cola pero no se envía nada real\n")
+    elif not CORREO_REMITENTE:
+        print("  ❌ Falta CORREO_REMITENTE en las variables de entorno.")
+        return {"filas_cola": 0, "enviados": 0, "errores": 0, "macro_ok": False}
 
-    print("\nEscribiendo cola de envíos:")
-    try:
-        n_filas = escribir_cola_envios(df_detalle, df_maestro, rutas_adjuntos, mes, anio, rango_periodo=rango_periodo)
-    except FileNotFoundError as e:
-        print(f"  ❌ {e}")
-        return {"filas_cola": 0, "macro_ok": False}
+    print("\nArmando cola de envíos:")
+    filas = construir_cola_envios(df_detalle, df_maestro, rutas_adjuntos, mes, anio, rango_periodo=rango_periodo)
 
-    if n_filas == 0:
+    if not filas:
         print("  ⚠️  Cola vacía — no hay supervisores con correo configurado.")
-        return {"filas_cola": 0, "macro_ok": False}
+        return {"filas_cola": 0, "enviados": 0, "errores": 0, "macro_ok": False}
 
-    print("\nDisparo de macro Outlook:")
-    macro_ok = disparar_macro(modo_prueba=modo_prueba)
+    print("\nEnviando correos vía Microsoft Graph:")
+    enviados = errores = 0
+    for fila in filas:
+        if modo_prueba:
+            print(f"  🧪 [PRUEBA] Se enviaría a {fila['CORREO']} — adjunto: {fila['NOMBRE_ADJUNTO']}")
+            enviados += 1
+            continue
+        try:
+            bytes_adj = _obtener_bytes_adjunto(fila["NOMBRE_SUP"], fila["RUTA_ADJUNTO"], fila["NOMBRE_ADJUNTO"])
+            _enviar_correo_graph(
+                fila["CORREO"], fila["ASUNTO"], fila["CUERPO_HTML"],
+                fila["NOMBRE_ADJUNTO"], bytes_adj,
+            )
+            print(f"  ✓ Enviado a {fila['CORREO']} ({fila['NOMBRE_SUP']})")
+            enviados += 1
+        except Exception as e:
+            print(f"  ❌ Error enviando a {fila['CORREO']} ({fila['NOMBRE_SUP']}): {e}")
+            _log.error(f"Fallo enviando correo a {fila['CORREO']} ({fila['NOMBRE_SUP']}): {e}")
+            errores += 1
+        time.sleep(0.3)  # margen frente a throttling de Graph
 
-    _log.info(
-        f"Email — filas_cola={n_filas} macro_ok={macro_ok} "
-        f"prueba={modo_prueba}"
-    )
+    macro_ok = errores == 0
+    _log.info(f"Email — filas_cola={len(filas)} enviados={enviados} errores={errores} prueba={modo_prueba}")
 
     print("\n" + "═" * 55)
-    print(f"  Correos en cola: {n_filas}")
-    print(f"  Macro ejecutada: {'✅' if macro_ok else '❌'}")
+    print(f"  Correos en cola: {len(filas)}")
+    print(f"  Enviados: {enviados}  |  Errores: {errores}")
     print("═" * 55 + "\n")
 
-    return {"filas_cola": n_filas, "macro_ok": macro_ok}
+    return {"filas_cola": len(filas), "enviados": enviados, "errores": errores, "macro_ok": macro_ok}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -718,16 +629,13 @@ def enviar_correos(
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Envío de correos Outlook — Eficacia")
+    parser = argparse.ArgumentParser(description="Envío de correos vía Microsoft Graph — Eficacia")
     parser.add_argument("--prueba", action="store_true",
-                        help="Modo prueba: genera cola sin abrir Excel")
+                        help="Modo prueba: arma la cola sin enviar nada real")
     args = parser.parse_args()
 
     # Sprint 17.11 — invocar calcular_cumplimientos.main() para obtener TODO
-    # en memoria (incluye rango_periodo con fechas legibles). El standalone
-    # antes leía DETALLE_*.xlsx y NO podía propagar rango_periodo, así que
-    # el cuerpo del correo decía "para el periodo Mayo 2026" en vez de
-    # "para el periodo del 1 al 31 de mayo de 2026".
+    # en memoria (incluye rango_periodo con fechas legibles).
     import calcular_cumplimientos as cc
     out = cc.main()
     df_detalle     = out["df_detalle"]
@@ -736,9 +644,16 @@ if __name__ == "__main__":
     rutas_adj      = out["rutas_adjuntos"]
     rango_periodo  = out.get("rango_periodo")
 
-    df_maestro = pd.read_excel(RUTA_MAESTRA) if RUTA_MAESTRA.exists() else pd.DataFrame()
+    # Maestra de supervisores: en la nube (mismo lugar donde
+    # calcular_cumplimientos.py la guarda).
+    RUTA_MAESTRA_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/maestro_supervisores.xlsx"
+    try:
+        df_maestro = _leer_excel_cloud(RUTA_MAESTRA_CLOUD, "Maestra de supervisores")
+    except Exception as e:
+        print(f"❌ No se pudo leer la maestra de supervisores desde SharePoint: {e}")
+        sys.exit(1)
     if df_maestro.empty:
-        print("❌ MAESTRO_SUPERVISORES.xlsx no encontrado.")
+        print("❌ MAESTRO_SUPERVISORES.xlsx está vacío o no se encontró.")
         sys.exit(1)
 
     enviar_correos(

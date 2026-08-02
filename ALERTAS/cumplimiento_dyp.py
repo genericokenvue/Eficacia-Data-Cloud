@@ -50,9 +50,13 @@ Casos especiales
 
 from __future__ import annotations
 
+import io
 import os
 import re
 import sys
+import tempfile
+import urllib.parse
+import requests
 from pathlib import Path
 
 import numpy as np
@@ -61,7 +65,11 @@ import pandas as pd
 # Asegurar que SCRIPTS/ esté en sys.path ANTES de importar paths.
 # (Cuando se importa via alertas_logger ya está, pero al usar este módulo
 # de forma standalone — para tests o utilidades — necesitamos el fallback.)
-_SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "SCRIPTS"
+# ALERTAS/ vive DENTRO de SCRIPTS/ (SCRIPTS/ALERTAS/cumplimiento_dyp.py), no
+# es su hermana. `Path(__file__).resolve().parent.parent` YA apunta a
+# SCRIPTS/ — no hay que agregarle "/SCRIPTS" de nuevo (eso generaba
+# .../SCRIPTS/SCRIPTS, que no existe en ningún entorno).
+_SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
@@ -76,6 +84,129 @@ MESES_INT_A_STR = {
 
 # Si Cuota=0 con Venta>0 → marcador de sobrecumplimiento (200%).
 SOBRECUMPLIMIENTO_PLACEHOLDER = 2.0
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONEXIÓN A LA NUBE (SharePoint vía Microsoft Graph API)
+# ─────────────────────────────────────────────────────────────────────────────
+# Los CSV/Excel de D&P ya no viven en disco local (paths.DYP_OUT_IMPACTOS,
+# paths.DYP_OUT_VENTAS, paths.DYP_LISTAS_FILE) — se leen directamente de
+# SharePoint, con la misma convención Graph API que el resto del pipeline.
+#
+# IMPORTANTE: etl_ventas.py sube los consolidados de Ventas/Impactos con el
+# periodo en el nombre del archivo (ej. "Consolidado_Ventas_JULIO_2026.csv"),
+# no como un único archivo acumulado — por eso estas rutas son funciones de
+# (mes, año), no constantes fijas.
+def _ruta_impactos_cloud(mes: int, anio: int) -> str:
+    mes_up = MESES_INT_A_STR.get(int(mes), "").upper()
+    return f"{paths.RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Impactos_{mes_up}_{int(anio)}.csv"
+
+
+def _ruta_ventas_cloud(mes: int, anio: int) -> str:
+    mes_up = MESES_INT_A_STR.get(int(mes), "").upper()
+    return f"{paths.RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Ventas_{mes_up}_{int(anio)}.csv"
+
+
+RUTA_LISTAS_CLOUD = f"{paths.RUTA_CARPETA_BASES_DYP}/Listas/MSL & Listas Target Catman.xlsx"
+
+_DRIVE_ID_CACHE: dict = {}
+_CACHE_DYP_BYTES: dict = {}   # ruta_cloud -> bytes | None (cache por proceso)
+
+
+def _obtener_default_drive_id(token: str) -> str:
+    if "drive_id" in _DRIVE_ID_CACHE:
+        return _DRIVE_ID_CACHE["drive_id"]
+    headers = {"Authorization": f"Bearer {token}"}
+    nombre_sitio = getattr(paths, "SHAREPOINT_SITE_NAME", "eficacia")
+    res_site = requests.get(
+        f"https://graph.microsoft.com/v1.0/sites?search={urllib.parse.quote(nombre_sitio)}",
+        headers=headers,
+    )
+    if res_site.status_code == 200:
+        sites = res_site.json().get("value", [])
+        if sites:
+            site = next(
+                (s for s in sites
+                 if nombre_sitio.lower() in (s.get("name", "").lower(), s.get("displayName", "").lower())),
+                sites[0],
+            )
+            res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site.get('id')}/drive", headers=headers)
+            if res_drive.status_code == 200:
+                _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+                return _DRIVE_ID_CACHE["drive_id"]
+    res_root = requests.get("https://graph.microsoft.com/v1.0/sites/root", headers=headers)
+    if res_root.status_code == 200:
+        site_id = res_root.json().get("id")
+        res_drive = requests.get(f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive", headers=headers)
+        if res_drive.status_code == 200:
+            _DRIVE_ID_CACHE["drive_id"] = res_drive.json().get("id")
+            return _DRIVE_ID_CACHE["drive_id"]
+    raise Exception(f"No se pudo obtener el Drive ID del sitio SharePoint '{nombre_sitio}': {res_site.text}")
+
+
+def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
+    ruta_sharepoint = ruta_sharepoint.replace("\\", "/")
+    for prefijo in ["Documentos compartidos/", "Shared Documents/"]:
+        if ruta_sharepoint.startswith(prefijo):
+            ruta_sharepoint = ruta_sharepoint.replace(prefijo, "", 1)
+    return ruta_sharepoint.lstrip("/")
+
+
+def _descargar_bytes_cloud(ruta_sharepoint: str, descripcion: str) -> bytes:
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    response = None
+    for r in (ruta_limpia, f"Documentos compartidos/{ruta_limpia}"):
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(r)}:/content"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return response.content
+    status = response.status_code if response is not None else "N/A"
+    text = response.text if response is not None else "Sin respuesta"
+    raise FileNotFoundError(f"No se pudo descargar {descripcion} desde SharePoint ({ruta_sharepoint}): {status} - {text}")
+
+
+def _bytes_cloud_cached(ruta_cloud: str, descripcion: str) -> bytes | None:
+    """Descarga (y cachea por proceso) el contenido crudo de un archivo en
+    SharePoint. Devuelve None si no existe/falla — el llamador decide el
+    mensaje/fallback, igual que antes con `Path.is_file()`."""
+    if ruta_cloud in _CACHE_DYP_BYTES:
+        return _CACHE_DYP_BYTES[ruta_cloud]
+    try:
+        contenido = _descargar_bytes_cloud(ruta_cloud, descripcion)
+    except Exception:
+        contenido = None
+    _CACHE_DYP_BYTES[ruta_cloud] = contenido
+    return contenido
+
+
+def _leer_csv_cloud(ruta_cloud: str, descripcion: str, **kwargs) -> pd.DataFrame | None:
+    """Lee un CSV desde SharePoint (bytes cacheados por proceso). None si no existe."""
+    contenido = _bytes_cloud_cached(ruta_cloud, descripcion)
+    if contenido is None:
+        return None
+    return pd.read_csv(io.BytesIO(contenido), **kwargs)
+
+
+def _ruta_listas_temp_cloud() -> str | None:
+    """
+    `etl_impactos_segmentos.cargar_listas()` espera una RUTA de archivo en
+    disco (no bytes). Descargamos el Excel de listas una sola vez por
+    proceso a un temporal y devolvemos esa ruta; None si no existe en la nube.
+    """
+    cache_key = "_listas_tmp_path"
+    if cache_key in _CACHE_DYP_BYTES:
+        return _CACHE_DYP_BYTES[cache_key]
+    contenido = _bytes_cloud_cached(RUTA_LISTAS_CLOUD, "Listas D&P (MSL/Prod Nuevos)")
+    if contenido is None:
+        _CACHE_DYP_BYTES[cache_key] = None
+        return None
+    tmp_path = Path(tempfile.gettempdir()) / "listas_dyp_temp.xlsx"
+    tmp_path.write_bytes(contenido)
+    _CACHE_DYP_BYTES[cache_key] = str(tmp_path)
+    return str(tmp_path)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -237,11 +368,11 @@ def _enriquecer_con_acronimo(
     # persona aparece en uno pero no en el otro.
     pairs = []   # (nombre_dyp, acronimo, nombre_supervisor_dyp)
 
-    if paths.DYP_OUT_IMPACTOS.is_file():
-        df_i = pd.read_csv(
-            paths.DYP_OUT_IMPACTOS, sep="|", decimal=",", encoding="utf-8",
-            dtype={"MES": str, "AÑO": str}, low_memory=False,
-        )
+    if (df_i := _leer_csv_cloud(
+        _ruta_impactos_cloud(mes, anio), "Consolidado_Impactos.csv",
+        sep="|", decimal=",", encoding="utf-8",
+        dtype={"MES": str, "AÑO": str}, low_memory=False,
+    )) is not None and {"MES", "AÑO", "Asesor", "Supervisor"}.issubset(df_i.columns):
         df_i["MES"] = df_i["MES"].fillna("").astype(str).str.strip().str.capitalize()
         df_i["AÑO"] = df_i["AÑO"].fillna("").astype(str).str.strip()
         df_i = df_i[(df_i["MES"] == mes_str) & (df_i["AÑO"] == anio_str)].copy()
@@ -252,14 +383,18 @@ def _enriquecer_con_acronimo(
         for _, r in df_i.iterrows():
             pairs.append((r["_nombre"], r["_acr"], r["_sup"]))
 
-    if paths.DYP_OUT_VENTAS.is_file():
-        df_v = pd.read_csv(
-            paths.DYP_OUT_VENTAS, sep="|", decimal=",", encoding="utf-8",
+    try:
+        df_v = _leer_csv_cloud(
+            _ruta_ventas_cloud(mes, anio), "Consolidado_Ventas.csv",
+            sep="|", decimal=",", encoding="utf-8",
             dtype={"Cod. Vendedor": str, "Vendedor": str, "Supervisor": str,
                    "MES": str, "AÑO": str},
             usecols=["Cod. Vendedor", "Vendedor", "Supervisor", "MES", "AÑO"],
             low_memory=False,
         )
+    except ValueError:
+        df_v = None
+    if df_v is not None:
         df_v["MES"] = df_v["MES"].fillna("").astype(str).str.strip().str.capitalize()
         df_v["AÑO"] = df_v["AÑO"].fillna("").astype(str).str.strip()
         df_v = df_v[(df_v["MES"] == mes_str) & (df_v["AÑO"] == anio_str)].copy()
@@ -355,17 +490,22 @@ def cumplimientos_venta_impactos(mes: int, anio: int) -> tuple[pd.DataFrame, pd.
               "CUOTA", "VENTA", "VENTA_%",
               "CLIENTES_IMPACTAR", "CLIENTES_IMPACTADOS", "IMPACTOS_%"]
 
-    if not paths.DYP_OUT_IMPACTOS.is_file():
-        print(f"  ⚠️  Falta {paths.DYP_OUT_IMPACTOS} — VENTA_% e IMPACTOS_% serán NaN")
-        return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
-
     mes_str  = MESES_INT_A_STR.get(int(mes), "")
     anio_str = str(int(anio))
 
-    df = pd.read_csv(
-        paths.DYP_OUT_IMPACTOS, sep="|", decimal=",", encoding="utf-8",
+    ruta_impactos = _ruta_impactos_cloud(mes, anio)
+    df = _leer_csv_cloud(
+        ruta_impactos, "Consolidado_Impactos.csv",
+        sep="|", decimal=",", encoding="utf-8",
         dtype={"MES": str, "AÑO": str}, low_memory=False,
     )
+    if df is None:
+        print(f"  ⚠️  Falta Consolidado_Impactos en SharePoint ({ruta_impactos}) — VENTA_% e IMPACTOS_% serán NaN")
+        return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
+    if "MES" not in df.columns or "AÑO" not in df.columns:
+        print(f"  ⚠️  {ruta_impactos} no tiene columnas MES/AÑO — VENTA_% e IMPACTOS_% serán NaN")
+        print(f"      Columnas encontradas: {list(df.columns)}")
+        return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
     df["MES"] = df["MES"].fillna("").astype(str).str.strip().str.capitalize()
     df["AÑO"] = df["AÑO"].fillna("").astype(str).str.strip()
     df = df[(df["MES"] == mes_str) & (df["AÑO"] == anio_str)].copy()
@@ -426,22 +566,30 @@ def _cargar_ventas_periodo(mes: int, anio: int) -> pd.DataFrame:
         cod_cliente, ean, vendedor, supervisor, cant_total
     Sólo conserva filas con cantidad > 0.
     """
-    if not paths.DYP_OUT_VENTAS.is_file():
-        return pd.DataFrame()
-
     mes_str  = MESES_INT_A_STR.get(int(mes), "")
     anio_str = str(int(anio))
 
-    df = pd.read_csv(
-        paths.DYP_OUT_VENTAS, sep="|", decimal=",", encoding="utf-8",
-        dtype={"Cod. Cliente": str, "Cod. EAN Producto": str,
-               "Vendedor": str, "Supervisor": str,
-               "MES": str, "AÑO": str},
-        usecols=["Cod. Cliente", "Cod. EAN Producto",
-                 "Vendedor", "Supervisor",
-                 "Cantidades Totales", "MES", "AÑO"],
-        low_memory=False,
-    )
+    ruta_ventas = _ruta_ventas_cloud(mes, anio)
+    try:
+        df = _leer_csv_cloud(
+            ruta_ventas, "Consolidado_Ventas.csv",
+            sep="|", decimal=",", encoding="utf-8",
+            dtype={"Cod. Cliente": str, "Cod. EAN Producto": str,
+                   "Vendedor": str, "Supervisor": str,
+                   "MES": str, "AÑO": str},
+            usecols=["Cod. Cliente", "Cod. EAN Producto",
+                     "Vendedor", "Supervisor",
+                     "Cantidades Totales", "MES", "AÑO"],
+            low_memory=False,
+        )
+    except ValueError as e:
+        print(f"  ⚠️  {ruta_ventas} no tiene las columnas esperadas: {e}")
+        return pd.DataFrame()
+    if df is None:
+        return pd.DataFrame()
+    if "MES" not in df.columns or "AÑO" not in df.columns:
+        print(f"  ⚠️  {ruta_ventas} no tiene columnas MES/AÑO. Columnas encontradas: {list(df.columns)}")
+        return pd.DataFrame()
     df["MES"] = df["MES"].fillna("").astype(str).str.strip().str.capitalize()
     df["AÑO"] = df["AÑO"].fillna("").astype(str).str.strip()
     df = df[(df["MES"] == mes_str) & (df["AÑO"] == anio_str)].copy()
@@ -584,21 +732,20 @@ def cumplimientos_msl_prodnuevos(mes: int, anio: int) -> tuple[pd.DataFrame, pd.
              + ["PROD_NUEVOS_%", "PROD_NUEVOS_PDVS_OK", "PROD_NUEVOS_PDVS_TOTAL"]
     cols_s = ["SUPERVISOR_LIDER"] + cols_g[1:]
 
-    if not paths.DYP_OUT_VENTAS.is_file():
-        print(f"  ⚠️  Falta {paths.DYP_OUT_VENTAS} — MSL_% y PROD_NUEVOS_% serán NaN")
-        return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
-    if not paths.DYP_LISTAS_FILE.is_file():
-        print(f"  ⚠️  Falta {paths.DYP_LISTAS_FILE} — MSL_% y PROD_NUEVOS_% serán NaN")
+    ruta_listas_temp = _ruta_listas_temp_cloud()
+    if ruta_listas_temp is None:
+        print(f"  ⚠️  Falta Listas D&P en SharePoint ({RUTA_LISTAS_CLOUD}) — MSL_% y PROD_NUEVOS_% serán NaN")
         return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
 
     print(f"  Cargando ventas D&P para {MESES_INT_A_STR.get(int(mes),'?')}-{anio}...")
     df_periodo = _cargar_ventas_periodo(mes, anio)
     if df_periodo.empty:
-        print(f"  ⚠️  Consolidado_Ventas sin filas para {MESES_INT_A_STR.get(int(mes),'?')}-{anio}")
+        print(f"  ⚠️  Consolidado_Ventas sin filas para {MESES_INT_A_STR.get(int(mes),'?')}-{anio} "
+              f"(o no se encontró en SharePoint: {_ruta_ventas_cloud(mes, anio)})")
         return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
 
     from etl_impactos_segmentos import cargar_listas
-    listas = cargar_listas(paths.DYP_LISTAS_FILE)
+    listas = cargar_listas(ruta_listas_temp)
     eans_msl = listas.get("MustStock", {}).get("eans") or set()
 
     # ── Por gestor (vendedor) ─────────────────────────────────────────────

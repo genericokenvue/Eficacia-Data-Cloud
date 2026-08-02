@@ -1231,7 +1231,13 @@ def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFra
             cell.border    = borde
 
     ws.freeze_panes = "A2"
-    ws.title = "Supervisores - Completa CORREO y TELEGRAM_CHAT_ID"
+    # El nombre de una pestaña de Excel tiene un límite DURO de 31
+    # caracteres — "Supervisores - Completa CORREO y TELEGRAM_CHAT_ID"
+    # (50 caracteres) lo excede y produce un .xlsx inválido que Excel
+    # reporta como dañado/corrupto al abrirlo. Se deja el título corto y
+    # la instrucción se agrega como nota en una celda en vez de en el título.
+    ws.cell(row=1, column=5,
+            value="👉 Completa CORREO y TELEGRAM_CHAT_ID para los supervisores nuevos")
 
     # Guardar en la ruta local temporal y luego subir a SharePoint (o guardar directo si se usa BytesIO)
     output_io = io.BytesIO()

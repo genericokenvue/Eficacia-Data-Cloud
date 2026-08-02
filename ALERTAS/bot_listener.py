@@ -36,30 +36,28 @@ los recoge todos.
 from __future__ import annotations
 
 import argparse
-import csv
 import os
 import sys
 import time
 from datetime import datetime
-from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import requests
 
 from config_loader import cargar_config
 
-# Reusamos los extractores de updates de setup_telegram (DRY)
+# Reusamos los extractores de updates y los helpers cloud de setup_telegram (DRY)
 from setup_telegram import (
     _extraer_registro,
     _ahora_colombia,
     _leer_csv_existente,
     _guardar_csv,
+    _descargar_bytes_cloud,
+    _subir_bytes_cloud,
     CSV_SALIDA,
-    DIR_ALERTAS,
+    RUTA_OFFSET_CLOUD,
 )
 
 
-OFFSET_FILE = DIR_ALERTAS / ".bot_listener_offset"
 INTERVALO_POLL_S = 5            # polling cada 5s (Telegram permite long polling de 50s)
 TIMEOUT_LONGPOLL_S = 30         # long polling: el server espera hasta 30s a que llegue algo
 
@@ -80,16 +78,17 @@ def _cargar_token() -> str:
 
 
 def _leer_offset() -> int | None:
-    if not OFFSET_FILE.exists():
-        return None
+    """Offset persistido en SharePoint (antes en disco local — se perdía
+    entre corridas de GitHub Actions, donde cada job arranca con disco vacío)."""
     try:
-        return int(OFFSET_FILE.read_text(encoding="utf-8").strip())
+        contenido = _descargar_bytes_cloud(RUTA_OFFSET_CLOUD, "offset del bot Telegram")
+        return int(contenido.decode("utf-8").strip())
     except Exception:
         return None
 
 
 def _guardar_offset(update_id: int) -> None:
-    OFFSET_FILE.write_text(str(update_id), encoding="utf-8")
+    _subir_bytes_cloud(str(update_id).encode("utf-8"), RUTA_OFFSET_CLOUD, "text/plain; charset=utf-8")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -218,7 +217,7 @@ def main() -> int:
     print("  Bot Listener Eficacia — captura continua de chat_ids")
     print("═" * 60)
     print(f"  CSV histórico:    {CSV_SALIDA}")
-    print(f"  Offset state:     {OFFSET_FILE}")
+    print(f"  Offset state:     {RUTA_OFFSET_CLOUD} (SharePoint)")
     print(f"  Modo:             {'one-shot' if args.once else 'continuo'}")
     print(f"  Responder al user: {'sí' if responder else 'no (silent)'}")
     print()
