@@ -427,6 +427,29 @@ def _kpi_simple_perfil(
     return eje[mask].sum() / s_plan
 
 
+def _norm_col(nombre) -> str:
+    """Normaliza el nombre de una columna: sin acentos, sin signos, MAYUSCULAS."""
+    import unicodedata
+    t = unicodedata.normalize("NFKD", str(nombre)).encode("ascii", "ignore").decode()
+    return re.sub(r"[^A-Z0-9]", "", t.upper())
+
+
+def _serie_col(df: pd.DataFrame, *nombres, default="") -> pd.Series:
+    """Devuelve SIEMPRE una Series (nunca un str) para la primera columna que
+    coincida (tolerante a acentos, espacios, guiones bajos y mayusculas).
+    Si ninguna existe, devuelve una Series del mismo largo con `default`."""
+    if df is None or len(df.columns) == 0:
+        return pd.Series([default] * (0 if df is None else len(df)), index=None if df is None else df.index)
+    mapa = {}
+    for c in df.columns:
+        mapa.setdefault(_norm_col(c), c)
+    for n in nombres:
+        c = mapa.get(_norm_col(n))
+        if c is not None:
+            return df[c]
+    return pd.Series([default] * len(df), index=df.index)
+
+
 _EXH_PAG_CACHE: pd.DataFrame | None = None
 _EXH_GRA_CACHE: pd.DataFrame | None = None
 
@@ -444,14 +467,22 @@ def _cargar_exhibiciones_pagadas() -> pd.DataFrame:
         return _EXH_PAG_CACHE
 
     df = _leer_excel_cloud(candidatos, "Resultado exhibiciones pagadas")
+    df.columns = [str(c).strip() for c in df.columns]
     df["ID_PDV_INVOLVES"] = (
-        df.get("ID_PDV_INVOLVES", "").astype(str).str.strip()
-          .str.replace(r"\.0$", "", regex=True)
+        _serie_col(df, "ID_PDV_INVOLVES", "ID PDV INVOLVES", "IDPDVINVOLVES",
+                   "PDV_INVOLVES", "ID_PDV", "ID PDV")
+        .astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
     )
-    col_empleado = "*EMPLEADO" if "*EMPLEADO" in df.columns else "EMPLEADO"
-    df["EMPLEADO_N"] = df.get(col_empleado, "").astype(str).str.strip().str.upper()
-    df["CANTIDAD_PLANEADA"]  = pd.to_numeric(df.get("CANTIDAD_PLANEADA"),  errors="coerce").fillna(0)
-    df["CANTIDAD_EJECUTADA"] = pd.to_numeric(df.get("CANTIDAD_EJECUTADA"), errors="coerce").fillna(0)
+    df["EMPLEADO_N"] = (
+        _serie_col(df, "*EMPLEADO", "EMPLEADO", "EMPLEADO_N", "NOMBRE EMPLEADO", "GESTOR")
+        .astype(str).str.strip().str.upper()
+    )
+    df["CANTIDAD_PLANEADA"]  = pd.to_numeric(
+        _serie_col(df, "CANTIDAD_PLANEADA", "CANTIDAD PLANEADA", "PLANEADA", "PLANEADO"),
+        errors="coerce").fillna(0)
+    df["CANTIDAD_EJECUTADA"] = pd.to_numeric(
+        _serie_col(df, "CANTIDAD_EJECUTADA", "CANTIDAD EJECUTADA", "EJECUTADA", "EJECUTADO"),
+        errors="coerce").fillna(0)
     _EXH_PAG_CACHE = df
     return _EXH_PAG_CACHE
 
@@ -470,10 +501,13 @@ def _cargar_exhibiciones_gratis() -> pd.DataFrame:
         return _EXH_GRA_CACHE
 
     df.columns = [str(c).strip() for c in df.columns]
-    df["ID PDV"]  = df.get("ID PDV", "").astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
-    df["Empleado_N"] = df.get("Empleado", "").astype(str).str.strip().str.upper()
-    df["Cantidad"]   = pd.to_numeric(df.get("Cantidad"), errors="coerce").fillna(0)
-    df["Categoría"]  = df.get("Categoría", "").astype(str).str.strip().str.upper()
+    df["ID PDV"]  = (_serie_col(df, "ID PDV", "ID_PDV", "ID_PDV_INVOLVES")
+                     .astype(str).str.strip().str.replace(r"\.0$", "", regex=True))
+    df["Empleado_N"] = (_serie_col(df, "Empleado", "*EMPLEADO", "EMPLEADO", "Gestor")
+                        .astype(str).str.strip().str.upper())
+    df["Cantidad"]   = pd.to_numeric(_serie_col(df, "Cantidad", "CANTIDAD"), errors="coerce").fillna(0)
+    df["Categoría"]  = (_serie_col(df, "Categoría", "Categoria", "CATEGORIA")
+                        .astype(str).str.strip().str.upper())
     # Solo categoría Gratis (alineado con etl_exhibiciones_gratis V3)
     df = df[df["Categoría"] == "GRATIS"].copy()
     _EXH_GRA_CACHE = df
