@@ -350,6 +350,23 @@ def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
     df = pd.read_excel(io.BytesIO(content_rep), engine='openpyxl')
     print(f"  Leyendo desde cloud: REPORTE_CAPTURA_PRECIOS_{periodo_nom}.xlsx ({len(df)} filas)")
 
+    # El histórico de KPIs vive en disco local dentro de
+    # calcular_kpi_simple_y_escribir (os.path.exists/pd.read_excel). En un
+    # runner de GitHub Actions el disco arranca vacío en cada corrida, así
+    # que sin este paso el histórico se resetearía al mes actual cada vez.
+    # Se descarga el histórico existente de SharePoint (si lo hay) a la
+    # misma ruta local ANTES de llamar la función, para que el merge
+    # incremental funcione igual que en una máquina persistente.
+    nombre_hist = paths.PR_OUT_KPIS_HISTORICO.name
+    url_hist = next((a["@microsoft.graph.downloadUrl"] for a in archivos_salida if a["name"] == nombre_hist), None)
+    if url_hist:
+        os.makedirs(os.path.dirname(str(paths.PR_OUT_KPIS_HISTORICO)), exist_ok=True)
+        with open(str(paths.PR_OUT_KPIS_HISTORICO), "wb") as f:
+            f.write(requests.get(url_hist).content)
+        print(f"  ⏳ Histórico descargado desde SharePoint: {nombre_hist}")
+    else:
+        print(f"  ℹ️  No hay histórico previo en SharePoint ({nombre_hist}) — se creará uno nuevo")
+
     from shared_loader import calcular_kpi_simple_y_escribir
     n = calcular_kpi_simple_y_escribir(
         df_origen=df,
@@ -365,6 +382,13 @@ def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
     if os.path.exists(str(paths.PR_OUT_KPIS)):
         df_kpi_local = pd.read_excel(str(paths.PR_OUT_KPIS))
         subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, paths.PR_OUT_KPIS.name, df_kpi_local)
+
+    # Subir el histórico ya actualizado de vuelta a SharePoint — si no se
+    # sube, el paso de descarga de arriba nunca tendría nada que recuperar.
+    if os.path.exists(str(paths.PR_OUT_KPIS_HISTORICO)):
+        df_hist_local = pd.read_excel(str(paths.PR_OUT_KPIS_HISTORICO))
+        subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_hist, df_hist_local)
+        print(f"  ✅ Histórico actualizado subido a SharePoint: {nombre_hist}")
 
     try:
         if os.path.exists(str(paths.PR_OUT_KPIS)):

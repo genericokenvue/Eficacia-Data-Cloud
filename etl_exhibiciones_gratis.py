@@ -52,7 +52,7 @@ RUTA_CARPETA_SALIDAS_EXHIB = f"{_SALIDAS_ROOT}/EXHIBICIONES".replace("\\", "/")
 
 paths.EXHIB_SALIDA = Path(f"{RUTA_CARPETA_BASES_EXHIB}".replace("\\", "/"))
 paths.EXHIB_NIVEL_IMPACTO = Path(f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}/Nivel impacto x Exhibición.xlsx".replace("\\", "/"))
-paths.DYP_BASE_CUPOS = Path(f"{_BASES_ROOT}/Base cupos.xlsx".replace("\\", "/"))
+paths.DYP_BASE_CUPOS = Path(f"{_BASES_ROOT}/DYP/{AÑO_ACTUAL}/Base_cupos.xlsx".replace("\\", "/"))
 
 # ==============================================================================
 # 1. CONFIGURACIÓN DE COLUMNAS Y REGLAS

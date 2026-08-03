@@ -146,16 +146,38 @@ def ejecutar_proceso(spec: pr.PeriodoSpec, headers, site_id):
     if not url_p or not url_i:
         raise FileNotFoundError(f"No se encontraron los archivos correctos de Planning o Base en {paths.RUTA_CARPETA_BASES_EXHIB}")
 
+    nombre_p = next((a["name"] for a in archivos_exhib if a["@microsoft.graph.downloadUrl"] == url_p), "?")
+    nombre_i = next((a["name"] for a in archivos_exhib if a["@microsoft.graph.downloadUrl"] == url_i), "?")
+    print(f"  ℹ️  Planning seleccionado: {nombre_p}")
+    print(f"  ℹ️  Encuesta/Base seleccionada: {nombre_i}")
+    if str(spec.mes) not in nombre_p and MESES_ESPANOL[spec.mes] not in nombre_p.upper():
+        print(f"  ⚠️  El nombre del Planning no menciona el mes/periodo esperado ({spec.etiqueta}) — "
+              f"verifica que no sea el archivo de otro periodo.")
+
     # Lectura robusta de la cabecera del Planning buscando la fila real de los campos clave
     content_p = requests.get(url_p).content
     df_raw = pd.read_excel(io.BytesIO(content_p), header=None)
-    header_row_idx = 0
-    
+    header_row_idx = None
+
     for idx, row in df_raw.iterrows():
         fila_str = " ".join([str(val).upper() for val in row.values if pd.notna(val)])
         if any(keyword in fila_str for keyword in ["PUNTO DE VENTA", "PDV"]) and any(keyword in fila_str for keyword in ["TIPO", "MARCA", "PAGADAS"]):
             header_row_idx = idx
             break
+
+    if header_row_idx is None:
+        # ANTES: caía en silencio a header_row_idx=0 (fila 0), lo que podía
+        # leer el Planning con el encabezado equivocado sin ningún aviso —
+        # las columnas "existen" (con nombres basura tipo "Unnamed: 3") pero
+        # los datos reales quedan corridos una o más filas, produciendo
+        # columnas numéricas vacías/NaN → CANTIDAD_PLANEADA en 0 para todo.
+        print(
+            f"  ⚠️  No se encontró ninguna fila de encabezado con 'PUNTO DE VENTA/PDV' + "
+            f"'TIPO/MARCA/PAGADAS' en el Planning descargado. Usando fila 0 por defecto — "
+            f"esto probablemente da columnas/datos desalineados. Primeras 3 filas crudas:\n"
+            f"{df_raw.head(3).to_string()}"
+        )
+        header_row_idx = 0
 
     df_p = pd.read_excel(io.BytesIO(content_p), header=header_row_idx)
     df_p.columns = [str(c).strip() for c in df_p.columns]
@@ -164,16 +186,39 @@ def ejecutar_proceso(spec: pr.PeriodoSpec, headers, site_id):
     col_pdv = next((c for c in df_p.columns if "PUNTO DE VENTA" in c.upper() or "PDV" in c.upper()), None)
     col_tipo = next((c for c in df_p.columns if "TIPO" in c.upper() and ("PAGADA" in c.upper() or "EXHIBICION" in c.upper())), None)
     col_marca = next((c for c in df_p.columns if "MARCA" in c.upper() and ("PAGADA" in c.upper() or "EXHIBICION" in c.upper())), None)
-    col_cant = next((c for c in df_p.columns if "DIGITE" in c.upper() or "ADICIONALES" in c.upper() or ("PAGADA" in c.upper() and ("NUMERO" in c.upper() or "CANTIDAD" in c.upper()))), None)
+    # PRIORIDAD explícita (antes era un solo OR que dependía del orden de
+    # columnas del Excel, no de cuál keyword era más confiable). "DIGITE" es
+    # la más específica -- suele ser la pregunta real donde se captura el
+    # número -- así que se prueba primero; "ADICIONALES" puede matchear
+    # columnas de texto/etiqueta que no tienen ningún valor numérico.
+    candidatos_cant = [c for c in df_p.columns if "DIGITE" in c.upper()]
+    if not candidatos_cant:
+        candidatos_cant = [c for c in df_p.columns if "ADICIONALES" in c.upper()]
+    if not candidatos_cant:
+        candidatos_cant = [c for c in df_p.columns
+                           if "PAGADA" in c.upper() and ("NUMERO" in c.upper() or "CANTIDAD" in c.upper())]
+    col_cant = candidatos_cant[0] if candidatos_cant else None
+    if len(candidatos_cant) > 1:
+        print(f"  \u2139\ufe0f  Varias columnas candidatas para cantidad: {candidatos_cant} \u2014 usando '{col_cant}'")
 
     if not all([col_pdv, col_tipo, col_marca, col_cant]):
         raise KeyError(f"❌ Faltan columnas requeridas en el Planning. Disponibles: {list(df_p.columns)}")
+
+    print(f"  ℹ️  Header detectado en fila {header_row_idx} — col_cant='{col_cant}'")
+    n_no_nulos = pd.to_numeric(df_p[col_cant], errors='coerce').notna().sum()
+    n_mayor_cero = (pd.to_numeric(df_p[col_cant], errors='coerce').fillna(0) > 0).sum()
+    print(f"  ℹ️  '{col_cant}': {n_no_nulos}/{len(df_p)} valores numéricos válidos, {n_mayor_cero} > 0")
+    if n_mayor_cero == 0:
+        print(f"  ⚠️  '{col_cant}' no tiene NINGÚN valor > 0 — CANTIDAD_PLANEADA saldrá en 0 para todo el periodo.")
 
     df_p["_JOIN_"] = df_p[col_pdv].astype(str).str.strip().str.upper()
 
     # Leemos la Base de Respuestas de Involves
     df_inv = pd.read_excel(io.BytesIO(requests.get(url_i).content))
+    nombre_col_61 = df_inv.columns[61] if df_inv.shape[1] > 61 else "(no existe, hay menos de 62 columnas)"
     serie_marca_inv = df_inv.iloc[:, 61] if df_inv.shape[1] > 61 else pd.Series([""] * len(df_inv))
+    print(f"  ℹ️  Marca de la encuesta tomada de la columna #61 ('{nombre_col_61}'). "
+          f"Muestra de valores: {serie_marca_inv.dropna().unique()[:5].tolist()}")
     df_inv.columns = [str(c).strip() for c in df_inv.columns]
 
     col_imp_ok = next((c for c in df_inv.columns if "IMPLEMENTADA" in c.upper() or "ACUERDO" in c.upper()), "La Exhibicion esta implementada de acuerdo con el planning?")
@@ -181,8 +226,27 @@ def ejecutar_proceso(spec: pr.PeriodoSpec, headers, site_id):
     col_tipo_contra = next((c for c in df_inv.columns if "TIPO" in c.upper() and "CONTRAPRESTACION" in c.upper()), "Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN")
     col_mar_contra = next((c for c in df_inv.columns if "MARCA" in c.upper() and "CONTRAPRESTACION" in c.upper()), "MARCA - CONTRAPRESTACIÓN")
     col_cant_contra = next((c for c in df_inv.columns if "CONTRAPRESTACION" in c.upper() and ("NUMERO" in c.upper() or "DIGITE" in c.upper())), "*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN")
-    col_id_inv = next((c for c in df_inv.columns if "ID" in c.upper() and "PDV" in c.upper()), "ID del PDV" if "ID del PDV" in df_inv.columns else "PDV")
+    # El Planning (col_pdv = '*Punto de venta') identifica el PDV por NOMBRE,
+    # no por ID numérico. La Encuesta trae varias columnas de PDV ('ID del
+    # PDV' numérico, 'PDV' con el nombre, 'Núm. del PDV', 'Código del PDV',
+    # etc.) — antes se priorizaba 'ID del PDV' (numérico) porque contenía
+    # las palabras "ID" y "PDV", lo cual nunca podía matchear contra un
+    # nombre y por eso el merge daba 0% de coincidencias. Se prioriza la
+    # columna simple 'PDV' (nombre) en su lugar.
+    col_id_inv = "PDV" if "PDV" in df_inv.columns else next(
+        (c for c in df_inv.columns if "ID" in c.upper() and "PDV" in c.upper()),
+        "ID del PDV" if "ID del PDV" in df_inv.columns else "PDV"
+    )
     col_tipo_inv = next((c for c in df_inv.columns if "TIPO" in c.upper() and "PAGADA" in c.upper()), "Seleccionar el Tipo de la exhibicion (Pagadas)")
+
+    # Diagnóstico completo: el Planning identifica el PDV por NOMBRE (col_pdv)
+    # y la Encuesta parece identificarlo por un ID numérico (col_id_inv) — si
+    # son sistemas de identificación distintos, la llave _LL_ nunca va a
+    # matchear sin importar tipo/marca. Se listan TODAS las columnas de
+    # ambos archivos para poder elegir la llave común correcta.
+    print(f"  ℹ️  col_pdv (Planning) = '{col_pdv}' | col_id_inv (Encuesta) = '{col_id_inv}' | col_tipo_inv (Encuesta) = '{col_tipo_inv}'")
+    print(f"  ℹ️  Columnas Planning ({len(df_p.columns)}): {list(df_p.columns)}")
+    print(f"  ℹ️  Columnas Encuesta ({len(df_inv.columns)}): {list(df_inv.columns)}")
 
     df_detalle = df_p.copy()
     
@@ -193,11 +257,41 @@ def ejecutar_proceso(spec: pr.PeriodoSpec, headers, site_id):
     df_inv["_LL_"] = (limpiar_texto_llave(df_inv[col_id_inv]) + "_" + 
                       limpiar_texto_llave(df_inv[col_tipo_inv]) + "_" + 
                       limpiar_texto_llave(serie_marca_inv))
-    
+
+    print(f"  ℹ️  Muestra _LL_ Planning: {df_detalle['_LL_'].head(3).tolist()}")
+    print(f"  ℹ️  Muestra _LL_ Encuesta: {df_inv['_LL_'].head(3).tolist()}")
+
+    # Universo real de respuestas con la sección "Pagadas" contestada (no en
+    # blanco) — si la mayoría de la Encuesta reportó exhibiciones gratis o
+    # de contraprestación en vez de pagadas, el techo de matches posibles
+    # es bajo de por sí, independientemente de la llave de cruce.
+    tipo_pagada_no_vacio = df_inv[col_tipo_inv].astype(str).str.strip().replace("nan", "").ne("")
+    print(f"  ℹ️  Filas de Encuesta con '{col_tipo_inv}' contestado (no vacío): "
+          f"{tipo_pagada_no_vacio.sum()}/{len(df_inv)}")
+
+    # Muestra de PDV/tipo/marca SIN concatenar, de filas donde sí hay
+    # respuesta "Pagadas" — para comparar visualmente contra el Planning y
+    # detectar diferencias de formato (tildes, mayúsculas, espacios, sufijos).
+    muestra_inv = df_inv.loc[tipo_pagada_no_vacio, [col_id_inv, col_tipo_inv]].head(5).copy()
+    muestra_inv["MARCA"] = serie_marca_inv.loc[muestra_inv.index]
+    print(f"  ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):\n{muestra_inv.to_string()}")
+    print(f"  ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):\n"
+          f"{df_p[[col_pdv, col_tipo, col_marca]].head(5).to_string()}")
+
     campos_auditoria = [col_imp_ok, col_causal, col_tipo_contra, col_mar_contra, col_cant_contra]
     df_inv_sub = df_inv[["_LL_"] + [c for c in campos_auditoria if c in df_inv.columns]].drop_duplicates(subset=["_LL_"])
     
     df_final = df_detalle.merge(df_inv_sub, on="_LL_", how="left")
+
+    n_match = df_final[col_imp_ok].notna().sum() if col_imp_ok in df_final.columns else 0
+    print(f"  ℹ️  Merge Planning↔Encuesta: {n_match}/{len(df_final)} filas encontraron match "
+          f"({n_match/len(df_final)*100:.1f}%)")
+    if n_match == 0:
+        print(f"  ⚠️  NINGUNA fila hizo match — todas quedarán con '{col_imp_ok}'='No' por defecto, "
+              f"y CANTIDAD_EJECUTADA saldrá en 0 para todo el periodo. Revisa la muestra de _LL_ arriba: "
+              f"si no coinciden, el problema está en col_tipo/col_marca (Planning) o en la columna #61 "
+              f"(Encuesta) — probablemente la posición de esa columna cambió.")
+
     df_final = preparar_datos_agrupado(df_final, col_cant, col_imp_ok, col_marca, col_tipo, col_causal, col_mar_contra, col_tipo_contra, col_cant_contra)
 
     dim_agrupar = [col_pdv, 'TIPO_FINAL', 'MARCA_FINAL', col_imp_ok, col_causal]
@@ -271,8 +365,19 @@ def generar_resumen_kpi_exhibiciones_pagadas(spec: pr.PeriodoSpec, headers, site
     df = pd.read_excel(io.BytesIO(requests.get(url_reporte).content), engine='openpyxl')
     print(f"  Leyendo desde nube: {nombre} ({len(df)} filas)")
 
+    if 'CANTIDAD_PLANEADA' not in df.columns or 'CANTIDAD_EJECUTADA' not in df.columns:
+        print(f"  ⚠️  El detalle no tiene columnas CANTIDAD_PLANEADA/CANTIDAD_EJECUTADA. "
+              f"Columnas disponibles: {list(df.columns)}")
+
     df['CANTIDAD_PLANEADA']  = pd.to_numeric(df.get('CANTIDAD_PLANEADA'),  errors='coerce').fillna(0)
     df['CANTIDAD_EJECUTADA'] = pd.to_numeric(df.get('CANTIDAD_EJECUTADA'), errors='coerce').fillna(0)
+
+    print(f"  ℹ️  CANTIDAD_PLANEADA > 0: {(df['CANTIDAD_PLANEADA'] > 0).sum()}/{len(df)} filas | "
+          f"CANTIDAD_EJECUTADA > 0: {(df['CANTIDAD_EJECUTADA'] > 0).sum()}/{len(df)} filas")
+    if (df['CANTIDAD_PLANEADA'] > 0).sum() == 0:
+        print(f"  ⚠️  CANTIDAD_PLANEADA es 0 en TODAS las filas del detalle — el problema viene "
+              f"de {nombre} (revisa ejecutar_proceso, no este paso de KPI).")
+
     df['PLANEADO_REC']  = (df['CANTIDAD_PLANEADA']  > 0).astype(int)
     df['EJECUTADO_REC'] = (df['CANTIDAD_EJECUTADA'] > 0).astype(int)
 

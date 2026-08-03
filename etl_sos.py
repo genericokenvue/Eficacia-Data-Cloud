@@ -420,7 +420,20 @@ def generar_resumen_kpi_sos(spec: pr.PeriodoSpec, headers, site_id):
         return
 
     df = pd.read_excel(io.BytesIO(requests.get(url_cumpl).content), engine='openpyxl')
-    
+
+    # Ver nota en etl_precios.py: el histórico vive en disco local dentro de
+    # calcular_kpi_simple_y_escribir — hay que descargarlo de SharePoint
+    # ANTES de llamarla, o en GitHub Actions se resetearía cada corrida.
+    nombre_hist = paths.SOS_OUT_KPIS_HISTORICO.name
+    url_hist = next((a["@microsoft.graph.downloadUrl"] for a in archivos_salida if a["name"] == nombre_hist), None)
+    if url_hist:
+        os.makedirs(os.path.dirname(str(paths.SOS_OUT_KPIS_HISTORICO)), exist_ok=True)
+        with open(str(paths.SOS_OUT_KPIS_HISTORICO), "wb") as f:
+            f.write(requests.get(url_hist).content)
+        print(f"  ⏳ Histórico descargado desde SharePoint: {nombre_hist}")
+    else:
+        print(f"  ℹ️  No hay histórico previo en SharePoint ({nombre_hist}) — se creará uno nuevo")
+
     from shared_loader import calcular_kpi_simple_y_escribir
     n = calcular_kpi_simple_y_escribir(
         df_origen=df,
@@ -436,6 +449,11 @@ def generar_resumen_kpi_sos(spec: pr.PeriodoSpec, headers, site_id):
     if os.path.exists(str(paths.SOS_OUT_KPIS)):
         df_kpi_local = pd.read_excel(str(paths.SOS_OUT_KPIS))
         subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_SOS, paths.SOS_OUT_KPIS.name, df_kpi_local)
+
+    if os.path.exists(str(paths.SOS_OUT_KPIS_HISTORICO)):
+        df_hist_local = pd.read_excel(str(paths.SOS_OUT_KPIS_HISTORICO))
+        subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_SOS, nombre_hist, df_hist_local)
+        print(f"  ✅ Histórico actualizado subido a SharePoint: {nombre_hist}")
 
     try:
         if os.path.exists(str(paths.SOS_OUT_KPIS)):

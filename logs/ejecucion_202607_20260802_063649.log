@@ -1,0 +1,84 @@
+2026-08-02 06:36:49  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260802_063649.log
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260802T063649_af2476
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-02 06:36:49
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      Run ID: 20260802T063649_af2476
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      Periodo: Julio_2026 (07/2026)
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['sos']
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-02 06:36:49  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-02 06:36:49  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-08-02 06:36:49  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx
+2026-08-02 06:36:49  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-02 06:36:49  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-02 06:36:49  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-02 06:36:51  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,601 filas PT  |  3,262 filas módulos cargadas
+2026-08-02 06:36:51  [etl.shared_loader]  ✓ INFO      [ISM] 2,530 filas PT  |  888 filas módulos cargadas
+2026-08-02 06:36:51  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,131 filas totales
+2026-08-02 06:36:51  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 7 | Año 2026
+2026-08-02 06:36:52  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-02 06:36:52  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,073 filas retenidas
+2026-08-02 06:36:52  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 980 filas retenidas
+2026-08-02 06:36:52  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-02 06:36:52  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 791 filas retenidas
+2026-08-02 06:36:52  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 4,084 filas retenidas
+2026-08-02 06:36:52  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 759 filas retenidas
+2026-08-02 06:36:52  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-02 06:36:52  [etl.orquestador]   ✓ INFO      shared_loader completado en 2.9s
+2026-08-02 06:36:52  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-02 06:36:52  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-08-02 06:36:52  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-02 06:36:52  [etl.sos]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-02 06:36:52  [etl.sos]           ✓ INFO      ETL SOS — iniciando
+2026-08-02 06:36:52  [etl.sos]           ✓ INFO      PT filtrado persistido: 742 PDVs únicos
+2026-08-02 06:36:55  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Julio_2026) ---
+2026-08-02 06:39:41  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/PARTICIPACIONES/2026/Encuesta_Sos_Consolidada_JULIO_2026.xlsx
+2026-08-02 06:39:41  [etl.sos]           ✓ INFO      [stdout] ✅ EXITO: Encuestas unidas en SharePoint (4 archivo(s)).
+2026-08-02 06:39:41  [etl.sos]           ✓ INFO      Encuestas SOS consolidadas
+2026-08-02 06:39:41  [etl.sos]           · DEBUG     [stdout] --- PASO 3: Generando Reporte de Cumplimiento (Julio_2026) ---
+2026-08-02 06:40:54  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/SOS/Cumplimiento_Captura_SOS_JULIO_2026.xlsx
+2026-08-02 06:40:54  [etl.sos]           ✓ INFO      [stdout] ✅ EXITO: Reporte de capturas generado en SharePoint.
+2026-08-02 06:40:54  [etl.sos]           ✓ INFO      Cumplimiento de captura calculado
+2026-08-02 06:40:54  [etl.sos]           · DEBUG     [stdout] --- PASO 4: Normalizando Target (Julio_2026) ---
+2026-08-02 06:41:03  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/PARTICIPACIONES/2026/Colombia_sos_target_Normalizado_JULIO_2026.xlsx
+2026-08-02 06:41:03  [etl.sos]           ✓ INFO      [stdout] ✅ EXITO: Target normalizado subido a SharePoint.
+2026-08-02 06:41:03  [etl.sos]           ✓ INFO      Target normalizado
+2026-08-02 06:41:03  [etl.sos]           · DEBUG     [stdout] --- PASO 5: Generando Reporte Final (Cruce Triple y Cálculos) (Julio_2026) ---
+2026-08-02 06:44:41  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/SOS/Reporte_SOS_Final_Calculado_JULIO_2026.xlsx
+2026-08-02 06:44:41  [etl.sos]           ✓ INFO      [stdout] ✅ EXITO: Reporte Final SOS subido a SharePoint.
+2026-08-02 06:44:41  [etl.sos]           ✓ INFO      Cruce triple y cálculo SOS completado
+2026-08-02 06:44:41  [etl.sos]           · DEBUG     [stdout] --- PASO 6 (V3): RESUMEN KPI SOS por gestor (Julio_2026) ---
+2026-08-02 06:44:45  [etl.sos]           · DEBUG     [stdout] ℹ️  No hay histórico previo en SharePoint (SOS_KPIS_HISTORICO.xlsx) — se creará uno nuevo
+2026-08-02 06:44:46  [etl.sos]           ✓ INFO      [stdout] ✅ Mes activo: 118 gestores.
+2026-08-02 06:44:48  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/SOS/SOS_KPIS.xlsx
+2026-08-02 06:44:51  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/SOS/SOS_KPIS_HISTORICO.xlsx
+2026-08-02 06:44:51  [etl.sos]           ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: SOS_KPIS_HISTORICO.xlsx
+2026-08-02 06:44:51  [etl.sos]           · DEBUG     [stdout] 🚀 Preparando cargue del KPI de SOS consolidado a Supabase...
+2026-08-02 06:44:55  [etl.sos]           ✓ INFO      [stdout] ✅ ÉXITO CLOUD: 118 filas subidas a Supabase.
+2026-08-02 06:44:55  [etl.sos]           ✓ INFO      KPI SOS consolidado
+2026-08-02 06:44:55  [etl.sos]           ✓ INFO      ETL SOS — completado
+2026-08-02 06:44:55  [etl.sos]           ✓ INFO      Duración total: 483.1s
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      ETL 'sos' terminó — ✓ OK en 483.1s
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        sos                    ✓ OK             483.1s
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               2.9s
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        486.1s
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  486.0s
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -0.0s
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      ························································
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      ························································
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO        06:36:52  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260802_063649.log
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      Fin: 2026-08-02 06:44:55
+2026-08-02 06:44:55  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
