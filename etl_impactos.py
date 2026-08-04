@@ -243,6 +243,10 @@ def consolidar_impactos(
             print(f"  ⚠️ No pude leer el consolidado previo de impactos ({e}); reconstruyo desde cero")
             archivos_a_procesar = archivos_impactos
             bloques = []
+            orden_columnas = None  # ← si no se resetea, se queda con las columnas
+                                    #   del CSV viejo (posible "Mes"/"Año" en vez de
+                                    #   "MES"/"AÑO") y esas columnas nuevas se
+                                    #   descartan al filtrar más abajo.
 
     for archivo in archivos_a_procesar:
         nombre = archivo["name"]
@@ -305,6 +309,9 @@ def consolidar_impactos(
         return 0
 
     df_final = pd.concat(bloques, ignore_index=True)
+    if "AÑO" not in df_final.columns:
+        print(f"  ⚠️  df_final quedó sin columna AÑO (columnas: {list(df_final.columns)}) — se crea vacía para no tronar.")
+        df_final["AÑO"] = ""
     df_final["AÑO"] = (
         pd.to_numeric(df_final["AÑO"], errors="coerce")
           .fillna("")

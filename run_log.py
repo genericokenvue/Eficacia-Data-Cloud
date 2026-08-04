@@ -33,13 +33,23 @@ import json
 import os
 import secrets
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Iterable
 
 import paths
 import periodo_resolver as pr
+
+try:
+    from supabase import create_client
+    _SUPABASE_URL = os.environ.get("SUPABASE_URL")
+    _SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+    supabase = create_client(_SUPABASE_URL, _SUPABASE_KEY) if (_SUPABASE_URL and _SUPABASE_KEY) else None
+except Exception:
+    supabase = None
+
+TABLA_RUN_LOG = "etl_run_log"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -222,7 +232,23 @@ class RunEvent:
 
 
 def log_run(event: RunEvent) -> None:
-    """Append-only a SCRIPTS/logs/run_log.jsonl."""
+    """
+    Registra el evento en Supabase (tabla etl_run_log) — así el historial
+    persiste entre corridas de GitHub Actions, donde el disco es efímero y
+    un .jsonl local se perdía en cada ejecución.
+
+    Si Supabase no está configurado (sin SUPABASE_URL/KEY) o la carga
+    falla, cae a un respaldo local en SCRIPTS/logs/run_log.jsonl — no
+    bloquea el pipeline por esto.
+    """
+    if supabase is not None:
+        try:
+            registro = asdict(event)
+            supabase.table(TABLA_RUN_LOG).insert(registro).execute()
+            return
+        except Exception as e:
+            print(f"  ⚠ No se pudo registrar el run en Supabase ({e}); guardo respaldo local")
+
     _ensure_logs_dir()
     with open(RUN_LOG_PATH, "a", encoding="utf-8") as f:
         f.write(event.to_jsonl())
@@ -247,7 +273,26 @@ def _iter_eventos() -> Iterable[dict]:
 
 
 def last_successful_run(etl: str, mes: int, anio: int) -> dict | None:
-    """Último evento OK para ese (etl, periodo). None si no existe."""
+    """
+    Último evento OK para ese (etl, periodo). None si no existe.
+    Consulta Supabase primero (persiste entre corridas de GitHub Actions);
+    si no está disponible, cae al .jsonl local (útil para pruebas offline).
+    """
+    if supabase is not None:
+        try:
+            resp = (
+                supabase.table(TABLA_RUN_LOG)
+                .select("*")
+                .eq("etl", etl).eq("mes", mes).eq("anio", anio).eq("status", "OK")
+                .order("ts_fin", desc=True)
+                .limit(1)
+                .execute()
+            )
+            filas = resp.data or []
+            return filas[0] if filas else None
+        except Exception as e:
+            print(f"  ⚠ No se pudo consultar Supabase ({e}); reviso el .jsonl local")
+
     candidato = None
     for ev in _iter_eventos():
         if ev.get("etl") == etl and ev.get("mes") == mes and ev.get("anio") == anio \
@@ -321,16 +366,35 @@ def calcular_output_hash(etl: str) -> tuple[str | None, list[str]]:
 # CLI de inspección
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _cli_list(args: argparse.Namespace) -> None:
-    eventos = list(_iter_eventos())
-    if args.periodo:
-        spec = pr.parsear_periodo_str(args.periodo)
-        eventos = [e for e in eventos
-                   if e.get("mes") == spec.mes and e.get("anio") == spec.anio]
-    if args.etl:
-        eventos = [e for e in eventos if e.get("etl") == args.etl]
+def _obtener_eventos_filtrados(periodo: str | None, etl: str | None, limit: int) -> list[dict]:
+    if supabase is not None:
+        try:
+            q = supabase.table(TABLA_RUN_LOG).select("*").order("ts_fin", desc=True)
+            if periodo:
+                spec = pr.parsear_periodo_str(periodo)
+                q = q.eq("mes", spec.mes).eq("anio", spec.anio)
+            if etl:
+                q = q.eq("etl", etl)
+            if limit > 0:
+                q = q.limit(limit)
+            resp = q.execute()
+            eventos = resp.data or []
+            eventos.reverse()  # para imprimir en orden cronológico ascendente, igual que antes
+            return eventos
+        except Exception as e:
+            print(f"  ⚠ No se pudo consultar Supabase ({e}); reviso el .jsonl local\n")
 
-    eventos = eventos[-args.limit:] if args.limit > 0 else eventos
+    eventos = list(_iter_eventos())
+    if periodo:
+        spec = pr.parsear_periodo_str(periodo)
+        eventos = [e for e in eventos if e.get("mes") == spec.mes and e.get("anio") == spec.anio]
+    if etl:
+        eventos = [e for e in eventos if e.get("etl") == etl]
+    return eventos[-limit:] if limit > 0 else eventos
+
+
+def _cli_list(args: argparse.Namespace) -> None:
+    eventos = _obtener_eventos_filtrados(args.periodo, args.etl, args.limit)
     if not eventos:
         print("(sin runs registrados con esos filtros)")
         return
