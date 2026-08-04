@@ -406,16 +406,17 @@ def _obtener_bytes_adjunto(nombre_sup: str, ruta_o_valor: str, nombre_archivo: s
 
 def _validar_remitente() -> bool:
     """
-    Comprueba, ANTES de intentar enviar nada, si Graph puede resolver
-    CORREO_REMITENTE como un usuario/buzón válido. El error de sendMail
-    ("ErrorInvalidUser") enmascara el valor real con '***', así que esto
-    imprime el valor tal cual para poder verificarlo a simple vista.
+    Intenta, ANTES de enviar nada, resolver CORREO_REMITENTE contra Graph
+    (GET /users/{id}) solo para dejar constancia en el log de qué valor se
+    está usando — el error real de sendMail ("ErrorInvalidUser") enmascara
+    el valor con '***', así que esto lo muestra explícito.
 
-    Si CORREO_REMITENTE SÍ es un buzón real de Microsoft 365 (confirmado
-    fuera de este script) y aun así Graph lo rechaza acá, la causa más
-    común es una "Application Access Policy" en Exchange Online que no
-    incluye ese buzón en el scope permitido para esta app — eso se
-    configura del lado de Exchange (PowerShell), no en este código.
+    IMPORTANTE: este chequeo usa GET /users/{id}, que requiere el permiso
+    de aplicación User.Read.All — un permiso DISTINTO a Mail.Send (el que
+    de verdad se necesita para enviar correos). Si la app solo tiene
+    Mail.Send (que es lo correcto/mínimo necesario), este GET puede fallar
+    con 403 aunque el envío real funcione bien — por eso NUNCA bloquea el
+    envío, es solo diagnóstico informativo.
     """
     print(f"  ℹ️  CORREO_REMITENTE configurado: '{CORREO_REMITENTE}'")
     try:
@@ -426,17 +427,21 @@ def _validar_remitente() -> bool:
         if response.status_code == 200:
             data = response.json()
             print(f"  ✓ Graph reconoce el usuario: {data.get('displayName')} ({data.get('userPrincipalName')})")
-            return True
-        print(f"  ❌ Graph NO pudo resolver CORREO_REMITENTE='{CORREO_REMITENTE}' "
-              f"(status {response.status_code}): {response.text}")
-        print("     Si ese correo SÍ existe en Outlook/M365, lo más probable es que exista una "
-              "'Application Access Policy' en Exchange Online que no incluye este buzón en el "
-              "scope permitido para la app — hay que revisarlo/ajustarlo del lado de Exchange "
-              "(no es un problema de este script).")
-        return False
+        elif response.status_code == 403:
+            print("  ℹ️  No se pudo verificar el remitente con GET /users (falta el permiso "
+                  "User.Read.All, distinto a Mail.Send) — no es necesariamente un problema, "
+                  "se continúa e intenta el envío real igual.")
+        else:
+            print(f"  ⚠️  Graph no pudo resolver CORREO_REMITENTE='{CORREO_REMITENTE}' "
+                  f"(status {response.status_code}): {response.text}")
+            print("     Si ese correo SÍ existe en Outlook/M365, la causa más común de un 404 "
+                  "aquí (ErrorInvalidUser) es una 'Application Access Policy' en Exchange Online "
+                  "que no incluye este buzón en el scope permitido para la app — se revisa del "
+                  "lado de Exchange (PowerShell), no en este código. Se continúa igual e intenta "
+                  "el envío real, que es la prueba definitiva.")
     except Exception as e:
-        print(f"  ⚠️  No se pudo validar CORREO_REMITENTE contra Graph: {e}")
-        return True  # no bloquear el intento de envío si la validación misma falla
+        print(f"  ⚠️  No se pudo pre-validar CORREO_REMITENTE: {e}")
+    return True  # Nunca bloquea — es solo diagnóstico. El intento real de sendMail manda.
 
 
 def _enviar_correo_graph(destinatario: str, asunto: str, cuerpo_html: str,
