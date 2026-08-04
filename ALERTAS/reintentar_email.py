@@ -25,6 +25,7 @@ from alertas_email import (
     _obtener_bytes_adjunto,
     _leer_excel_cloud,
     CORREO_REMITENTE,
+    _validar_remitente,
     RUTA_MAESTRA_CLOUD,
 )
 
@@ -42,6 +43,13 @@ def main():
         help="Modo prueba: arma el correo (asunto, cuerpo, adjunto) pero NO lo envía de verdad",
     )
     args = parser.parse_args()
+
+    if not args.prueba:
+        if not CORREO_REMITENTE:
+            print("❌ Falta CORREO_REMITENTE en las variables de entorno.")
+            sys.exit(1)
+        if not _validar_remitente():
+            sys.exit(1)
 
     print("Recalculando cumplimientos (necesario para armar el adjunto de cada supervisor)...")
     from calcular_cumplimientos import main as calcular
@@ -77,10 +85,6 @@ def main():
     for f in filas_filtradas:
         print(f"  · {f['NOMBRE_SUP']} -> {f['CORREO']}")
     print()
-
-    if not args.prueba and not CORREO_REMITENTE:
-        print("❌ Falta CORREO_REMITENTE en las variables de entorno.")
-        sys.exit(1)
 
     enviados = errores = 0
     for fila in filas_filtradas:

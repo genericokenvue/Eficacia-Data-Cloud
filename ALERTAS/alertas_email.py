@@ -404,6 +404,41 @@ def _obtener_bytes_adjunto(nombre_sup: str, ruta_o_valor: str, nombre_archivo: s
         return None
 
 
+def _validar_remitente() -> bool:
+    """
+    Comprueba, ANTES de intentar enviar nada, si Graph puede resolver
+    CORREO_REMITENTE como un usuario/buzón válido. El error de sendMail
+    ("ErrorInvalidUser") enmascara el valor real con '***', así que esto
+    imprime el valor tal cual para poder verificarlo a simple vista.
+
+    Si CORREO_REMITENTE SÍ es un buzón real de Microsoft 365 (confirmado
+    fuera de este script) y aun así Graph lo rechaza acá, la causa más
+    común es una "Application Access Policy" en Exchange Online que no
+    incluye ese buzón en el scope permitido para esta app — eso se
+    configura del lado de Exchange (PowerShell), no en este código.
+    """
+    print(f"  ℹ️  CORREO_REMITENTE configurado: '{CORREO_REMITENTE}'")
+    try:
+        token = paths.obtener_token_azure()
+        headers = {"Authorization": f"Bearer {token}"}
+        url = f"https://graph.microsoft.com/v1.0/users/{urllib.parse.quote(CORREO_REMITENTE)}"
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            print(f"  ✓ Graph reconoce el usuario: {data.get('displayName')} ({data.get('userPrincipalName')})")
+            return True
+        print(f"  ❌ Graph NO pudo resolver CORREO_REMITENTE='{CORREO_REMITENTE}' "
+              f"(status {response.status_code}): {response.text}")
+        print("     Si ese correo SÍ existe en Outlook/M365, lo más probable es que exista una "
+              "'Application Access Policy' en Exchange Online que no incluye este buzón en el "
+              "scope permitido para la app — hay que revisarlo/ajustarlo del lado de Exchange "
+              "(no es un problema de este script).")
+        return False
+    except Exception as e:
+        print(f"  ⚠️  No se pudo validar CORREO_REMITENTE contra Graph: {e}")
+        return True  # no bloquear el intento de envío si la validación misma falla
+
+
 def _enviar_correo_graph(destinatario: str, asunto: str, cuerpo_html: str,
                           nombre_adjunto: str | None, bytes_adjunto: bytes | None) -> None:
     """Envía un correo vía Microsoft Graph `/users/{CORREO_REMITENTE}/sendMail`."""
@@ -593,6 +628,8 @@ def enviar_correos(
         print("  ⚠️  MODO PRUEBA — se arma la cola pero no se envía nada real\n")
     elif not CORREO_REMITENTE:
         print("  ❌ Falta CORREO_REMITENTE en las variables de entorno.")
+        return {"filas_cola": 0, "enviados": 0, "errores": 0, "macro_ok": False}
+    elif not _validar_remitente():
         return {"filas_cola": 0, "enviados": 0, "errores": 0, "macro_ok": False}
 
     print("\nArmando cola de envíos:")

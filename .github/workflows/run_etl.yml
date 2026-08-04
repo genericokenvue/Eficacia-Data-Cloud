@@ -4,46 +4,107 @@ on:
   workflow_dispatch:
     inputs:
       script:
-        description: 'Nombre del script a ejecutar (Ej: etl_precios.py). Dejar vacío para run_all.py'
+        description: 'Qué correr'
+        required: true
+        type: choice
+        default: 'run_all'
+        options:
+          - run_all              # Orquestador completo (o --solo abajo)
+          - etl_cif
+          - etl_nopresencia
+          - etl_precios
+          - etl_sos
+          - etl_exhibiciones_pagadas
+          - etl_exhibiciones_gratis
+          - etl_ventas
+          - etl_impactos
+          - etl_impactos_segmentos
+      mes:
+        description: 'Mes a procesar (1-12). Vacío = mes actual. Usar junto a "anio", o dejar ambos vacíos.'
         required: false
         default: ''
-      argumentos:
-        description: 'Parámetros de fecha (Ej: --mes 7 --anio 2026)'
+      anio:
+        description: 'Año a procesar (ej. 2026). Vacío = año actual.'
         required: false
         default: ''
+      periodos:
+        description: 'Alternativa a mes/año: varios periodos a la vez, formato MM/AAAA separados por coma (ej: 03/2026,04/2026). Si se llena esto, ignora mes/año.'
+        required: false
+        default: ''
+      solo:
+        description: 'Solo para run_all: qué ETLs correr, separados por espacio (ej: cif nopresencia). Vacío = todos. Opciones: cif nopresencia precios sos exhib_pagadas exhib_gratis ventas impactos impactos_segmentos'
+        required: false
+        default: ''
+      workers:
+        description: 'Solo para run_all: threads paralelos (default 6)'
+        required: false
+        default: '6'
+      skip_if_cached:
+        description: 'Solo para run_all: saltar ETLs cuyos inputs no cambiaron desde el último run OK'
+        required: true
+        type: boolean
+        default: false
+      gold:
+        description: 'Solo para run_all: regenerar la capa GOLD al final'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Descargar todo el código del repositorio
-      uses: actions/checkout@v4
+      - name: Descargar todo el código del repositorio
+        uses: actions/checkout@v4
 
-    - name: Configurar entorno de Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        cache: 'pip'
+      - name: Configurar entorno de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
 
-    - name: Instalar dependencias del proyecto
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Instalar dependencias del proyecto
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Ejecutar ETL Seleccionada
-      env:
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      run: |
-        # Validamos si el usuario escribió un script específico o si corre el orquestador general
-        if [ -n "${{ github.event.inputs.script }}" ]; then
-          echo "Ejecutando script individual: ${{ github.event.inputs.script }}"
-          python ${{ github.event.inputs.script }} ${{ github.event.inputs.argumentos }}
-        else
-          echo "Ejecutando suite completa de ETLs..."
-          python run_all.py ${{ github.event.inputs.argumentos }}
-        fi
+      - name: Ejecutar ETL seleccionada
+        env:
+          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          SUPABASE_URL:        ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY:        ${{ secrets.SUPABASE_KEY }}
+        run: |
+          SCRIPT="${{ inputs.script }}"
+          ARGS=""
+
+          # Periodo: --periodos tiene prioridad si se llenó; si no, --mes/--anio
+          # (cualquiera de los dos, o ninguno para que el script use el periodo actual).
+          if [ -n "${{ inputs.periodos }}" ]; then
+            ARGS="$ARGS --periodos ${{ inputs.periodos }}"
+          else
+            if [ -n "${{ inputs.mes }}" ]; then
+              ARGS="$ARGS --mes ${{ inputs.mes }}"
+            fi
+            if [ -n "${{ inputs.anio }}" ]; then
+              ARGS="$ARGS --anio ${{ inputs.anio }}"
+            fi
+          fi
+
+          # Flags exclusivos de run_all.py
+          if [ "$SCRIPT" = "run_all" ]; then
+            if [ -n "${{ inputs.solo }}" ]; then
+              ARGS="$ARGS --solo ${{ inputs.solo }}"
+            fi
+            ARGS="$ARGS --workers ${{ inputs.workers }}"
+            if [ "${{ inputs.skip_if_cached }}" = "true" ]; then
+              ARGS="$ARGS --skip-if-cached"
+            fi
+            if [ "${{ inputs.gold }}" = "true" ]; then
+              ARGS="$ARGS --gold"
+            fi
+          fi
+
+          echo "Ejecutando ${SCRIPT}.py ${ARGS}"
+          python "${SCRIPT}.py" $ARGS

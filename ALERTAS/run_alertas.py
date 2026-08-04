@@ -137,6 +137,15 @@ def main():
         "--setup-telegram", action="store_true",
         help="Lista los chat_id que el bot ha recibido vía getUpdates y sale.",
     )
+    parser.add_argument(
+        "--supervisor", nargs="+", metavar="NOMBRE",
+        help=(
+            "Corre TODO el pipeline (calcular + telegram + email) pero solo "
+            "envía a el/los supervisor(es) indicados — el resto se calcula "
+            "y se guarda igual en SharePoint, solo se filtra el envío. "
+            "Coincidencia parcial: 'YENUBY' matchea 'YENUBY MILENA LEON LUNA'."
+        ),
+    )
     args = parser.parse_args()
 
     if args.setup_telegram:
@@ -215,6 +224,39 @@ def main():
             print("❌ No se encontraron archivos de cumplimiento calculados en SharePoint.")
             print("   Ejecuta primero con: python run_alertas.py --solo calcular")
             sys.exit(1)
+
+    # ── Filtro opcional por supervisor ──────────────────────────────────
+    # Todo el cálculo ya corrió completo y ya se guardó en SharePoint (arriba)
+    # — esto solo recorta lo que se manda por Telegram/Email, para probar
+    # con una persona sin disparar el envío completo a todo el equipo.
+    if args.supervisor:
+        nombres_norm = [s.upper() for s in args.supervisor]
+
+        df_res = resultado_calculo["df_resumen"]
+        mask_res = df_res["SUPERVISOR_LIDER"].astype(str).str.upper().apply(
+            lambda x: any(n in x for n in nombres_norm)
+        )
+        df_res_filtrado = df_res[mask_res].copy()
+
+        df_det = resultado_calculo["df_detalle"]
+        nombre_match = df_det["NOMBRE"].astype(str).str.upper().apply(
+            lambda x: any(n in x for n in nombres_norm)
+        )
+        acronimos_sup = df_det.loc[nombre_match, "ACRONIMO"].tolist()
+        mask_det = nombre_match
+        if "ACRONIMO_SUP" in df_det.columns:
+            mask_det = mask_det | df_det["ACRONIMO_SUP"].isin(acronimos_sup)
+        df_det_filtrado = df_det[mask_det].copy()
+
+        if df_res_filtrado.empty:
+            print(f"❌ Ningún supervisor en el resumen matchea: {args.supervisor}")
+            sys.exit(1)
+
+        print(f"\n🔎 Filtrado por --supervisor {args.supervisor}: "
+              f"{len(df_res_filtrado)} supervisor(es), {len(df_det_filtrado)} personas en detalle")
+
+        resultado_calculo["df_resumen"] = df_res_filtrado
+        resultado_calculo["df_detalle"] = df_det_filtrado
 
     # Cargar maestra (SharePoint)
     try:
