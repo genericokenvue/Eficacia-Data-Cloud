@@ -190,10 +190,16 @@ def cargar() -> pd.DataFrame:
     })
 
     # Normalización de strings
+    # IMPORTANTE: fillna("") ANTES de astype(str) — en pandas reciente
+    # (dtype "str" nativo), astype(str) sobre una columna con NaN NO la
+    # convierte a la palabra "nan"; queda como NaN real (float), y el
+    # .replace({"nan": ""}) de abajo nunca la atrapaba. Eso dejaba filas
+    # con ACRONIMO/NOMBRE realmente vacíos sin filtrar más adelante
+    # (sin_acronimo_o_nombre compara contra "", no contra NaN).
     for c in ["ACRONIMO", "COD_PT", "TIPO_SERVICIO", "CANAL",
               "CIUDAD_CUPO", "ROL", "NOMBRE"]:
         if c in df.columns:
-            df[c] = df[c].astype(str).str.strip().replace({"nan": ""})
+            df[c] = df[c].fillna("").astype(str).str.strip().replace({"nan": ""})
     df["ACRONIMO"] = df["ACRONIMO"].str.upper()
     df["NOMBRE"]   = df["NOMBRE"].str.upper()
     df["ROL"]      = df["ROL"].str.upper()

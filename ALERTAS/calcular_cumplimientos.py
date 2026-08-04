@@ -293,7 +293,7 @@ RUTA_MAESTRA    = getattr(paths, 'ALERTAS_MAESTRO', f"{DIR_ALERTAS}/maestra_supe
 # `RUTA_CARPETA_SALIDAS_ALERTAS` en la nube, así que lo construimos aquí
 # siguiendo la misma convención que el resto de módulos (_SALIDAS_ROOT/<módulo>).
 RUTA_CARPETA_SALIDAS_ALERTAS = f"{paths._SALIDAS_ROOT}/ALERTAS"
-RUTA_MAESTRA_CLOUD           = f"{RUTA_CARPETA_SALIDAS_ALERTAS}/maestro_supervisores.xlsx"
+RUTA_MAESTRA_CLOUD           = f"{paths._BASES_ROOT}/ALERTAS/MAESTRO_SUPERVISORES.xlsx"
 # Carpeta en la nube donde deben quedar los adjuntos por supervisor
 # (…/BI/INVOLVES/SALIDAS/ALERTAS/ADJUNTOS)
 RUTA_CARPETA_ADJUNTOS_CLOUD  = f"{RUTA_CARPETA_SALIDAS_ALERTAS}/ADJUNTOS"
@@ -828,7 +828,7 @@ def _enriquecer_acronimo_pt(
     # cuyo reporte no incluye ACRONIMO ni CEDULA).
     if "NOMBRE" in out.columns:
         nombre_a_acr = idx["nombre_a_acronimo"]
-        falta = out["ACRONIMO"].astype(str) == ""
+        falta = out["ACRONIMO"].fillna("").astype(str) == ""
         if falta.any():
             out.loc[falta, "ACRONIMO"] = (
                 out.loc[falta, "NOMBRE"].astype(str).str.strip().str.upper()
@@ -1485,7 +1485,7 @@ def calcular_resumen(df_detalle: pd.DataFrame, universo: pd.DataFrame) -> pd.Dat
     no_sup = df_detalle[df_detalle["ES_SUPERVISOR"] == False].copy()
     if not no_sup.empty:
         equipo_stats = (
-            no_sup[no_sup["ACRONIMO_SUP"].astype(str) != ""]
+            no_sup[no_sup["ACRONIMO_SUP"].fillna("").astype(str) != ""]
                   .groupby("ACRONIMO_SUP", dropna=False)
                   .agg(
                       N_GESTORES   = ("ACRONIMO",    "nunique"),
@@ -1519,7 +1519,7 @@ def calcular_resumen(df_detalle: pd.DataFrame, universo: pd.DataFrame) -> pd.Dat
     # equipo de sus gestores como fallback razonable (suma para conteos
     # informativos como EXHIB_GRATIS_TOTAL).
     if not no_sup.empty:
-        equipo_filtered = no_sup[no_sup["ACRONIMO_SUP"].astype(str) != ""]
+        equipo_filtered = no_sup[no_sup["ACRONIMO_SUP"].fillna("").astype(str) != ""]
         team_kpis_pct = (
             equipo_filtered.groupby("ACRONIMO_SUP", dropna=False)[cols_pct]
                            .mean()

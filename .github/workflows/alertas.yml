@@ -13,12 +13,18 @@ on:
           - calcular_cumplimientos # Solo Fase A (calcula y guarda en SharePoint)
           - alertas_telegram       # Solo Fase B (requiere haber corrido calcular antes)
           - alertas_email          # Solo Fase C (requiere haber corrido calcular antes)
+          - reintentar_telegram    # Reenvía Telegram SOLO a los supervisores en "supervisores"
+          - reintentar_email       # Reenvía correo SOLO a los supervisores en "supervisores"
       fases:
         description: 'Solo para run_alertas: fases a correr, separadas por espacio (ej: "calcular telegram"). Vacío = todas.'
         required: false
         default: ''
+      supervisores:
+        description: 'Solo para reintentar_telegram/reintentar_email: nombre del supervisor, SIN comillas (ej: YENUBY MILENA LEON LUNA). Cada palabra se usa como filtro por coincidencia parcial, así que basta con el nombre tal cual.'
+        required: false
+        default: ''
       modo_prueba:
-        description: 'Modo prueba (no envía Telegram/correos reales — solo aplica a run_alertas/alertas_telegram/alertas_email)'
+        description: 'Modo prueba (no envía Telegram/correos reales — aplica a run_alertas/alertas_telegram/alertas_email/reintentar_telegram/reintentar_email)'
         required: true
         type: boolean
         default: true
@@ -55,9 +61,17 @@ jobs:
         run: |
           SCRIPT="${{ inputs.script }}"
           ARGS=""
+          SUPERVISORES="${{ inputs.supervisores }}"
 
-          # --prueba solo lo entienden run_alertas / alertas_telegram / alertas_email
-          # (calcular_cumplimientos.py no envía nada, así que no aplica ahí).
+          if [ "$SCRIPT" = "reintentar_telegram" ] || [ "$SCRIPT" = "reintentar_email" ]; then
+            if [ -z "$SUPERVISORES" ]; then
+              echo "❌ Falta el input 'supervisores' — obligatorio para $SCRIPT"
+              exit 1
+            fi
+          fi
+
+          # --prueba lo entienden todos menos calcular_cumplimientos.py
+          # (ese no envía nada, así que no aplica ahí).
           if [ "${{ inputs.modo_prueba }}" = "true" ] && [ "$SCRIPT" != "calcular_cumplimientos" ]; then
             ARGS="$ARGS --prueba"
           fi
@@ -66,5 +80,12 @@ jobs:
             ARGS="$ARGS --solo ${{ inputs.fases }}"
           fi
 
-          echo "Ejecutando ALERTAS/${SCRIPT}.py ${ARGS}"
-          python "ALERTAS/${SCRIPT}.py" $ARGS
+          echo "Ejecutando ALERTAS/${SCRIPT}.py"
+          if [ "$SCRIPT" = "reintentar_telegram" ] || [ "$SCRIPT" = "reintentar_email" ]; then
+            # $SUPERVISORES sin comillas: bash lo separa en palabras, y cada
+            # palabra ya funciona como filtro de coincidencia parcial en el
+            # script (no hace falta que sea el nombre completo exacto).
+            python "ALERTAS/${SCRIPT}.py" $SUPERVISORES $ARGS
+          else
+            python "ALERTAS/${SCRIPT}.py" $ARGS
+          fi

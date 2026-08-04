@@ -75,6 +75,12 @@ CORREO_REMITENTE = os.environ.get("CORREO_REMITENTE", "").strip()
 # supervisor (respaldo cuando no hay copia local en disco, p.ej. --solo email).
 RUTA_CARPETA_ADJUNTOS_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/ADJUNTOS"
 
+# Maestra de supervisores (nombre, correo, chat_id) — vive en BASES DE
+# RESPUESTAS/ALERTAS, no en SALIDAS/ALERTAS (donde vive el resto del
+# output del pipeline). A nivel de módulo para que scripts standalone como
+# reintentar_email.py puedan importarla directamente.
+RUTA_MAESTRA_CLOUD = f"{paths._BASES_ROOT}/ALERTAS/MAESTRO_SUPERVISORES.xlsx"
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CONSTRUCCIÓN DEL CUERPO HTML DEL CORREO
@@ -448,8 +454,14 @@ def construir_cola_envios(
     # Normalizar maestra
     df_m = df_maestro.copy()
     df_m.columns = df_m.columns.str.strip().str.upper()
-    df_m["NOMBRE_SUPERVISOR"] = df_m["NOMBRE_SUPERVISOR"].astype(str).str.strip().str.upper()
-    df_m["CORREO"]            = df_m["CORREO"].astype(str).str.strip()
+    # IMPORTANTE: fillna("") ANTES de astype(str). En versiones recientes de
+    # pandas (dtype "str" nativo), astype(str) sobre una columna con NaN NO
+    # convierte esos valores a la palabra "nan" — se quedan como NaN real
+    # (float), y el filtro de abajo (comparar contra "nan"/"NAN") nunca los
+    # atrapaba. Por eso se estaban armando envíos con CORREO=NaN, que al
+    # imprimirse en el f-string se veía como el texto "nan".
+    df_m["NOMBRE_SUPERVISOR"] = df_m["NOMBRE_SUPERVISOR"].fillna("").astype(str).str.strip().str.upper()
+    df_m["CORREO"]            = df_m["CORREO"].fillna("").astype(str).str.strip()
 
     meses_es = {
         1:"Enero", 2:"Febrero", 3:"Marzo", 4:"Abril",
@@ -646,7 +658,6 @@ if __name__ == "__main__":
 
     # Maestra de supervisores: en la nube (mismo lugar donde
     # calcular_cumplimientos.py la guarda).
-    RUTA_MAESTRA_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/maestro_supervisores.xlsx"
     try:
         df_maestro = _leer_excel_cloud(RUTA_MAESTRA_CLOUD, "Maestra de supervisores")
     except Exception as e:

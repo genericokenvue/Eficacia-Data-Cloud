@@ -1,0 +1,4 @@
+2026-08-04 09:13:41  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260804_091341.log
+2026-08-04 09:13:42  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos en la nube con paths.py
+2026-08-04 09:18:44  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado (Cloud vía paths) — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37
+2026-08-04 09:19:44  [etl.alertas_telegram]  ✓ INFO      Telegram — enviados=2 fallidos=0 sin_chat_id=0 prueba=True

@@ -105,7 +105,7 @@ def _leer_excel_cloud(ruta_sharepoint: str, descripcion: str) -> pd.DataFrame:
     raise FileNotFoundError(f"No se pudo leer {descripcion} desde SharePoint ({ruta_sharepoint}).")
 
 
-RUTA_MAESTRA_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/maestro_supervisores.xlsx"
+RUTA_MAESTRA_CLOUD = f"{paths._BASES_ROOT}/ALERTAS/MAESTRO_SUPERVISORES.xlsx"
 
 
 def main():
@@ -119,6 +119,10 @@ def main():
     parser.add_argument(
         "--rapido", action="store_true",
         help="No recalcula cumplimientos (mensaje sin desglose por perfil)",
+    )
+    parser.add_argument(
+        "--prueba", action="store_true",
+        help="Modo prueba: arma el mensaje pero NO lo envía por Telegram (solo lo imprime)",
     )
     args = parser.parse_args()
 
@@ -189,7 +193,7 @@ def main():
         df_maestro=df_maestro,
         mes=mes,
         anio=anio,
-        modo_prueba=False,
+        modo_prueba=args.prueba,
         df_cif_pdv=df_cif_pdv,
         df_np=df_np,
         df_pr=df_pr,

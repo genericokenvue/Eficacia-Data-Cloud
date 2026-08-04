@@ -45,7 +45,7 @@ BASE = paths.BASE
 # en disco local (paths.ALERTAS_DIR) — calcular_cumplimientos.py los guarda
 # en SharePoint. Se leen aquí con los mismos helpers Graph API que usa el
 # resto del pipeline.
-RUTA_MAESTRA_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/maestro_supervisores.xlsx"
+RUTA_MAESTRA_CLOUD = f"{paths._BASES_ROOT}/ALERTAS/MAESTRO_SUPERVISORES.xlsx"
 
 _DRIVE_ID_CACHE: dict = {}
 

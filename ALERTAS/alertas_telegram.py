@@ -89,7 +89,7 @@ _log = get_logger("alertas_telegram")
 import paths
 BASE         = paths.BASE
 DIR_ALERTAS  = paths.ALERTAS_DIR
-RUTA_MAESTRA_CLOUD = f"{paths._SALIDAS_ROOT}/ALERTAS/maestro_supervisores.xlsx"
+RUTA_MAESTRA_CLOUD = f"{paths._BASES_ROOT}/ALERTAS/MAESTRO_SUPERVISORES.xlsx"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -427,31 +427,21 @@ def _kpi_simple_perfil(
     return eje[mask].sum() / s_plan
 
 
-def _norm_col(nombre) -> str:
-    """Normaliza el nombre de una columna: sin acentos, sin signos, MAYUSCULAS."""
-    import unicodedata
-    t = unicodedata.normalize("NFKD", str(nombre)).encode("ascii", "ignore").decode()
-    return re.sub(r"[^A-Z0-9]", "", t.upper())
-
-
-def _serie_col(df: pd.DataFrame, *nombres, default="") -> pd.Series:
-    """Devuelve SIEMPRE una Series (nunca un str) para la primera columna que
-    coincida (tolerante a acentos, espacios, guiones bajos y mayusculas).
-    Si ninguna existe, devuelve una Series del mismo largo con `default`."""
-    if df is None or len(df.columns) == 0:
-        return pd.Series([default] * (0 if df is None else len(df)), index=None if df is None else df.index)
-    mapa = {}
-    for c in df.columns:
-        mapa.setdefault(_norm_col(c), c)
-    for n in nombres:
-        c = mapa.get(_norm_col(n))
-        if c is not None:
-            return df[c]
-    return pd.Series([default] * len(df), index=df.index)
-
-
 _EXH_PAG_CACHE: pd.DataFrame | None = None
 _EXH_GRA_CACHE: pd.DataFrame | None = None
+
+
+def _col_o_vacio(df: pd.DataFrame, col: str) -> pd.Series:
+    """
+    Devuelve df[col] si existe; si no, una Serie de strings vacíos con el
+    mismo índice que df. `df.get(col, "")` NO sirve para esto: cuando la
+    columna no existe, `.get()` devuelve literalmente el string "" (no una
+    Serie), y encadenarle `.astype(str)` revienta con
+    `AttributeError: 'str' object has no attribute 'astype'`.
+    """
+    if col in df.columns:
+        return df[col]
+    return pd.Series([""] * len(df), index=df.index)
 
 
 def _cargar_exhibiciones_pagadas() -> pd.DataFrame:
@@ -467,22 +457,14 @@ def _cargar_exhibiciones_pagadas() -> pd.DataFrame:
         return _EXH_PAG_CACHE
 
     df = _leer_excel_cloud(candidatos, "Resultado exhibiciones pagadas")
-    df.columns = [str(c).strip() for c in df.columns]
     df["ID_PDV_INVOLVES"] = (
-        _serie_col(df, "ID_PDV_INVOLVES", "ID PDV INVOLVES", "IDPDVINVOLVES",
-                   "PDV_INVOLVES", "ID_PDV", "ID PDV")
-        .astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+        _col_o_vacio(df, "ID_PDV_INVOLVES").astype(str).str.strip()
+          .str.replace(r"\.0$", "", regex=True)
     )
-    df["EMPLEADO_N"] = (
-        _serie_col(df, "*EMPLEADO", "EMPLEADO", "EMPLEADO_N", "NOMBRE EMPLEADO", "GESTOR")
-        .astype(str).str.strip().str.upper()
-    )
-    df["CANTIDAD_PLANEADA"]  = pd.to_numeric(
-        _serie_col(df, "CANTIDAD_PLANEADA", "CANTIDAD PLANEADA", "PLANEADA", "PLANEADO"),
-        errors="coerce").fillna(0)
-    df["CANTIDAD_EJECUTADA"] = pd.to_numeric(
-        _serie_col(df, "CANTIDAD_EJECUTADA", "CANTIDAD EJECUTADA", "EJECUTADA", "EJECUTADO"),
-        errors="coerce").fillna(0)
+    col_empleado = "*EMPLEADO" if "*EMPLEADO" in df.columns else "EMPLEADO"
+    df["EMPLEADO_N"] = _col_o_vacio(df, col_empleado).astype(str).str.strip().str.upper()
+    df["CANTIDAD_PLANEADA"]  = pd.to_numeric(df.get("CANTIDAD_PLANEADA"),  errors="coerce").fillna(0)
+    df["CANTIDAD_EJECUTADA"] = pd.to_numeric(df.get("CANTIDAD_EJECUTADA"), errors="coerce").fillna(0)
     _EXH_PAG_CACHE = df
     return _EXH_PAG_CACHE
 
@@ -501,13 +483,10 @@ def _cargar_exhibiciones_gratis() -> pd.DataFrame:
         return _EXH_GRA_CACHE
 
     df.columns = [str(c).strip() for c in df.columns]
-    df["ID PDV"]  = (_serie_col(df, "ID PDV", "ID_PDV", "ID_PDV_INVOLVES")
-                     .astype(str).str.strip().str.replace(r"\.0$", "", regex=True))
-    df["Empleado_N"] = (_serie_col(df, "Empleado", "*EMPLEADO", "EMPLEADO", "Gestor")
-                        .astype(str).str.strip().str.upper())
-    df["Cantidad"]   = pd.to_numeric(_serie_col(df, "Cantidad", "CANTIDAD"), errors="coerce").fillna(0)
-    df["Categoría"]  = (_serie_col(df, "Categoría", "Categoria", "CATEGORIA")
-                        .astype(str).str.strip().str.upper())
+    df["ID PDV"]  = _col_o_vacio(df, "ID PDV").astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+    df["Empleado_N"] = _col_o_vacio(df, "Empleado").astype(str).str.strip().str.upper()
+    df["Cantidad"]   = pd.to_numeric(df.get("Cantidad"), errors="coerce").fillna(0)
+    df["Categoría"]  = _col_o_vacio(df, "Categoría").astype(str).str.strip().str.upper()
     # Solo categoría Gratis (alineado con etl_exhibiciones_gratis V3)
     df = df[df["Categoría"] == "GRATIS"].copy()
     _EXH_GRA_CACHE = df
@@ -1292,11 +1271,15 @@ def enviar_resumen_telegram(
     # ── Normalizar maestra ────────────────────────────────────────────────
     df_m = df_maestro.copy()
     df_m.columns = df_m.columns.str.strip().str.upper()
-    df_m["NOMBRE_SUPERVISOR"] = df_m["NOMBRE_SUPERVISOR"].astype(str).str.strip().str.upper()
+    # IMPORTANTE: fillna("") ANTES de astype(str) — con el dtype "str" nativo
+    # de pandas recientes, astype(str) sobre una columna con NaN NO convierte
+    # esos valores a la palabra "nan": quedan como NaN real (float), y el
+    # filtro de sin_chat_id (comparar contra "nan"/"NAN") nunca los atrapaba.
+    df_m["NOMBRE_SUPERVISOR"] = df_m["NOMBRE_SUPERVISOR"].fillna("").astype(str).str.strip().str.upper()
     # Excel suele leer el chat_id como float (1497788540.0). Quitamos el
     # trailing ".0" para que la Bot API lo acepte como entero válido.
     df_m["TELEGRAM_CHAT_ID"] = (
-        df_m["TELEGRAM_CHAT_ID"].astype(str).str.strip()
+        df_m["TELEGRAM_CHAT_ID"].fillna("").astype(str).str.strip()
         .str.replace(r"\.0$", "", regex=True)
     )
 
