@@ -20,7 +20,7 @@ on:
         required: false
         default: ''
       supervisores:
-        description: 'Para reintentar_telegram/reintentar_email/run_alertas: nombre del supervisor, SIN comillas (ej: YENUBY MILENA LEON LUNA). Para run_alertas es opcional (vacío = todos); para reintentar_* es obligatorio.'
+        description: 'Para reintentar_telegram/reintentar_email/run_alertas: nombre(s) del/los supervisor(es), SEPARADOS POR COMA si son varios (ej: YENUBY MILENA LEON LUNA, ANA CAROLINA TEHERAN). Para run_alertas es opcional (vacío = todos); para reintentar_* es obligatorio.'
         required: false
         default: ''
       modo_prueba:
@@ -61,10 +61,25 @@ jobs:
         run: |
           SCRIPT="${{ inputs.script }}"
           ARGS=""
-          SUPERVISORES="${{ inputs.supervisores }}"
+
+          # Separar por COMA (no por espacio) para que cada nombre completo
+          # (que trae espacios) llegue como UN solo argumento al script, en
+          # vez de partirse en palabras sueltas — "MILENA" sola, por ejemplo,
+          # le pega a varias personas distintas si se pasa suelta.
+          SUP_ARR=()
+          if [ -n "${{ inputs.supervisores }}" ]; then
+            IFS=',' read -ra RAW <<< "${{ inputs.supervisores }}"
+            for s in "${RAW[@]}"; do
+              # trim de espacios al inicio/final de cada nombre
+              trimmed="$(echo "$s" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+              if [ -n "$trimmed" ]; then
+                SUP_ARR+=("$trimmed")
+              fi
+            done
+          fi
 
           if [ "$SCRIPT" = "reintentar_telegram" ] || [ "$SCRIPT" = "reintentar_email" ]; then
-            if [ -z "$SUPERVISORES" ]; then
+            if [ "${#SUP_ARR[@]}" -eq 0 ]; then
               echo "❌ Falta el input 'supervisores' — obligatorio para $SCRIPT"
               exit 1
             fi
@@ -80,19 +95,14 @@ jobs:
             ARGS="$ARGS --solo ${{ inputs.fases }}"
           fi
 
-          # run_alertas puede filtrar el ENVÍO a un solo supervisor con
-          # --supervisor (el cálculo completo corre igual, solo se filtra
-          # a quién se le manda Telegram/Email).
-          if [ "$SCRIPT" = "run_alertas" ] && [ -n "$SUPERVISORES" ]; then
-            ARGS="$ARGS --supervisor $SUPERVISORES"
-          fi
-
           echo "Ejecutando ALERTAS/${SCRIPT}.py"
           if [ "$SCRIPT" = "reintentar_telegram" ] || [ "$SCRIPT" = "reintentar_email" ]; then
-            # $SUPERVISORES sin comillas: bash lo separa en palabras, y cada
-            # palabra ya funciona como filtro de coincidencia parcial en el
-            # script (no hace falta que sea el nombre completo exacto).
-            python "ALERTAS/${SCRIPT}.py" $SUPERVISORES $ARGS
+            python "ALERTAS/${SCRIPT}.py" "${SUP_ARR[@]}" $ARGS
+          elif [ "$SCRIPT" = "run_alertas" ] && [ "${#SUP_ARR[@]}" -gt 0 ]; then
+            # run_alertas filtra el ENVÍO a los supervisores indicados con
+            # --supervisor (el cálculo completo corre igual para todos,
+            # solo se filtra a quién se le manda Telegram/Email).
+            python "ALERTAS/${SCRIPT}.py" $ARGS --supervisor "${SUP_ARR[@]}"
           else
             python "ALERTAS/${SCRIPT}.py" $ARGS
           fi
