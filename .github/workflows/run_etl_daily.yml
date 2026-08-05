@@ -42,5 +42,11 @@ jobs:
           SUPABASE_URL:        ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY:        ${{ secrets.SUPABASE_KEY }}
         run: |
-          echo "Ejecutando run_all.py --workers 6 --gold"
-          python run_all.py --workers 6 --gold
+          # run_all.py no tiene periodo por defecto — hay que pasárselo
+          # siempre explícito. Como esto corre todos los días, se calcula
+          # el mes/año actual en el momento de la corrida (no un valor fijo
+          # que habría que ir cambiando cada mes a mano).
+          MES=$(date +%-m)
+          ANIO=$(date +%Y)
+          echo "Ejecutando run_all.py --mes $MES --anio $ANIO --workers 6 --gold"
+          python run_all.py --mes "$MES" --anio "$ANIO" --workers 6 --gold
