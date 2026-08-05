@@ -1,0 +1,82 @@
+2026-08-05 08:47:51  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260805_084751.log
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260805T084751_c5d2d5
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-05 08:47:51
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      Run ID: 20260805T084751_c5d2d5
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      Periodo: Julio_2026 (07/2026)
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['nopresencia']
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-05 08:47:51  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-05 08:47:51  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-08-05 08:47:51  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx
+2026-08-05 08:47:51  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-05 08:47:51  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-05 08:47:51  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-05 08:47:53  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,601 filas PT  |  3,262 filas módulos cargadas
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      [ISM] 2,530 filas PT  |  888 filas módulos cargadas
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,131 filas totales
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 7 | Año 2026
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 5,073 filas retenidas
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 980 filas retenidas
+2026-08-05 08:47:54  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 791 filas retenidas
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 4,084 filas retenidas
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 759 filas retenidas
+2026-08-05 08:47:54  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-05 08:47:54  [etl.orquestador]   ✓ INFO      shared_loader completado en 3.1s
+2026-08-05 08:47:54  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-05 08:47:54  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-08-05 08:47:54  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-05 08:47:54  [etl.nopresencia]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-05 08:47:54  [etl.nopresencia]   ✓ INFO      ETL No Presencia — iniciando
+2026-08-05 08:47:56  [etl.nopresencia]   ✓ INFO      Usando DataFrame de PT proporcionado por el orquestador (6,053 filas)
+2026-08-05 08:47:56  [etl.nopresencia]   · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-05 08:49:21  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_PROCESADO_JULIO_2026.xlsx
+2026-08-05 08:49:21  [etl.nopresencia]   ✓ INFO      Encuestas de No Presencia procesadas
+2026-08-05 08:49:21  [etl.nopresencia]   · DEBUG     [stdout] --- INICIANDO: Bloque Plan de Trabajo (Semanas) ---
+2026-08-05 08:49:21  [etl.nopresencia]   ✓ INFO      Plan de Trabajo por semanas procesado
+2026-08-05 08:49:21  [etl.nopresencia]   · DEBUG     [stdout] --- GENERANDO MATRIZ COMPARATIVA FINAL NO PRESENCIA ---
+2026-08-05 08:49:28  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/REPORTE_NO_PRESENCIA_JULIO_2026.xlsx
+2026-08-05 08:49:28  [etl.nopresencia]   · DEBUG     [stdout] 🏁 FINALIZADO: Reporte generado en SharePoint: REPORTE_NO_PRESENCIA_JULIO_2026.xlsx
+2026-08-05 08:49:28  [etl.nopresencia]   ✓ INFO      Matriz de seguimiento generada
+2026-08-05 08:49:28  [etl.nopresencia]   · DEBUG     [stdout] --- GENERANDO ANÁLISIS DE AGOTADOS (INVOLVES) ---
+2026-08-05 08:49:47  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/ANALISIS_AGOTADOS_JULIO_2026.xlsx
+2026-08-05 08:49:47  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ÉXITO: Reporte de Agotados guardado en SharePoint.
+2026-08-05 08:49:47  [etl.nopresencia]   ✓ INFO      Análisis de agotados generado
+2026-08-05 08:49:47  [etl.nopresencia]   · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN NP por gestor (Julio_2026) ---
+2026-08-05 08:49:53  [etl.nopresencia]   · DEBUG     [stdout] Leyendo desde cloud: REPORTE_NO_PRESENCIA_JULIO_2026.xlsx (1253 filas)
+2026-08-05 08:49:54  [etl.nopresencia]   · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-05 08:49:55  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Mes activo: 119 gestores.
+2026-08-05 08:49:58  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS.xlsx
+2026-08-05 08:50:00  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-05 08:50:00  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-05 08:50:00  [etl.nopresencia]   · DEBUG     [stdout] 🚀 Preparando cargue del KPI de No Presencia consolidado a Supabase...
+2026-08-05 08:50:04  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ÉXITO CLOUD: 119 filas subidas de forma exitosa a Supabase.
+2026-08-05 08:50:04  [etl.nopresencia]   ✓ INFO      KPI No Presencia consolidado y cargado
+2026-08-05 08:50:04  [etl.nopresencia]   ✓ INFO      ETL No Presencia — completado
+2026-08-05 08:50:06  [etl.nopresencia]   ✓ INFO      Duración total: 130.4s
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      ETL 'nopresencia' terminó — ✓ OK en 130.4s
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        nopresencia            ✓ OK             130.4s
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               3.1s
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        135.0s
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  133.5s
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -1.6s
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      ························································
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      ························································
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO        08:47:54  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202607_20260805_084751.log
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      Fin: 2026-08-05 08:50:06
+2026-08-05 08:50:06  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

@@ -109,6 +109,7 @@ from shared_loader import (
     COLUMNAS_ESTANDAR_UNIFICADO as COLUMNAS_ESTANDAR,
     COLUMNAS_SUPERSET            as COLUMNAS_FINALES,
     COLUMNAS_NUMERICAS,
+    renombrar_columnas_estandar,
 )
 
 # ─────────────────────────────────────────────
@@ -123,7 +124,7 @@ def leer_y_normalizar_cloud(url_download, hoja, fuente):
         df = pd.read_excel(xls, sheet_name=hoja)
     
     df.columns = df.columns.str.strip()
-    df.rename(columns={col: COLUMNAS_ESTANDAR[col] for col in df.columns if col in COLUMNAS_ESTANDAR}, inplace=True)
+    df = renombrar_columnas_estandar(df)  # ignora tildes (Cedula/Cédula/CÉDULA -> CEDULA)
     df["FUENTE"] = fuente
 
     if "FECHA" in df.columns:
@@ -841,9 +842,15 @@ def generar_resumen_kpis_8(spec: pr.PeriodoSpec, headers, site_id):
             return ''
         return s.mode().iloc[0]
 
+    if 'CEDULA' not in df.columns:
+        df['CEDULA'] = ""
+    else:
+        df['CEDULA'] = df['CEDULA'].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+
     resumen = (
         df.groupby(['MES', 'AÑO', 'NOMBRE'], dropna=False)
           .agg(SUPERVISOR_LIDER=('SUPERVISOR_LIDER', _supervisor_dominante),
+               CEDULA=('CEDULA', 'first'),
                VENTAS_PROMEDIO_MES=('VENTAS_PROMEDIO_MES', 'sum'),
                prod_cob=('_prod_cob', 'sum'),
                prod_int=('_prod_int', 'sum'),
@@ -867,7 +874,7 @@ def generar_resumen_kpis_8(spec: pr.PeriodoSpec, headers, site_id):
         + resumen['CUMPLIMIENTO FRECUENCIA'] * 0.3
     )
 
-    cols_final = ['MES', 'AÑO', 'SUPERVISOR_LIDER', 'NOMBRE',
+    cols_final = ['MES', 'AÑO', 'SUPERVISOR_LIDER', 'NOMBRE', 'CEDULA',
                   'VENTAS_PROMEDIO_MES',
                   'CUMPLIMIENTO COBERTURA', 'CUMPLIMIENTO INTENSIDAD',
                   'CUMPLIMIENTO FRECUENCIA', 'TOTAL']

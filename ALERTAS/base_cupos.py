@@ -246,12 +246,38 @@ def cargar() -> pd.DataFrame:
             df_duplicados_acr = df_filtrado[df_filtrado.duplicated(subset=["ACRONIMO"], keep=False)].sort_values(by="ACRONIMO")
             df_duplicados_acr.to_excel(writer, sheet_name="3. Duplicados_Acronimo", index=False)
 
+            # Hoja 4: MISMA CEDULA con DISTINTO ACRONIMO — la señal real de que
+            # una persona quedó registrada dos veces en Base cupos (ej. "LIBARDO
+            # JOYA" y "LIBARDO ANTONIO JOYA TEJADA" como dos filas separadas).
+            # Esto NO lo detecta la Hoja 3 porque cada fila sí tiene un ACRONIMO
+            # único — el duplicado está en la CEDULA, no en el ACRONIMO.
+            df_dup_cedula = pd.DataFrame()
+            if "CEDULA" in df_filtrado.columns:
+                cedulas_validas = df_filtrado["CEDULA"].astype(str).str.strip()
+                cedulas_validas = cedulas_validas[
+                    cedulas_validas.replace({"": None, "nan": None}).notna()
+                    & (cedulas_validas.str.upper() != "VACANTE")
+                ]
+                mask_cedula_dup = (
+                    df_filtrado["CEDULA"].astype(str).str.strip().isin(
+                        cedulas_validas[cedulas_validas.duplicated(keep=False)].unique()
+                    )
+                    & (df_filtrado["CEDULA"].astype(str).str.strip() != "")
+                )
+                df_dup_cedula = df_filtrado[mask_cedula_dup].sort_values(by="CEDULA")
+                df_dup_cedula.to_excel(writer, sheet_name="4. Duplicados_Cedula", index=False)
+
         print(f"\n⚠️ [AUDITORÍA] Diagnóstico generado en: {ruta_debug}")
         if total_descartados > 0:
             print(f"⚠️ [AUDITORÍA] Cuidado: Se descartaron {total_descartados} filas por no tener ACRONIMO o NOMBRE. Revisa la pestaña 2.")
         if len(df_duplicados_acr) > 0:
             print(f"⚠️ [AUDITORÍA] Advertencia: Se encontraron acrónimos duplicados en la maestra. Revisa la pestaña 3.")
-            
+        if len(df_dup_cedula) > 0:
+            personas_dup = df_dup_cedula["CEDULA"].nunique()
+            print(f"⚠️ [AUDITORÍA] Advertencia: {personas_dup} cédula(s) aparecen en MÁS DE UNA fila con "
+                  f"ACRONIMO distinto — probablemente la misma persona registrada dos veces en Base cupos "
+                  f"(ej. con y sin segundo nombre). Revisa la pestaña 4 y elimina/fusiona la fila sobrante.")
+
     except Exception as e:
         print(f"\n⚠ No se pudo generar el archivo de depuración de cupos: {e}", file=sys.stderr)
     # ─────────────────────────────────────────────────────────────────────────
@@ -265,10 +291,14 @@ def cargar() -> pd.DataFrame:
 
 def construir_indices(df_bc: pd.DataFrame) -> dict:
     """
-    Devuelve un dict con tres índices listos para hacer .map():
+    Devuelve un dict con índices listos para hacer .map():
         cedula_a_acronimo : {CEDULA → ACRONIMO}
         codigo_a_acronimo : {COD_ASESOR_ECOM → ACRONIMO}
         nombre_a_acronimo : {NOMBRE_UPPER → ACRONIMO}   (último recurso)
+        acronimo_a_nombre : {ACRONIMO → NOMBRE_UPPER}   (nombre canónico
+                             para mostrar en salidas — así una misma persona
+                             siempre se ve con el mismo nombre, sin importar
+                             cómo la haya escrito cada fuente/módulo)
     """
     cedula_a_acr = (
         df_bc[df_bc["CEDULA"] != ""]
@@ -287,10 +317,17 @@ def construir_indices(df_bc: pd.DataFrame) -> dict:
              .set_index("NOMBRE")["ACRONIMO"]
              .to_dict()
     )
+    acr_a_nombre = (
+        df_bc[df_bc["ACRONIMO"] != ""]
+            .drop_duplicates("ACRONIMO", keep="first")
+            .set_index("ACRONIMO")["NOMBRE"]
+            .to_dict()
+    )
     return {
         "cedula_a_acronimo": cedula_a_acr,
         "codigo_a_acronimo": codigo_a_acr,
         "nombre_a_acronimo": nombre_a_acr,
+        "acronimo_a_nombre": acr_a_nombre,
     }
 
 

@@ -3,6 +3,7 @@ import sys
 import io
 import re
 import tempfile
+import unicodedata
 import requests
 import urllib.parse
 import pandas as pd
@@ -358,6 +359,21 @@ def main() -> dict:
     df_sos_gest = kpis_v3["sos_gest"]
     df_exp_gest = kpis_v3.get("exp_gest", pd.DataFrame())
     df_egr_gest = kpis_v3.get("egr_gest", pd.DataFrame())
+
+    # ── Candidatos sin cruzar: opcionalmente agregarlos a Base cupos ──────
+    # Solo se ejecuta si se corre con --agregar-faltantes (nunca por
+    # defecto, para no modificar Base cupos sin que alguien lo pida
+    # explícitamente en esa corrida puntual).
+    candidatos_faltantes = kpis_v3.get("candidatos_faltantes", [])
+    if candidatos_faltantes:
+        if "--agregar-faltantes" in sys.argv:
+            print(f"\n--agregar-faltantes activo: agregando {len(candidatos_faltantes)} "
+                  f"candidato(s) (con duplicados entre módulos) a Base_cupos.xlsx...")
+            agregar_candidatos_base_cupos(candidatos_faltantes)
+        else:
+            print(f"\n  ℹ️  {len(set((c['CEDULA'] or c['NOMBRE']) for c in candidatos_faltantes))} "
+                  f"persona(s) sin cruzar quedaron pendientes. Corre con --agregar-faltantes para "
+                  f"agregarlas a Base cupos (solo NOMBRE+CEDULA, para completar ACRONIMO/ROL a mano).")
     
     df_cif_sup = pd.DataFrame()
     df_np_sup  = pd.DataFrame()
@@ -442,7 +458,7 @@ def main() -> dict:
 
     rutas_adj = generar_adjuntos_por_supervisor(
         df_detalle, df_cif_pdv_e, df_np_e, df_pr_e, df_sos_e, mes, anio,
-        seg_data=seg_data,
+        seg_data=seg_data, idx_bc=idx_bc,
     )
 
     _log.info(
@@ -746,9 +762,16 @@ def _coalesce_periodo(df: pd.DataFrame, default_mes: int, default_anio: int) -> 
 _PALABRAS_FILLER = {"DE", "LA", "LAS", "LOS", "DEL", "Y"}
 
 
+def _sin_tildes(s: str) -> str:
+    """Quita tildes/diacríticos (á→a, ñ→n, etc.) para comparar nombres que
+    llegan escritos con o sin tilde según la fuente (KPI vs Base cupos)."""
+    return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+
+
 def _palabras(s: str) -> set:
-    """Tokens significativos de un nombre (excluye fillers)."""
-    return {w for w in str(s).upper().split() if w and w not in _PALABRAS_FILLER}
+    """Tokens significativos de un nombre (excluye fillers, ignora tildes)."""
+    s_plano = _sin_tildes(str(s).upper())
+    return {w for w in s_plano.split() if w and w not in _PALABRAS_FILLER}
 
 
 def _resolver_acr_supervisor(nombre_sup: str, nombres_sups_bc: set, idx: dict) -> str:
@@ -771,6 +794,199 @@ def _resolver_acr_supervisor(nombre_sup: str, nombres_sups_bc: set, idx: dict) -
         if pal_v.issubset(pal_pt) or pal_pt.issubset(pal_v):
             return nombre_a_acr.get(nombre_pt, "")
     return ""
+
+
+def _resolver_acr_fuzzy_general(nombre: str, idx: dict) -> str:
+    """
+    Respaldo del match exacto por nombre, para CUALQUIER persona (gestor
+    o supervisor) — no solo supervisores, a diferencia de
+    _resolver_acr_supervisor. Tolera nombres con un nombre/apellido de
+    más o de menos (ej. "JOSE LIBARDO JOYA" en el KPI vs "LIBARDO JOYA"
+    en Base cupos) comparando por subconjunto de palabras.
+
+    Si el nombre matchea por palabras contra MÁS DE UNA persona distinta
+    de Base cupos, no resuelve nada (devuelve "") — es preferible dejar
+    el ACRONIMO vacío que asignarle a alguien el KPI de otra persona.
+    """
+    if not nombre or pd.isna(nombre):
+        return ""
+    pal_v = _palabras(str(nombre).strip().upper())
+    if not pal_v:
+        return ""
+    nombre_a_acr = idx.get("nombre_a_acronimo", {})
+    candidatos = set()
+    for nombre_bc, acr in nombre_a_acr.items():
+        pal_bc = _palabras(nombre_bc)
+        if pal_bc and (pal_v.issubset(pal_bc) or pal_bc.issubset(pal_v)):
+            candidatos.add(acr)
+        if len(candidatos) > 1:
+            return ""  # ambiguo — corta apenas encuentra un segundo candidato
+    return candidatos.pop() if len(candidatos) == 1 else ""
+
+
+def _candidatos_parecidos(nombre: str, idx: dict, top: int = 3) -> list[str]:
+    """
+    Para diagnóstico: busca en Base cupos los nombres que comparten AL MENOS
+    una palabra significativa con `nombre` (no exige subconjunto completo
+    como _resolver_acr_fuzzy_general — esto es solo para mostrarle al
+    usuario qué tan cerca/lejos está el nombre real de Base cupos, y así
+    distinguir "es solo una tilde" de "esta persona no está en Base cupos").
+    Devuelve hasta `top` nombres, ordenados por cantidad de palabras en común.
+    """
+    pal_v = _palabras(str(nombre).strip().upper())
+    if not pal_v:
+        return []
+    puntajes = []
+    for nombre_bc in idx.get("nombre_a_acronimo", {}):
+        pal_bc = _palabras(nombre_bc)
+        comunes = pal_v & pal_bc
+        if comunes:
+            puntajes.append((len(comunes), nombre_bc))
+    puntajes.sort(key=lambda t: -t[0])
+    return [n for _, n in puntajes[:top]]
+
+
+def agregar_candidatos_base_cupos(candidatos: list[dict]) -> int:
+    """
+    Agrega a Base_cupos.xlsx (en SharePoint) una fila nueva por cada
+    persona en `candidatos` que no se logró cruzar (ni por cédula ni por
+    nombre) en esta corrida. Solo llena NOMBRE y CEDULA — el resto de
+    columnas (ACRONIMO, ROL EN ACTIVO, CANAL, COD PT, etc.) quedan en
+    blanco a propósito, para que alguien las complete a mano.
+
+    Como ACRONIMO queda vacío, estas filas nuevas NO entran al universo
+    activo (bcm.cargar() las descarta vía el filtro sin_acronimo_o_nombre)
+    hasta que alguien las complete — no afectan el cálculo de esta corrida
+    ni de las siguientes mientras sigan incompletas.
+
+    Deduplica por CEDULA (o por NOMBRE si no trae cédula) y no vuelve a
+    agregar a alguien que ya está en Base cupos con esa cédula o nombre
+    exacto (para no duplicar entradas ya completadas manualmente).
+
+    Devuelve cuántas filas nuevas se agregaron.
+    """
+    if not candidatos:
+        return 0
+
+    ruta_bc = f"{paths.RUTA_CARPETA_BASES_DYP}/Base_cupos.xlsx"
+    df_bc = _leer(ruta_bc, "Base_cupos.xlsx (para agregar candidatos)")
+    if df_bc.empty:
+        print("  ⚠️  No se pudo leer Base_cupos.xlsx — no se agregó ningún candidato.")
+        return 0
+
+    cedulas_existentes = (
+        set(df_bc["CEDULA"].astype(str).str.strip().replace({"nan": ""}))
+        if "CEDULA" in df_bc.columns else set()
+    )
+    nombres_existentes = (
+        set(df_bc["NOMBRE"].astype(str).str.strip().str.upper())
+        if "NOMBRE" in df_bc.columns else set()
+    )
+
+    # Deduplicar candidatos entre sí — la misma persona puede salir "sin
+    # match" en varios módulos a la vez (CIF, NP, Precios, SOS, Exhib...),
+    # y en algunos de esos módulos trae cédula y en otros no (Exhibiciones
+    # nunca tuvo esa columna). Por eso se agrupa SIEMPRE por NOMBRE primero
+    # — nunca por cédula-o-nombre — y de todas las ocurrencias de ese
+    # nombre se toma la primera cédula no vacía que aparezca, para no
+    # terminar con dos filas para la misma persona (una con cédula y otra
+    # "(sin cédula)").
+    por_nombre: dict[str, str] = {}
+    for c in candidatos:
+        nombre = str(c.get("NOMBRE", "")).strip().upper()
+        cedula = str(c.get("CEDULA", "")).strip()
+        if not nombre:
+            continue
+        if nombre not in por_nombre or (not por_nombre[nombre] and cedula):
+            por_nombre[nombre] = cedula
+
+    nuevas_filas = []
+    for nombre, cedula in por_nombre.items():
+        if cedula and cedula in cedulas_existentes:
+            continue  # ya está en Base cupos con esa cédula
+        if not cedula and nombre in nombres_existentes:
+            continue  # ya está con ese nombre exacto
+
+        fila = {col: "" for col in df_bc.columns}
+        if "NOMBRE" in fila:
+            fila["NOMBRE"] = nombre
+        if "CEDULA" in fila:
+            fila["CEDULA"] = cedula
+        nuevas_filas.append(fila)
+
+    if not nuevas_filas:
+        print("  ℹ️  Ningún candidato nuevo que agregar (todos ya estaban en Base cupos o se repetían).")
+        return 0
+
+    df_nuevas = pd.DataFrame(nuevas_filas)
+    df_bc_actualizado = pd.concat([df_bc, df_nuevas], ignore_index=True)
+
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        df_bc_actualizado.to_excel(writer, sheet_name="Tabla total roles", index=False)
+    _subir_bytes_cloud(buffer.getvalue(), ruta_bc, "Base_cupos.xlsx (candidatos agregados)")
+
+    print(f"  ✅ Se agregaron {len(nuevas_filas)} fila(s) nueva(s) a Base_cupos.xlsx "
+          f"(solo NOMBRE + CEDULA — completa ACRONIMO/ROL/CANAL/etc. manualmente):")
+    for f in nuevas_filas:
+        print(f"     · {f.get('NOMBRE', '')} — cédula: {f.get('CEDULA') or '(sin cédula)'}")
+    return len(nuevas_filas)
+
+
+def _canonizar_nombre_gestor(df: pd.DataFrame, idx_bc: dict, col: str = "NOMBRE_GESTOR") -> pd.DataFrame:
+    """
+    Reemplaza el nombre "crudo" de cada gestor (tal como quedó escrito en
+    el detalle fuente — puede variar entre filas para la MISMA persona,
+    ej. "LIBARDO JOYA" en una visita y "LIBARDO ANTONIO JOYA TEJADA" en
+    otra) por su nombre canónico en Base cupos, para que las hojas de
+    detalle de los adjuntos siempre muestren un único nombre consistente
+    por persona, sin importar cómo se haya capturado cada fila.
+
+    Prioridad para resolver de quién se trata: CEDULA (si la columna
+    existe) → nombre exacto → nombre por palabras (fuzzy, sin tildes).
+    Si no logra resolver a nadie, deja el nombre crudo tal cual (no borra
+    ni deja vacío — mejor mostrar el nombre que tenga, aunque no esté
+    unificado, que perder la fila).
+    """
+    if df is None or df.empty or col not in df.columns:
+        return df
+    df = df.copy()
+
+    cedula_a_acr = idx_bc.get("cedula_a_acronimo", {})
+    nombre_a_acr = idx_bc.get("nombre_a_acronimo", {})
+    acr_a_nombre = idx_bc.get("acronimo_a_nombre", {})
+
+    if "CEDULA" in df.columns and cedula_a_acr:
+        cedula_norm = df["CEDULA"].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+        acr = cedula_norm.map(cedula_a_acr).fillna("")
+    else:
+        acr = pd.Series([""] * len(df), index=df.index)
+
+    falta = acr == ""
+    if falta.any():
+        acr.loc[falta] = df.loc[falta, col].astype(str).str.strip().str.upper().map(nombre_a_acr).fillna("")
+
+    falta = acr == ""
+    if falta.any():
+        acr.loc[falta] = df.loc[falta, col].apply(lambda n: _resolver_acr_fuzzy_general(n, idx_bc))
+
+    falta = acr == ""
+    if falta.any():
+        nombres_sin_resolver = df.loc[falta, col].astype(str).str.strip().unique().tolist()
+        for n in nombres_sin_resolver:
+            mask_n = df[col].astype(str).str.strip() == n
+            if "CEDULA" in df.columns:
+                cedulas_vistas = df.loc[mask_n, "CEDULA"].astype(str).str.strip().unique().tolist()
+            else:
+                cedulas_vistas = ["(sin columna CEDULA)"]
+            candidatos = _candidatos_parecidos(n, idx_bc, top=3)
+            print(f"    ⚠️  _canonizar_nombre_gestor no pudo resolver '{n}' "
+                  f"(cédula(s) vista(s) en sus filas: {cedulas_vistas}) — "
+                  f"candidato(s) parecido(s) en Base cupos: {candidatos or '(ninguno)'}")
+
+    nombre_canonico = acr.map(acr_a_nombre)
+    df[col] = nombre_canonico.fillna(df[col])
+    return df
 
 
 def _enriquecer_acronimo_pt(
@@ -897,35 +1113,22 @@ def cargar_kpis_v3(
     por los ETLs y los devuelve en el formato que espera ensamblar_detalle.
     Filtra opcionalmente por (mes_filtro, anio_filtro).
 
-    Los ETLs actuales guardan estos archivos en disco LOCAL
-    (paths.CIF_OUT_KPIS, paths.SOS_OUT_KPIS, etc. — carpeta SALIDA/<módulo>
-    definida en paths.py), no en SharePoint. Por eso se leen primero de ahí.
-    Esto funciona igual corriendo en GitHub Actions: los ETLs y este script
-    corren como pasos del mismo job, sobre el mismo workspace del runner, así
-    que el archivo local que dejó el ETL sigue disponible para este paso.
-    Si el archivo local no existe, se intenta como respaldo la misma ruta
-    en SharePoint (por si en el futuro los ETLs empiezan a subir estos KPIs
-    a la nube con el mismo nombre).
+    Los ETLs suben estos archivos *_KPIS.xlsx directamente a SharePoint
+    (SALIDAS/<módulo>/), así que se leen SIEMPRE de ahí — nunca de disco
+    local. Antes se intentaba primero un archivo local (paths.CIF_OUT_KPIS,
+    etc.) y solo se caía a SharePoint si no existía; eso causaba que, si
+    quedaba un archivo local viejo de una corrida anterior en el PC, este
+    paso lo usara en vez de la versión más reciente de la nube, sin avisar
+    que estaba usando datos desactualizados. Ahora se ignora el disco local
+    por completo, para no arriesgarse a eso.
     """
     def _read_kpi(ruta_local, nombre_kpi: str, ruta_cloud: str | None = None) -> pd.DataFrame:
-        ruta_local = Path(ruta_local)
-        if ruta_local.is_file():
-            try:
-                print(f"    ⏳ Leyendo KPI [{nombre_kpi}] ({ruta_local})...")
-                df = pd.read_excel(ruta_local, engine="openpyxl")
-                df.columns = df.columns.str.strip()
-                print(f"    ✓ KPI [{nombre_kpi}] {len(df):,} filas cargadas (local)")
-                return df
-            except Exception as e:
-                print(f"    ⚠️  KPI [{nombre_kpi}] Error al leer archivo local ({ruta_local}): {e}")
-
         if ruta_cloud:
-            print(f"    ⏳ KPI [{nombre_kpi}] no está en disco local, probando SharePoint...")
             df = _leer(ruta_cloud, nombre_kpi)
             if not df.empty:
                 return df
 
-        print(f"    ⚠️  KPI [{nombre_kpi}] No se encontró (¿ya corriste el ETL de este módulo para el periodo?): {ruta_local}")
+        print(f"    ⚠️  KPI [{nombre_kpi}] No se encontró en SharePoint (¿ya corriste el ETL de este módulo para el periodo?): {ruta_cloud}")
         return pd.DataFrame()
 
     def _filtrar_periodo(df, col_mes="MES", col_anio="AÑO"):
@@ -1026,18 +1229,65 @@ def cargar_kpis_v3(
 
     # ── Enriquecer cada uno con ACRONIMO usando Base cupos ────────────────
     nombre_a_acr = idx_bc.get("nombre_a_acronimo", {})
+    cedula_a_acr = idx_bc.get("cedula_a_acronimo", {})
+    candidatos_faltantes: list[dict] = []
 
     def _add_acronimo(df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
             df["ACRONIMO"] = ""
             return df
         df = df.copy()
-        df["ACRONIMO"] = df["NOMBRE"].map(nombre_a_acr).fillna("")
+
+        # 1) CEDULA primero — es el identificador más confiable (no le
+        #    afectan tildes, nombres truncados ni orden de apellidos). Solo
+        #    algunos módulos (CIF, NP, Precios, SOS) traen CEDULA; Exhib.
+        #    Pagadas/Gratis no, porque su fuente (encuestas Involves) nunca
+        #    tuvo ese dato — para esos dos, se salta directo al paso 2.
+        if "CEDULA" in df.columns and cedula_a_acr:
+            cedula_norm = df["CEDULA"].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+            df["ACRONIMO"] = cedula_norm.map(cedula_a_acr).fillna("")
+        else:
+            df["ACRONIMO"] = ""
+
+        # 2) Nombre exacto, para lo que no resolvió por cédula.
+        falta_cedula = df["ACRONIMO"] == ""
+        if falta_cedula.any():
+            df.loc[falta_cedula, "ACRONIMO"] = df.loc[falta_cedula, "NOMBRE"].map(nombre_a_acr).fillna("")
+
         falta = df["ACRONIMO"] == ""
         if falta.any():
+            n_antes = falta.sum()
             df.loc[falta, "ACRONIMO"] = df.loc[falta, "NOMBRE"].apply(
-                lambda n: _resolver_acr_supervisor(n, nombres_sups_bc, idx_bc)
+                lambda n: _resolver_acr_fuzzy_general(n, idx_bc)
             )
+            n_resueltos = (df.loc[falta, "ACRONIMO"] != "").sum()
+            n_sin_resolver = n_antes - n_resueltos
+            if n_sin_resolver > 0:
+                aun_falta = falta & (df["ACRONIMO"] == "")
+                nombres_sin_resolver = df.loc[aun_falta, "NOMBRE"].unique().tolist()
+                print(f"    ⚠️  {n_sin_resolver} persona(s) sin match exacto NI por palabras contra Base cupos "
+                      f"(quedan sin ACRONIMO, se excluyen del cruce): {nombres_sin_resolver}")
+                for n in nombres_sin_resolver:
+                    candidatos = _candidatos_parecidos(n, idx_bc, top=3)
+                    if candidatos:
+                        print(f"       · '{n}' — más parecido(s) en Base cupos: {candidatos}")
+                    else:
+                        print(f"       · '{n}' — NINGÚN nombre de Base cupos comparte ni una palabra con este "
+                              f"(probablemente no está en Base cupos, no es solo un tema de tildes)")
+                # Recolectar nombre + cédula (si la trae el módulo) para el
+                # reporte de "candidatos a agregar a Base cupos".
+                filas_sin_resolver = df.loc[aun_falta]
+                for n in nombres_sin_resolver:
+                    fila_n = filas_sin_resolver[filas_sin_resolver["NOMBRE"] == n]
+                    cedula_val = ""
+                    if "CEDULA" in fila_n.columns:
+                        ceds = (
+                            fila_n["CEDULA"].astype(str).str.strip()
+                            .replace({"": None, "nan": None, "NAN": None})
+                            .dropna().unique().tolist()
+                        )
+                        cedula_val = ceds[0] if ceds else ""
+                    candidatos_faltantes.append({"NOMBRE": n, "CEDULA": cedula_val})
         return df
 
     df_cif_gest = _add_acronimo(df_cif_gest)
@@ -1092,6 +1342,7 @@ def cargar_kpis_v3(
         "pr_gest":  df_pr_gest,
         "exp_gest": df_exp_gest,   
         "egr_gest": df_egr_gest,   
+        "candidatos_faltantes": candidatos_faltantes,
     }
 
 
@@ -1899,6 +2150,30 @@ _MENSAJE_VACIO      = "Sin incumplimientos para este periodo"
 _MENSAJE_NO_APLICA  = "No aplica para este rol"
 
 
+def _acronimos_equipo_cascada(df_detalle: pd.DataFrame, acr_sup: str) -> set:
+    """
+    Conjunto de ACRONIMO_SUP a incluir al filtrar hojas de detalle por PDV
+    (CIF/NP/Precios/SOS — Detalle). Para un SUPERVISOR normal es solo su
+    propio acrónimo. Para un LÍDER (que tiene supervisores a cargo, no
+    gestores directos), se agrega también el acrónimo de cada supervisor
+    que le reporta — mismo criterio de LIDER_POR_CIUDAD que ya usa
+    construir_equipo_lider() para la hoja "Resumen Equipo" — para que el
+    detalle no salga vacío solo porque el líder no tiene gestores directos.
+    """
+    acrs = {acr_sup}
+    propio = df_detalle[df_detalle["ACRONIMO"] == acr_sup]
+    if propio.empty or not bool(propio.iloc[0].get("ES_LIDER", False)):
+        return acrs
+
+    sups = df_detalle[df_detalle["ES_SUPERVISOR"] == True].copy()
+    sups["_CIUDAD"]  = sups.get("CIUDAD_CUPO", "").astype(str).str.upper().str.strip()
+    sups["_LIDER"]   = sups["_CIUDAD"].map(LIDER_POR_CIUDAD).fillna("")
+    sups["_CANAL_U"] = sups.get("CANAL", "").astype(str).str.upper()
+    sups = sups[sups["_CANAL_U"].str.contains("DIRECTO", na=False)]
+    acrs |= set(sups[sups["_LIDER"] == acr_sup]["ACRONIMO"].tolist())
+    return acrs
+
+
 def construir_equipo_lider(df_detalle: pd.DataFrame, acr_lider: str) -> pd.DataFrame:
     """
     Para un LIDER, devuelve un DataFrame con (a) su propia fila y (b) una
@@ -2047,15 +2322,19 @@ def _hoja_resumen_equipo(ws, df_detalle: pd.DataFrame, acr_sup: str) -> None:
     )
 
 
-def _hoja_cif_detalle(ws, df_cif_pdv: pd.DataFrame, acr_sup: str) -> None:
+def _hoja_cif_detalle(ws, df_cif_pdv: pd.DataFrame, acr_sup: str, idx_bc: dict | None = None, acrs_equipo: set | None = None) -> None:
     """Hoja 2: PDVs del equipo con incumplimiento en algún componente CIF."""
+    acrs = acrs_equipo if acrs_equipo else {acr_sup}
     if "ACRONIMO_SUP" not in df_cif_pdv.columns:
         pdvs = pd.DataFrame()
     else:
         pdvs = df_cif_pdv[
             (df_cif_pdv["ROL"] == ROL_GESTOR)
-            & (df_cif_pdv["ACRONIMO_SUP"] == acr_sup)
+            & (df_cif_pdv["ACRONIMO_SUP"].isin(acrs))
         ].copy()
+
+    if idx_bc and not pdvs.empty:
+        pdvs = _canonizar_nombre_gestor(pdvs, idx_bc, col="NOMBRE_GESTOR")
 
     # Sprint 10: V3 cambió los nombres COB/FREC/HRS → COBERTURA/INTENSIDAD/FRECUENCIA.
     # Mantenemos compat con los nombres legacy para no tocar el resto del flujo.
@@ -2115,12 +2394,15 @@ def _hoja_cif_detalle(ws, df_cif_pdv: pd.DataFrame, acr_sup: str) -> None:
     )
 
 
-def _hoja_np_detalle(ws, df_np: pd.DataFrame, df_cif_pdv: pd.DataFrame, acr_sup: str) -> None:
-    """Hoja 3: PDVs con %_CUMPLIMIENTO_MES < 1 en NP, del equipo del supervisor.
+def _hoja_np_detalle(ws, df_np: pd.DataFrame, df_cif_pdv: pd.DataFrame, acr_sup: str, idx_bc: dict | None = None, acrs_equipo: set | None = None) -> None:
+    """Hoja 3: TODOS los PDVs del equipo del supervisor en NP (capturados y
+    no capturados) — refleja el detalle completo que calculó run_all, no
+    solo los que quedaron por debajo del umbral.
 
     Nota: VENTAS_PROMEDIO_MES se eliminó del entregable; sólo se conserva
     internamente como criterio de orden secundario.
     """
+    acrs = acrs_equipo if acrs_equipo else {acr_sup}
     cols_origen = ["NOMBRE_GESTOR", "NOMBRE_PDV",
                    "PLANEADO_MES", "CAPTURA_MES", "%_CUMPLIMIENTO_MES"]
     RENOMBRES = {
@@ -2149,15 +2431,15 @@ def _hoja_np_detalle(ws, df_np: pd.DataFrame, df_cif_pdv: pd.DataFrame, acr_sup:
     df["NOMBRE"]             = _normalizar_nombre(df["NOMBRE"])
     df["%_CUMPLIMIENTO_MES"] = pd.to_numeric(df["%_CUMPLIMIENTO_MES"], errors="coerce")
 
-    # Sprint 13.4: filtrar PDVs con cumplimiento < UMBRAL_OK_NP (default 1.0)
-    umb_np = umbral_de("NP_%")
+    # Antes filtraba solo %_CUMPLIMIENTO_MES < umbral (solo pendientes).
+    # Ahora se conserva el equipo/PLANEADO_MES>=1 pero se incluyen TODOS
+    # los PDVs, capturados o no.
     if "ACRONIMO_SUP" not in df.columns:
         df = df.head(0)  # vacío
     else:
         df = df[
-            (df["ACRONIMO_SUP"] == acr_sup)
+            (df["ACRONIMO_SUP"].isin(acrs))
             & (pd.to_numeric(df["PLANEADO_MES"], errors="coerce").fillna(0) >= 1)
-            & (df["%_CUMPLIMIENTO_MES"].fillna(0) < umb_np)
         ].copy()
 
     if df.empty:
@@ -2171,6 +2453,8 @@ def _hoja_np_detalle(ws, df_np: pd.DataFrame, df_cif_pdv: pd.DataFrame, acr_sup:
     )
     df = df.merge(ventas_pdv, on="ID_PDV_INVOLVES", how="left")
     df = df.rename(columns={"NOMBRE": "NOMBRE_GESTOR"})
+    if idx_bc:
+        df = _canonizar_nombre_gestor(df, idx_bc, col="NOMBRE_GESTOR")
 
     df_out = (
         df.sort_values(["%_CUMPLIMIENTO_MES", "VENTAS_PROMEDIO_MES"],
@@ -2192,13 +2476,16 @@ def _hoja_modulo_captura(
     df: pd.DataFrame,
     acr_sup: str,
     umbral_ok: float = 1.0,
+    idx_bc: dict | None = None,
+    acrs_equipo: set | None = None,
 ) -> None:
-    """Helper genérico para hojas Precios/SOS — Detalle (Sprint 13.5).
+    """Helper genérico para hojas Precios/SOS — Detalle.
 
-    Filtra PDVs donde el equipo del supervisor tiene incumplimiento:
-        CAPTURA_PLANEADA >= 1  Y  CAPTURA_EJECUTADA/CAPTURA_PLANEADA < umbral_ok
-    Sprint 13.4: con umbral=1.0 entran TODOS los PDVs que no llegaron al 100%.
+    Muestra TODOS los PDVs planeados del equipo (capturados o no) — refleja
+    el detalle completo que calculó run_all, no solo los que quedaron por
+    debajo del umbral.
     """
+    acrs = acrs_equipo if acrs_equipo else {acr_sup}
     cols_origen = ["NOMBRE_GESTOR", "NOMBRE_PDV",
                    "CAPTURA_PLANEADA", "CAPTURA_EJECUTADA",
                    "CATEGORIAS_FALTANTES"]
@@ -2222,7 +2509,8 @@ def _hoja_modulo_captura(
     d["CAPTURA_PLANEADA"]  = pd.to_numeric(d["CAPTURA_PLANEADA"],  errors="coerce").fillna(0)
     d["CAPTURA_EJECUTADA"] = pd.to_numeric(d["CAPTURA_EJECUTADA"], errors="coerce").fillna(0)
 
-    # Cumplimiento por fila = ejecutada/planeada
+    # Cumplimiento por fila = ejecutada/planeada (se conserva solo para
+    # ordenar — ya no se usa para filtrar quién aparece en la hoja).
     cumpl = np.where(
         d["CAPTURA_PLANEADA"] > 0,
         d["CAPTURA_EJECUTADA"] / d["CAPTURA_PLANEADA"],
@@ -2231,9 +2519,8 @@ def _hoja_modulo_captura(
     d["_cumpl"] = cumpl
 
     d = d[
-        (d["ACRONIMO_SUP"] == acr_sup)
+        (d["ACRONIMO_SUP"].isin(acrs))
         & (d["CAPTURA_PLANEADA"] >= 1)
-        & (d["_cumpl"] < umbral_ok)   # incumplimiento según umbral por KPI
     ].copy()
 
     if d.empty:
@@ -2241,6 +2528,8 @@ def _hoja_modulo_captura(
         df_out.loc[0] = [_MENSAJE_VACIO] + [None] * (len(cols_finales) - 1)
     else:
         d = d.rename(columns={"NOMBRE": "NOMBRE_GESTOR"})
+        if idx_bc:
+            d = _canonizar_nombre_gestor(d, idx_bc, col="NOMBRE_GESTOR")
         if "CATEGORIAS_FALTANTES" not in d.columns:
             d["CATEGORIAS_FALTANTES"] = ""
         if "VENTAS_PROMEDIO_MES" not in d.columns:
@@ -2380,14 +2669,14 @@ def _hoja_impactos_detalle(
     )
 
 
-def _hoja_precios_detalle(ws, df_pr: pd.DataFrame, acr_sup: str) -> None:
-    """Hoja Precios — Detalle (Sprint 13.5)."""
-    _hoja_modulo_captura(ws, df_pr, acr_sup, umbral_ok=umbral_de("PRECIOS_%"))
+def _hoja_precios_detalle(ws, df_pr: pd.DataFrame, acr_sup: str, idx_bc: dict | None = None, acrs_equipo: set | None = None) -> None:
+    """Hoja Precios — Detalle."""
+    _hoja_modulo_captura(ws, df_pr, acr_sup, umbral_ok=umbral_de("PRECIOS_%"), idx_bc=idx_bc, acrs_equipo=acrs_equipo)
 
 
-def _hoja_sos_detalle(ws, df_sos: pd.DataFrame, acr_sup: str) -> None:
-    """Hoja SOS — Detalle (Sprint 13.5)."""
-    _hoja_modulo_captura(ws, df_sos, acr_sup, umbral_ok=umbral_de("SOS_%"))
+def _hoja_sos_detalle(ws, df_sos: pd.DataFrame, acr_sup: str, idx_bc: dict | None = None, acrs_equipo: set | None = None) -> None:
+    """Hoja SOS — Detalle."""
+    _hoja_modulo_captura(ws, df_sos, acr_sup, umbral_ok=umbral_de("SOS_%"), idx_bc=idx_bc, acrs_equipo=acrs_equipo)
 
 
 # Versión legacy mantenida por compatibilidad con código antiguo si alguien
@@ -2811,6 +3100,7 @@ def generar_adjuntos_por_supervisor(
     mes: int,
     anio: int,
     seg_data: dict | None = None,
+    idx_bc: dict | None = None,
 ) -> dict:
     """
     Genera un Excel por supervisor con 7 hojas:
@@ -2866,20 +3156,26 @@ def generar_adjuntos_por_supervisor(
         ws1.title = "Resumen Equipo"
         _hoja_resumen_equipo(ws1, df_detalle, acr_sup)
 
+        # Conjunto de acrónimos a incluir en las hojas de detalle por PDV:
+        # para un supervisor normal es solo él mismo; para un LÍDER (que
+        # tiene supervisores a cargo, no gestores directos) también incluye
+        # a sus supervisores, para que el detalle no salga vacío.
+        acrs_equipo = _acronimos_equipo_cascada(df_detalle, acr_sup)
+
         # Sprint 13.5: nombres alineados con el resumen del correo
         # Hoja 2 — CIF
         ws2 = wb.create_sheet("CIF — Detalle")
-        _hoja_cif_detalle(ws2, df_cif_pdv, acr_sup)
+        _hoja_cif_detalle(ws2, df_cif_pdv, acr_sup, idx_bc=idx_bc, acrs_equipo=acrs_equipo)
 
         # Hoja 3 — No Presencia
         ws3 = wb.create_sheet("No Presencia — Detalle")
-        _hoja_np_detalle(ws3, df_np, df_cif_pdv, acr_sup)
+        _hoja_np_detalle(ws3, df_np, df_cif_pdv, acr_sup, idx_bc=idx_bc, acrs_equipo=acrs_equipo)
 
         # Hojas 4 y 5 — Precios y SOS separados (D18=Sí)
         ws4 = wb.create_sheet("Precios — Detalle")
-        _hoja_precios_detalle(ws4, df_pr, acr_sup)
+        _hoja_precios_detalle(ws4, df_pr, acr_sup, idx_bc=idx_bc, acrs_equipo=acrs_equipo)
         ws5 = wb.create_sheet("SOS — Detalle")
-        _hoja_sos_detalle(ws5, df_sos, acr_sup)
+        _hoja_sos_detalle(ws5, df_sos, acr_sup, idx_bc=idx_bc, acrs_equipo=acrs_equipo)
 
         # Hoja 6 — Impactos D&P (Sprint 13.6)
         ws6 = wb.create_sheet("Impactos — Detalle")

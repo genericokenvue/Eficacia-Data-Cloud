@@ -1,0 +1,4 @@
+2026-08-05 10:05:08  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260805_100508.log
+2026-08-05 10:05:08  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos en la nube con paths.py
+2026-08-05 10:11:36  [etl.calcular_cumplimientos]  ⚠ WARNING   Fallo al subir adjunto Detalle_ROSA_ELENA_PANTOJA_07_2026.xlsx a la nube: Error al subir adjunto Detalle_ROSA_ELENA_PANTOJA_07_2026.xlsx a Graph API: 423 - {"error":{"code":"notAllowed","message":"The resource you are attempting to access is locked","innerError":{"code":"resourceLocked","date":"2026-08-05T15:11:33","request-id":"2253bc20-e397-4cc3-a9ef-8e99778cf336","client-request-id":"2253bc20-e397-4cc3-a9ef-8e99778cf336"}}}
+2026-08-05 10:12:19  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado (Cloud vía paths) — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37

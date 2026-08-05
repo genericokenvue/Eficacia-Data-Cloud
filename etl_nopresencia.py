@@ -97,6 +97,7 @@ from shared_loader import (
     COLUMNAS_ESTANDAR_UNIFICADO as COLUMNAS_ESTANDAR,
     COLUMNAS_SUPERSET as COLUMNAS_FINALES_PT,
     COLUMNAS_NUMERICAS,
+    renombrar_columnas_estandar,
 )
 
 # =============================================================================
@@ -162,7 +163,7 @@ def ejecutar_paso_1_consolidar_pt_np(spec: pr.PeriodoSpec, headers, site_id):
             df.columns = df.columns.str.strip().str.upper()
 
             df = df[df["ID PDV INVOLVES"].isin(pdvs_obs["ID PDV INVOLVES"])].copy()
-            df.rename(columns={col: COLUMNAS_ESTANDAR[col] for col in df.columns if col in COLUMNAS_ESTANDAR}, inplace=True)
+            df = renombrar_columnas_estandar(df)  # ignora tildes (Cedula/Cédula/CÉDULA -> CEDULA)
 
             df = df.merge(pdvs_obs, left_on="ID_PDV_INVOLVES", right_on="ID PDV INVOLVES", how="left")
 
@@ -296,6 +297,11 @@ def generar_matriz_seguimiento(df_np, df_pt, periodo_nom, spec, headers, site_id
     df_pt['NOMBRE'] = df_pt['NOMBRE'].astype(str).str.strip().str.upper()
     df_capturas_totales['ID del PDV'] = id_a_str(df_capturas_totales['ID del PDV'])
 
+    if 'CEDULA' not in df_pt.columns:
+        df_pt['CEDULA'] = ""
+    else:
+        df_pt['CEDULA'] = df_pt['CEDULA'].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+
     plan_agg = (
         df_pt.assign(_PLAN=1)
              .groupby(
@@ -303,7 +309,8 @@ def generar_matriz_seguimiento(df_np, df_pt, periodo_nom, spec, headers, site_id
                   'ROL', 'SUPERVISOR_LIDER', 'MES', 'AÑO'],
                  dropna=False, as_index=False,
              )
-             .agg(PLANEADO_MES=('_PLAN', 'max'))
+             .agg(PLANEADO_MES=('_PLAN', 'max'),
+                  CEDULA=('CEDULA', 'first'))
     )
 
     cap_agg = (
@@ -323,7 +330,7 @@ def generar_matriz_seguimiento(df_np, df_pt, periodo_nom, spec, headers, site_id
     )
 
     columnas_finales_reporte = [
-        'ID_PDV_INVOLVES', 'NOMBRE_PDV', 'NOMBRE', 'ROL', 'SUPERVISOR_LIDER',
+        'ID_PDV_INVOLVES', 'NOMBRE_PDV', 'NOMBRE', 'CEDULA', 'ROL', 'SUPERVISOR_LIDER',
         'PLANEADO_MES', 'CAPTURA_MES', '%_CUMPLIMIENTO_MES', 'MES', 'AÑO'
     ]
     matriz = matriz[columnas_finales_reporte]

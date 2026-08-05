@@ -10,6 +10,7 @@ Ver docstring original para descripción de la interfaz.
 import os
 import glob
 import urllib.parse
+import unicodedata
 import requests
 import pandas as pd
 import numpy as np
@@ -65,6 +66,34 @@ COLUMNAS_ESTANDAR_UNIFICADO = {
     "ROL"                              : "ROL",
     "SUPERVISOR LIDER"                 : "SUPERVISOR_LIDER",
 }
+
+def _sin_tildes_col(s: str) -> str:
+    """Quita tildes/diacríticos de un nombre de columna (á→a, ñ→n, etc.)."""
+    return unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii")
+
+
+# Versión del diccionario indexada por clave SIN tildes, para poder matchear
+# "Cédula"/"CÉDULA" contra la entrada "Cedula"/"CEDULA" sin tener que listar
+# cada variante con y sin tilde a mano.
+_COLUMNAS_ESTANDAR_SIN_TILDES = {
+    _sin_tildes_col(k).upper(): v for k, v in COLUMNAS_ESTANDAR_UNIFICADO.items()
+}
+
+
+def renombrar_columnas_estandar(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Renombra las columnas de `df` a los nombres estándar de
+    COLUMNAS_ESTANDAR_UNIFICADO, ignorando tildes en el nombre de origen
+    (ej. "Cédula", "CÉDULA" y "Cedula" todas resuelven a "CEDULA").
+    Columnas que no matchean ninguna entrada quedan tal cual.
+    """
+    df = df.copy()
+    mapa = {}
+    for col in df.columns:
+        col_plano = _sin_tildes_col(str(col).strip()).upper()
+        if col_plano in _COLUMNAS_ESTANDAR_SIN_TILDES:
+            mapa[col] = _COLUMNAS_ESTANDAR_SIN_TILDES[col_plano]
+    return df.rename(columns=mapa)
 
 COLUMNAS_SUPERSET = [
     "ID_PDV_INVOLVES", "NOMBRE_PDV", "VENTAS_PROMEDIO_MES", "ACRONIMO",
@@ -133,11 +162,23 @@ def calcular_kpi_simple_y_escribir(
         df['SUPERVISOR_LIDER'] = ""
     if 'NOMBRE' not in df.columns:
         df['NOMBRE'] = ""
+    if 'CEDULA' not in df.columns:
+        print(f"    ⚠️  El origen no trae columna CEDULA en absoluto (columnas: {list(df.columns)}) "
+              f"— quedará vacía para todos.")
+        df['CEDULA'] = ""
+    else:
+        df['CEDULA'] = df['CEDULA'].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+        cedula_vacia = df['CEDULA'].isin(["", "nan", "NAN"])
+        n_vacias = cedula_vacia.sum()
+        if n_vacias > 0:
+            print(f"    ⚠️  CEDULA vacía en el origen para {n_vacias}/{len(df)} filas — "
+                  f"esas personas no van a poder cruzar por cédula, solo por nombre.")
 
     resumen = (
         df.groupby(['MES', 'AÑO', 'SUPERVISOR_LIDER', 'NOMBRE'], dropna=False)
           .agg(**{col_planeado:  (col_planeado,  'sum'),
-                  col_ejecutado: (col_ejecutado, 'sum')})
+                  col_ejecutado: (col_ejecutado, 'sum'),
+                  'CEDULA':      ('CEDULA', 'first')})
           .reset_index()
     )
 
@@ -149,7 +190,7 @@ def calcular_kpi_simple_y_escribir(
     )
     resumen = resumen.rename(columns={col_planeado: nom_plan, col_ejecutado: nom_eje})
 
-    cols_final = ['MES', 'AÑO', 'SUPERVISOR_LIDER', 'NOMBRE',
+    cols_final = ['MES', 'AÑO', 'SUPERVISOR_LIDER', 'NOMBRE', 'CEDULA',
                   nom_plan, nom_eje, nombre_cumplimiento]
     resumen = resumen[cols_final].sort_values(
         ['AÑO', 'MES', 'SUPERVISOR_LIDER', 'NOMBRE']

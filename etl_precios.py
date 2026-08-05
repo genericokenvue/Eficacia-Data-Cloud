@@ -106,7 +106,7 @@ def subir_archivo_a_sharepoint(headers, site_id, ruta_carpeta, nombre_archivo, d
 def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO 1: Consolidando Plan de Trabajo  ({spec.etiqueta}) ---")
 
-    from shared_loader import COLUMNAS_ESTANDAR_UNIFICADO as COLUMNAS_ESTANDAR
+    from shared_loader import COLUMNAS_ESTANDAR_UNIFICADO as COLUMNAS_ESTANDAR, renombrar_columnas_estandar
 
     COLUMNAS_FINALES_PT = [
         "ID_PDV_INVOLVES", "NOMBRE_PDV", "VENTAS_PROMEDIO_MES", "ACRONIMO",
@@ -179,7 +179,7 @@ def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
             df.columns = df.columns.str.strip().str.upper()
 
             df = df[df["ID PDV INVOLVES"].isin(pdvs_obs["ID PDV INVOLVES"])].copy()
-            df.rename(columns={col: COLUMNAS_ESTANDAR[col] for col in df.columns if col in COLUMNAS_ESTANDAR}, inplace=True)
+            df = renombrar_columnas_estandar(df)  # ignora tildes (Cedula/Cédula/CÉDULA -> CEDULA)
 
             df = df.merge(pdvs_obs, left_on="ID_PDV_INVOLVES", right_on="ID PDV INVOLVES", how="left")
 
