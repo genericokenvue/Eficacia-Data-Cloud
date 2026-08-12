@@ -1,0 +1,10 @@
+2026-08-10 10:01:52  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260810_100152.log
+2026-08-10 10:01:52  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos en la nube con paths.py
+2026-08-10 10:03:29  [etl.calcular_cumplimientos]  ⚠ WARNING   KPI EXHIB_GRA: canónico=EXHIBICIONES_GRATIS_KPIS.xlsx ausente, se usó alterno=KPI_Exhibiciones_Gratis.xlsx
+2026-08-10 10:04:33  [etl.calcular_cumplimientos]  ✗ ERROR     Insumos obligatorios ausentes: ['KPIs Exhib. Gratis']
+2026-08-10 10:05:30  [etl.calcular_cumplimientos]  ⚠ WARNING   ACRONIMO X6008 aparece 2 veces en el KPI de origen ['NP_%'] — se consolida promediando. Nombre(s): ['JENNY ALEJANDRA LOAIZA VILLOTA']
+2026-08-10 10:05:30  [etl.calcular_cumplimientos]  ⚠ WARNING   ACRONIMO X6008 aparece 2 veces en el KPI de origen ['SOS_%'] — se consolida promediando. Nombre(s): ['JENNY ALEJANDRA LOAIZA VILLOTA']
+2026-08-10 10:05:44  [etl.calcular_cumplimientos]  ⚠ WARNING   No pude descargar Rutero D&P (404): Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026/Rutero/RUTERO_JULIO_2026_D_P.xlsx
+2026-08-10 10:05:49  [etl.calcular_cumplimientos]  ⚠ WARNING   No pude descargar Rutero D&P (404): Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026/Rutero/RUTERO_JULIO_2026_D_P.xlsx
+2026-08-10 10:05:52  [etl.calcular_cumplimientos]  ⚠ WARNING   No pude descargar Rutero D&P (404): Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026/Rutero/RUTERO_JULIO_2026.xlsx
+2026-08-10 11:16:36  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado (Cloud vía paths) — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37

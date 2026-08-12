@@ -1,0 +1,5 @@
+2026-08-11 15:42:14  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260811_154214.log
+2026-08-11 15:42:14  [etl.calcular_cumplimientos]  ✓ INFO      Iniciando cálculo de cumplimientos en la nube con paths.py
+2026-08-11 15:45:23  [etl.calcular_cumplimientos]  ⚠ WARNING   ACRONIMO X6008 aparece 2 veces en el KPI de origen ['NP_%'] — se consolida promediando. Nombre(s): ['JENNY ALEJANDRA LOAIZA VILLOTA']
+2026-08-11 15:45:23  [etl.calcular_cumplimientos]  ⚠ WARNING   ACRONIMO X6008 aparece 2 veces en el KPI de origen ['SOS_%'] — se consolida promediando. Nombre(s): ['JENNY ALEJANDRA LOAIZA VILLOTA']
+2026-08-11 15:49:57  [etl.calcular_cumplimientos]  ✓ INFO      Cálculo completado (Cloud vía paths) — periodo 07/2026 | gestores=172 supervisores=28 adjuntos=37

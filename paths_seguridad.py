@@ -69,123 +69,30 @@ RUTA_CARPETA_PT = f"{SHAREPOINT_BASE_DIR}/INVOLVES/PLAN DE TRABAJO" #OOKK
 _BASES_ROOT     = f"{SHAREPOINT_BASE_DIR}/INVOLVES/BASES DE RESPUESTAS" #OOKKK
 _SALIDAS_ROOT   = f"{SHAREPOINT_BASE_DIR}/INVOLVES/SALIDAS" #OOOKKK
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CARPETAS DE BASES POR AÑO
-# ─────────────────────────────────────────────────────────────────────────────
-# Las carpetas de BASES están organizadas por año. El año debe ser el del
-# PERIODO que se está procesando, NO el del reloj:
-#   • Cerrar diciembre durante enero → AÑO_ACTUAL da 2027, el dato está en 2026
-#   • Recalcular un periodo anterior (backfill) → misma historia
-# En ambos casos la lectura devuelve 404, el DataFrame sale vacío y las hojas
-# quedan en blanco sin ningún error visible.
-#
-# Por eso las carpetas de BASES se exponen como FUNCIONES que reciben el año.
-# Las constantes se conservan (apuntando al año actual) para no romper el
-# código que ya las usa.
-
-def _bases(modulo: str, anio: int | None = None) -> str:
-    """Carpeta de BASES de un módulo para el año indicado."""
-    return f"{_BASES_ROOT}/{modulo}/{anio or AÑO_ACTUAL}"
-
-
-def bases_cif(anio: int | None = None) -> str:     return _bases("CIF", anio)
-def bases_precios(anio: int | None = None) -> str: return _bases("PRECIOS", anio)
-def bases_np(anio: int | None = None) -> str:      return _bases("NO PRESENCIA", anio)
-def bases_sos(anio: int | None = None) -> str:     return _bases("PARTICIPACIONES", anio)
-def bases_exhib(anio: int | None = None) -> str:   return _bases("EXHIBICIONES", anio)
-def bases_dyp(anio: int | None = None) -> str:     return _bases("DYP", anio)
-
-
 # Rutas SharePoint por Módulo
 RUTA_CARPETA_PT_CIF       = RUTA_CARPETA_PT  #OK
-RUTA_CARPETA_BASES_CIF   = bases_cif() #OK
+RUTA_CARPETA_BASES_CIF   = f"{_BASES_ROOT}/CIF/{AÑO_ACTUAL}" #OK
 RUTA_CARPETA_SALIDAS_CIF = f"{_SALIDAS_ROOT}/CIF" #OK
 
 RUTA_CARPETA_PT_PRECIOS      = RUTA_CARPETA_PT
-RUTA_CARPETA_BASES_PRECIOS   = bases_precios() #OOKK
+RUTA_CARPETA_BASES_PRECIOS   = f"{_BASES_ROOT}/PRECIOS/{AÑO_ACTUAL}" #OOKK
 RUTA_CARPETA_SALIDAS_PRECIOS = f"{_SALIDAS_ROOT}/PRECIOS"            #OOKKK
 
 RUTA_CARPETA_PT_NP       = RUTA_CARPETA_PT
-RUTA_CARPETA_BASES_NP    = bases_np() #OK
+RUTA_CARPETA_BASES_NP    = f"{_BASES_ROOT}/NO PRESENCIA/{AÑO_ACTUAL}" #OK
 RUTA_CARPETA_SALIDAS_NP  = f"{_SALIDAS_ROOT}/NO PRESENCIA"   #OK
 
 RUTA_CARPETA_PT_SOS      = RUTA_CARPETA_PT
-RUTA_CARPETA_BASES_SOS    = bases_sos()  #OK
+RUTA_CARPETA_BASES_SOS    = f"{_BASES_ROOT}/PARTICIPACIONES/{AÑO_ACTUAL}"  #OK
 RUTA_CARPETA_SALIDAS_SOS  = f"{_SALIDAS_ROOT}/SOS"                         #OK             
 
 RUTA_CARPETA_PT_EXHIB    = RUTA_CARPETA_PT
-RUTA_CARPETA_BASES_EXHIB  = bases_exhib()
+RUTA_CARPETA_BASES_EXHIB  = f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}"
 RUTA_CARPETA_SALIDAS_EXHIB= f"{_SALIDAS_ROOT}/EXHIBICIONES"
 
 RUTA_CARPETA_PT_DYP      = RUTA_CARPETA_PT
-RUTA_CARPETA_BASES_DYP    = bases_dyp()
+RUTA_CARPETA_BASES_DYP    = f"{_BASES_ROOT}/DYP/{AÑO_ACTUAL}"
 RUTA_CARPETA_SALIDAS_DYP  = f"{_SALIDAS_ROOT}/DYP"
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# INSUMOS EN LA NUBE CON MES Y AÑO EN EL NOMBRE
-# ─────────────────────────────────────────────────────────────────────────────
-# Punto único de verdad para los archivos cuyo nombre depende del periodo.
-# Antes cada ETL los armaba por su cuenta, con el año a veces fijo.
-_MESES_ES = {1: "ENERO", 2: "FEBRERO", 3: "MARZO", 4: "ABRIL", 5: "MAYO",
-             6: "JUNIO", 7: "JULIO", 8: "AGOSTO", 9: "SEPTIEMBRE",
-             10: "OCTUBRE", 11: "NOVIEMBRE", 12: "DICIEMBRE"}
-
-
-def mes_es(mes: int, mayus: bool = True) -> str:
-    """7 → 'JULIO' (o 'Julio' con mayus=False)."""
-    m = _MESES_ES[int(mes)]
-    return m if mayus else m.capitalize()
-
-
-# --- CIF ---------------------------------------------------------------------
-def cloud_cif_visitas(mes: int, anio: int) -> str:
-    """BASES DE RESPUESTAS/CIF/<año>/Involves_Procesado_<MM>_<AAAA>.csv"""
-    return f"{bases_cif(anio)}/Involves_Procesado_{int(mes):02d}_{anio}.csv"
-
-
-# --- EXHIBICIONES ------------------------------------------------------------
-def cloud_exhib_planning(mes: int, anio: int) -> str:
-    """BASES DE RESPUESTAS/EXHIBICIONES/<año>/PLANNING DE <MES> <AÑO>.xlsx"""
-    return f"{bases_exhib(anio)}/PLANNING DE {mes_es(mes)} {anio}.xlsx"
-
-
-def cloud_exhib_base_planning(mes: int, anio: int) -> str:
-    """BASES DE RESPUESTAS/EXHIBICIONES/<año>/Base Exhibiciones Planning <Mes> <Año>.xlsx"""
-    return f"{bases_exhib(anio)}/Base Exhibiciones Planning {mes_es(mes, False)} {anio}.xlsx"
-
-
-# --- D&P ---------------------------------------------------------------------
-# Nota: el "&" de "MSL & Listas Target Catman.xlsx" NO necesita escaparse
-# aparte; urllib.parse.quote() lo codifica como %26 al armar la URL de Graph.
-def cloud_dyp_impactos(mes: int, anio: int) -> str:
-    """SALIDAS/DYP/Consolidado_Impactos_<MES>_<AÑO>.csv"""
-    return f"{RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Impactos_{mes_es(mes)}_{anio}.csv"
-
-
-def cloud_dyp_ventas(mes: int, anio: int) -> str:
-    """SALIDAS/DYP/Consolidado_Ventas_<MES>_<AÑO>.csv"""
-    return f"{RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Ventas_{mes_es(mes)}_{anio}.csv"
-
-
-def cloud_dyp_rutero(mes: int, anio: int) -> str:
-    """
-    BASES DE RESPUESTAS/DYP/<año>/Rutero/RUTERO <MES> <AÑO> D&P.xlsx
-
-    Nombre confirmado: lleva ESPACIOS y "&", no guiones bajos, y cambia cada
-    mes. El "&" no necesita escaparse: urllib.parse.quote() lo codifica %26.
-    """
-    return f"{bases_dyp(anio)}/Rutero/RUTERO {mes_es(mes)} {anio} D&P.xlsx"
-
-
-def cloud_dyp_listas(anio: int | None = None) -> str:
-    """BASES DE RESPUESTAS/DYP/<año>/Listas/MSL & Listas Target Catman.xlsx"""
-    return f"{bases_dyp(anio)}/Listas/MSL & Listas Target Catman.xlsx"
-
-
-def cloud_dyp_base_cupos(anio: int | None = None) -> str:
-    """BASES DE RESPUESTAS/DYP/<año>/Base_cupos.xlsx"""
-    return f"{bases_dyp(anio)}/Base_cupos.xlsx"
 
 RUTA_CARPETA_BASES   = RUTA_CARPETA_BASES_PRECIOS
 RUTA_CARPETA_SALIDAS = RUTA_CARPETA_SALIDAS_PRECIOS
@@ -304,11 +211,8 @@ EXHIB_NIVEL_IMPACTO = EXHIB_DATA_DIR / "Nivel impacto x Exhibición.xlsx"
 
 EXHIB_PAG_OUT_KPIS           = EXHIB_SALIDA / "EXHIBICIONES_PAGADAS_KPIS.xlsx"
 EXHIB_PAG_OUT_KPIS_HISTORICO = EXHIB_SALIDA / "EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx"
-# Nombre confirmado del archivo que publica el ETL de exhibiciones gratis en
-# SALIDAS/EXHIBICIONES. Antes decía EXHIBICIONES_GRATIS_KPIS.xlsx, que no
-# existe: la lectura daba 404 y ese KPI llegaba vacío al cruce.
-EXHIB_GRA_OUT_KPIS           = EXHIB_SALIDA / "KPI_Exhibiciones_Gratis.xlsx"
-EXHIB_GRA_OUT_KPIS_HISTORICO = EXHIB_SALIDA / "KPI_Exhibiciones_Gratis_HISTORICO.xlsx"
+EXHIB_GRA_OUT_KPIS           = EXHIB_SALIDA / "EXHIBICIONES_GRATIS_KPIS.xlsx"
+EXHIB_GRA_OUT_KPIS_HISTORICO = EXHIB_SALIDA / "EXHIBICIONES_GRATIS_KPIS_HISTORICO.xlsx"
 
 # D&P
 DYP_BASES        = _input_root("D&P")
