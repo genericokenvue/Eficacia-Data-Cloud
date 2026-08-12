@@ -204,40 +204,6 @@ def _subir_bytes_cloud(data: bytes, ruta_sharepoint: str, descripcion: str,
     raise Exception(f"Error al subir {descripcion} a Graph API: {response.status_code} - {response.text}")
 
 
-def _descargar_a_temp(ruta_sharepoint: str, descripcion: str) -> Path | None:
-    """
-    Baja un archivo de SharePoint a un temporal local y devuelve su Path.
-
-    Necesario para los insumos D&P (Consolidado de Impactos, Consolidado de
-    Ventas, Rutero y Listas), que se movieron a la nube pero siguen siendo
-    consumidos por módulos (`cumplimiento_dyp`, `etl_impactos_segmentos`) que
-    esperan un archivo en disco. Así se migra la ubicación sin reescribir esos
-    módulos. Devuelve None si no se pudo descargar (el llamador decide qué
-    hacer, en vez de fallar silenciosamente).
-    """
-    try:
-        token = _obtener_token_azure()
-        headers = {"Authorization": f"Bearer {token}"}
-        drive_id = _obtener_default_drive_id(token)
-        ruta_codificada = urllib.parse.quote(_limpiar_ruta_graph(ruta_sharepoint))
-        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta_codificada}:/content"
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            print(f"    ⚠️  [{descripcion}] no disponible en la nube "
-                  f"({response.status_code}): {ruta_sharepoint}")
-            _log.warning("No pude descargar %s (%s): %s",
-                         descripcion, response.status_code, ruta_sharepoint)
-            return None
-        destino = Path(tempfile.gettempdir()) / Path(ruta_sharepoint).name
-        destino.write_bytes(response.content)
-        print(f"    ✓ [{descripcion}] descargado ({len(response.content):,} bytes)")
-        return destino
-    except Exception as e:
-        print(f"    ⚠️  [{descripcion}] error al descargar: {e}")
-        _log.warning("Error descargando %s: %s", descripcion, e)
-        return None
-
-
 def _listar_hijos_cloud(ruta_carpeta: str) -> list:
     """
     Lista los archivos/subcarpetas de `ruta_carpeta` en SharePoint vía Graph
@@ -266,64 +232,18 @@ def _listar_hijos_cloud(ruta_carpeta: str) -> list:
     return items
 
 
-def _carpeta_periodo(raiz: str, anio: int | None) -> str:
-    """
-    Devuelve la carpeta de BASES correspondiente al AÑO DEL PERIODO procesado.
-
-    En `paths.py` las carpetas de BASES se construyen con
-    `AÑO_ACTUAL = datetime.datetime.now().year`, es decir el año del RELOJ, no
-    el del periodo que se está calculando. Eso funciona mientras se procese el
-    mes en curso, pero falla en dos casos reales y silenciosos:
-
-      • Cerrar diciembre durante enero → busca en .../2027 cuando el dato
-        está en .../2026, y todas las hojas que dependen de BASES salen vacías.
-      • Recalcular un periodo anterior (backfill) → misma historia.
-
-    Esta función normaliza: si la raíz ya termina en un año, lo REEMPLAZA por
-    el del periodo (no lo anida, que produciría .../2026/2026); si no lo trae,
-    lo agrega. Con `anio=None` devuelve la raíz sin tocar.
-    """
-    raiz = str(raiz).rstrip("/")
-    if not anio:
-        return raiz
-    anio_str = str(int(anio))
-    if raiz.endswith(f"/{anio_str}"):
-        return raiz
-    if re.search(r"/(19|20)\d{2}$", raiz):
-        nueva = re.sub(r"/(19|20)\d{2}$", f"/{anio_str}", raiz)
-        if nueva != raiz:
-            print(f"    ℹ️  Carpeta ajustada al año del periodo: {nueva}")
-        return nueva
-    return f"{raiz}/{anio_str}"
-
-
-def _resolver_exhib_data_dir_cloud(anio: int | None = None) -> str:
+def _resolver_exhib_data_dir_cloud() -> str:
     """
     Equivalente en la nube de `paths._resolver_exhib_data_dir()`: la carpeta
     de BASES de Exhibiciones suele contener subcarpetas tipo "01. ...",
     "02. ..." (una por corte/actualización); se toma la más reciente. Si no
     hay subcarpetas que matcheen el patrón, se usa la carpeta raíz tal cual.
-
-    FIX: los archivos de planning viven en
-    `BASES DE RESPUESTAS/EXHIBICIONES/<año>`. Antes se usaba
-    `paths.RUTA_CARPETA_BASES_EXHIB` tal cual, que trae el año del RELOJ
-    (`AÑO_ACTUAL`), no el del periodo. Ahora se normaliza con
-    `_carpeta_periodo()`.
     """
-    raiz = _carpeta_periodo(paths.RUTA_CARPETA_BASES_EXHIB, anio)
-
+    raiz = paths.RUTA_CARPETA_BASES_EXHIB
     try:
         hijos = _listar_hijos_cloud(raiz)
     except Exception:
         return raiz
-    candidatos = [
-        h for h in hijos
-        if h.get("folder") and re.match(r"^\d{2}\.\s", h.get("name", ""))
-    ]
-    if not candidatos:
-        return raiz
-    candidatos.sort(key=lambda h: h.get("lastModifiedDateTime", ""), reverse=True)
-    return f"{raiz}/{candidatos[0]['name']}"
     candidatos = [
         h for h in hijos
         if h.get("folder") and re.match(r"^\d{2}\.\s", h.get("name", ""))
@@ -384,172 +304,6 @@ RUTA_CARPETA_ADJUNTOS_CLOUD  = f"{RUTA_CARPETA_SALIDAS_ALERTAS}/ADJUNTOS"
 # F) PUNTO DE ENTRADA
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _rutas_insumos(mes: int, anio: int) -> list[tuple[str, str, bool]]:
-    """
-    Punto ÚNICO de verdad de dónde vive cada insumo en SharePoint.
-
-    Devuelve [(descripción, ruta_cloud, es_obligatorio)]. Centralizarlo evita
-    lo que venía pasando: rutas construidas en 5 sitios distintos del archivo,
-    con el año a veces fijo y a veces derivado del periodo, y sin forma de
-    saber cuál está mal sin leer todo el log.
-
-    Estructura vigente (todo en la nube):
-      BASES DE RESPUESTAS/CIF/<año>/            → Involves_Procesado_<MM>_<AAAA>.csv
-      BASES DE RESPUESTAS/EXHIBICIONES/<año>/   → PLANNING DE <MES> <AÑO>.xlsx
-                                                  Base Exhibiciones Planning <Mes> <Año>.xlsx
-      BASES DE RESPUESTAS/DYP/<año>/Rutero/     → RUTERO_<MES>_<AÑO>_D_P.xlsx
-      BASES DE RESPUESTAS/DYP/<año>/Listas/     → listas_referencia.xlsx
-      SALIDAS/DYP/                              → Consolidado_Impactos_<MES>_<AÑO>.csv
-                                                  Consolidado_Ventas_<MES>_<AÑO>.csv
-    """
-    import periodo_resolver as _pr
-    spec = _pr.resolver(mes, anio)
-
-    # Se prefieren los helpers de paths.py (punto único de verdad). Si aún no
-    # están definidos, se cae al armado local normalizando el año del periodo.
-    def _p(nombre_helper, *args, fallback=""):
-        fn = getattr(paths, nombre_helper, None)
-        return fn(*args) if callable(fn) else fallback
-
-    bases_cif   = _carpeta_periodo(getattr(paths, "RUTA_CARPETA_BASES_CIF",   f"{paths._BASES_ROOT}/CIF"), anio)
-    bases_dyp   = _carpeta_periodo(getattr(paths, "RUTA_CARPETA_BASES_DYP",   f"{paths._BASES_ROOT}/DYP"), anio)
-    bases_exh   = _carpeta_periodo(getattr(paths, "RUTA_CARPETA_BASES_EXHIB", f"{paths._BASES_ROOT}/EXHIBICIONES"), anio)
-    salidas_dyp = getattr(paths, "RUTA_CARPETA_SALIDAS_DYP", f"{paths._SALIDAS_ROOT}/DYP")
-
-    return [
-        ("CIF — Plan de trabajo",   RUTA_CIF, True, []),
-        ("SOS — detalle",           RUTA_SOS, True, []),
-        ("NP — detalle",            f"{DIR_NP_OUT}/REPORTE_NO_PRESENCIA.xlsx", True, []),
-        ("Precios — detalle",       f"{DIR_PRECIOS_OUT}/REPORTE_CAPTURA_PRECIOS.xlsx", True, []),
-        ("KPIs CIF",                f"{paths.RUTA_CARPETA_SALIDAS_CIF}/{paths.CIF_OUT_KPIS.name}", True,
-                                     ["KPIS_CIF.xlsx", "CIF_KPIS.xlsx"]),
-        ("KPIs SOS",                f"{paths.RUTA_CARPETA_SALIDAS_SOS}/{paths.SOS_OUT_KPIS.name}", True,
-                                     ["SOS_KPIS.xlsx", "KPIS_SOS.xlsx"]),
-        ("KPIs NP",                 f"{paths.RUTA_CARPETA_SALIDAS_NP}/{paths.NP_OUT_KPIS.name}", True,
-                                     ["NP_KPIS.xlsx", "NO_PRESENCIA_KPIS.xlsx"]),
-        ("KPIs Precios",            f"{paths.RUTA_CARPETA_SALIDAS_PRECIOS}/{paths.PR_OUT_KPIS.name}", True,
-                                     ["PRECIOS_KPIS.xlsx", "KPIS_PRECIOS.xlsx"]),
-        ("KPIs Exhib. Pagadas",     f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/{paths.EXHIB_PAG_OUT_KPIS.name}", True,
-                                     ["EXHIBICIONES_PAGADAS_KPIS.xlsx", "KPI_Exhibiciones_Pagadas.xlsx"]),
-        # FIX: este era el que te disparaba el ERROR falso. El nombre canónico
-        # de paths.py (EXHIBICIONES_GRATIS_KPIS.xlsx) no existe en SharePoint,
-        # pero _read_kpi() SÍ lo carga bien por el alterno
-        # (KPI_Exhibiciones_Gratis.xlsx). El verificador antes solo probaba el
-        # canónico, así que marcaba "OBLIGATORIO ausente" y lanzaba
-        # _log.error() aunque el dato se hubiera cargado correctamente 40
-        # líneas más abajo. Ahora prueba también los alternos, en el MISMO
-        # orden que usa _read_kpi, así el diagnóstico coincide con lo que en
-        # verdad va a pasar.
-        ("KPIs Exhib. Gratis",      f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/{paths.EXHIB_GRA_OUT_KPIS.name}", True,
-                                     ["KPI_Exhibiciones_Gratis.xlsx", "EXHIBICIONES_GRATIS_KPIS.xlsx"]),
-        ("Informe de visitas",      _p("cloud_cif_visitas", mes, anio,
-                                       fallback=f"{bases_cif}/Involves_Procesado_{mes:02d}_{anio}.csv"), False, []),
-        ("Exh — Planning maestro",  _p("cloud_exhib_planning", mes, anio,
-                                       fallback=f"{bases_exh}/PLANNING DE {spec.mes_str_upper} {anio}.xlsx"), False, []),
-        ("Exh — Base Planning",     _p("cloud_exhib_base_planning", mes, anio,
-                                       fallback=f"{bases_exh}/Base Exhibiciones Planning {spec.mes_str} {anio}.xlsx"), False, []),
-        ("Exh — Fuera de regla",    f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/Exh_Gratis_Fuera_de_Regla.xlsx", False, []),
-        ("D&P — Consolidado Impactos", _p("cloud_dyp_impactos", mes, anio,
-                                       fallback=f"{salidas_dyp}/Consolidado_Impactos_{spec.mes_str_upper}_{anio}.csv"), False, []),
-        ("D&P — Consolidado Ventas",   _p("cloud_dyp_ventas", mes, anio,
-                                       fallback=f"{salidas_dyp}/Consolidado_Ventas_{spec.mes_str_upper}_{anio}.csv"), False, []),
-        # FIX: el nombre con mes/año casi nunca existe — en producción el
-        # archivo real es genérico (Rutero_Droguerias.xlsx, sin mes ni año).
-        # Se agrega como alterno para que el verificador no marque ausente
-        # algo que _precargar_segmentos_nuevos sí va a encontrar 2 intentos
-        # después, y para no generar 2 peticiones 404 de más en cada corrida.
-        # Nombre confirmado: "RUTERO <MES> <AÑO> D&P.xlsx", con espacios y &,
-        # cambia cada mes. Se deja la variante con guiones bajos como alterno.
-        ("D&P — Rutero",            _p("cloud_dyp_rutero", mes, anio,
-                                       fallback=f"{bases_dyp}/Rutero/RUTERO {spec.mes_str_upper} {anio} D&P.xlsx"), False,
-                                     [f"{bases_dyp}/Rutero/RUTERO_{spec.mes_str_upper}_{anio}_D_P.xlsx"]),
-        ("D&P — Listas",            _p("cloud_dyp_listas", anio,
-                                       fallback=f"{bases_dyp}/Listas/{Path(paths.DYP_LISTAS_FILE).name}"), False, []),
-        ("Base cupos",              _p("cloud_dyp_base_cupos", anio,
-                                       fallback=f"{bases_dyp}/Base_cupos.xlsx"), False, []),
-    ]
-
-
-def verificar_insumos(mes: int, anio: int) -> dict:
-    """
-    Comprueba la existencia de cada insumo ANTES de procesar, y reporta un
-    cuadro claro. Así un archivo renombrado o movido se detecta de entrada,
-    en vez de manifestarse como una hoja "No aplica" o un KPI en blanco 20
-    minutos después.
-    """
-    print("\n" + "─" * 60)
-    print(f"  VERIFICACIÓN DE INSUMOS — periodo {mes:02d}/{anio}")
-    print("─" * 60)
-
-    ok, faltan_obl, faltan_opc = [], [], []
-    for desc, ruta, obligatorio, alternos in _rutas_insumos(mes, anio):
-        def _existe(r: str) -> bool:
-            try:
-                token = _obtener_token_azure()
-                headers = {"Authorization": f"Bearer {token}"}
-                drive_id = _obtener_default_drive_id(token)
-                r_cod = urllib.parse.quote(_limpiar_ruta_graph(r))
-                url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{r_cod}"
-                return requests.get(url, headers=headers).status_code == 200
-            except Exception:
-                return False
-
-        # FIX: antes solo se probaba `ruta` (el nombre canónico). Si el
-        # archivo real tenía otro nombre pero SÍ era encontrado más adelante
-        # vía alterno (en _read_kpi o _primer_disponible), el verificador
-        # igual lo marcaba "OBLIGATORIO ausente" y disparaba _log.error(),
-        # un falso positivo que no reflejaba lo que en verdad pasaba.
-        #
-        # FIX 2: los alternos pueden venir como RUTA COMPLETA (caso Rutero) o
-        # como SOLO EL NOMBRE del archivo (caso KPIs, que es como los declara
-        # _read_kpi). Antes se probaban todos como ruta completa, así que un
-        # alterno tipo "KPI_Exhibiciones_Gratis.xlsx" se consultaba contra la
-        # RAÍZ del drive y siempre daba 404 — el verificador seguía reportando
-        # ausente un archivo que la carga real sí encontraba. Ahora, si el
-        # alterno no trae "/", se resuelve contra la carpeta de la canónica.
-        carpeta_base = ruta.rsplit("/", 1)[0] if "/" in ruta else ""
-
-        def _resolver_alterno(a: str) -> str:
-            return a if "/" in a else (f"{carpeta_base}/{a}" if carpeta_base else a)
-
-        candidatas = [ruta] + [_resolver_alterno(a) for a in alternos]
-        vistas, candidatas_unicas = set(), []
-        for c in candidatas:
-            if c not in vistas:
-                vistas.add(c)
-                candidatas_unicas.append(c)
-
-        ruta_ok = None
-        for candidata in candidatas_unicas:
-            if _existe(candidata):
-                ruta_ok = candidata
-                break
-
-        if ruta_ok is not None:
-            ok.append(desc)
-            if ruta_ok == ruta:
-                print(f"  ✓ {desc}")
-            else:
-                print(f"  ✓ {desc}  (vía alterno: {ruta_ok})")
-        elif obligatorio:
-            faltan_obl.append((desc, ruta))
-            print(f"  ✗ {desc}  ← OBLIGATORIO")
-            print(f"      {ruta}")
-            for alt in candidatas_unicas[1:]:
-                print(f"      (alterno probado, tampoco existe: {alt})")
-        else:
-            faltan_opc.append((desc, ruta))
-            print(f"  ⚠ {desc}  (opcional — su hoja saldrá vacía)")
-            print(f"      {ruta}")
-
-    print("─" * 60)
-    print(f"  {len(ok)} OK · {len(faltan_opc)} opcionales ausentes · {len(faltan_obl)} obligatorios ausentes")
-    if faltan_obl:
-        _log.error("Insumos obligatorios ausentes: %s", [d for d, _ in faltan_obl])
-    print("─" * 60)
-    return {"ok": ok, "faltan_obligatorios": faltan_obl, "faltan_opcionales": faltan_opc}
-
-
 def main() -> dict:
     """
     Ejecuta el cálculo completo conectado a la nube usando paths.py.
@@ -571,11 +325,8 @@ def main() -> dict:
     
     df_np = _leer_excel_cloud(ruta_np_cloud, "No Presencia")
     df_pr = _leer_excel_cloud(ruta_pr_cloud, "Precios")
-
-    # NOTA: el filtro por periodo de estos 4 archivos se aplica más abajo,
-    # una vez detectado (mes, anio) a partir de los KPIs. Antes se asignaba
-    # df_cif_pdv = df_cif aquí, sin filtrar, y Plan de trabajo trae varios
-    # meses acumulados → las hojas de detalle salían multiplicadas.
+    
+    df_cif_pdv = df_cif
 
     # ── Cargar Base cupos (tabla maestra de personas, llave ACRONIMO) ────
     print("\nCargando tabla maestra de personas (Base cupos):")
@@ -618,7 +369,7 @@ def main() -> dict:
         if "--agregar-faltantes" in sys.argv:
             print(f"\n--agregar-faltantes activo: agregando {len(candidatos_faltantes)} "
                   f"candidato(s) (con duplicados entre módulos) a Base_cupos.xlsx...")
-            agregar_candidatos_base_cupos(candidatos_faltantes, mes, anio)
+            agregar_candidatos_base_cupos(candidatos_faltantes)
         else:
             print(f"\n  ℹ️  {len(set((c['CEDULA'] or c['NOMBRE']) for c in candidatos_faltantes))} "
                   f"persona(s) sin cruzar quedaron pendientes. Corre con --agregar-faltantes para "
@@ -643,48 +394,6 @@ def main() -> dict:
     else:
         mes, anio = ahora.month, ahora.year
     print(f"  Periodo activo: {mes:02d}/{anio}")
-
-    global _ANIO_ACTIVO
-    _ANIO_ACTIVO = int(anio)
-
-    # Verificación temprana de rutas: se hace aquí (y no al inicio) porque
-    # varias rutas dependen del periodo, que sale de los KPIs.
-    if "--sin-verificar" not in sys.argv:
-        verificar_insumos(mes, anio)
-
-    # ── Filtrar los archivos de DETALLE al periodo activo ────────────────
-    # FIX: `Plan de trabajo.xlsx` acumula histórico (varios meses en el mismo
-    # archivo). Los KPIs sí venían filtrados por cargar_kpis_v3(), pero las
-    # hojas de detalle de los adjuntos leían el archivo completo, así que
-    # mostraban N meses de PDVs y nunca cuadraban con el resumen.
-    print("\nFiltrando bases de detalle al periodo activo:")
-
-    def _filtrar_periodo_pdv(df: pd.DataFrame, nombre: str) -> pd.DataFrame:
-        if df is None or df.empty:
-            return df
-        if "MES" not in df.columns or "AÑO" not in df.columns:
-            print(f"  ⚠️  {nombre}: sin columnas MES/AÑO, no se puede filtrar por periodo.")
-            return df
-        n0 = len(df)
-        out = df[
-            (pd.to_numeric(df["MES"], errors="coerce") == mes)
-            & (pd.to_numeric(df["AÑO"], errors="coerce") == anio)
-        ].copy()
-        if out.empty:
-            print(f"  ⚠️  {nombre}: {n0} filas, NINGUNA del periodo {mes:02d}/{anio} "
-                  f"(periodos presentes: "
-                  f"{sorted(set(zip(pd.to_numeric(df['MES'], errors='coerce'), pd.to_numeric(df['AÑO'], errors='coerce'))))})")
-        elif len(out) != n0:
-            print(f"  ✓ {nombre}: {n0:,} filas → {len(out):,} del periodo {mes:02d}/{anio}")
-        else:
-            print(f"  ✓ {nombre}: {n0:,} filas (ya venía solo del periodo)")
-        return out
-
-    df_cif = _filtrar_periodo_pdv(df_cif, "Plan de trabajo (CIF)")
-    df_sos = _filtrar_periodo_pdv(df_sos, "SOS")
-    df_np  = _filtrar_periodo_pdv(df_np,  "No Presencia")
-    df_pr  = _filtrar_periodo_pdv(df_pr,  "Precios")
-    df_cif_pdv = df_cif
 
     # ── KPIs D&P ──────────────────────────────────────────────────────────
     kpis_dyp = cumplimiento_dyp.calcular_kpis_dyp(
@@ -882,18 +591,7 @@ def detectar_rango_periodo(mes: int, anio: int) -> dict:
     }
 
     try:
-        # FIX: el archivo se renombró a Involves_Procesado_<MM>_<AAAA>.csv y se
-        # movió a BASES DE RESPUESTAS/CIF/<año>. OJO: paths.RUTA_CARPETA_BASES_CIF
-        # YA incluye el año (con AÑO_ACTUAL, el del reloj), así que concatenarlo
-        # de nuevo daría .../CIF/2026/2026/. _carpeta_periodo() normaliza y de
-        # paso fuerza el año del PERIODO en vez del año del sistema.
-        if hasattr(paths, "cloud_cif_visitas"):
-            ruta_visitas_cloud = paths.cloud_cif_visitas(mes, anio)
-        else:
-            _base_cif = getattr(paths, "RUTA_CARPETA_BASES_CIF", f"{paths._BASES_ROOT}/CIF")
-            ruta_visitas_cloud = (
-                f"{_carpeta_periodo(_base_cif, anio)}/Involves_Procesado_{mes:02d}_{anio}.csv"
-            )
+        ruta_visitas_cloud = f"{paths.RUTA_CARPETA_SALIDAS_CIF}/informe_visitas_procesado.csv"
         token = _obtener_token_azure()
         headers = {"Authorization": f"Bearer {token}"}
         drive_id = _obtener_default_drive_id(token)
@@ -904,12 +602,8 @@ def detectar_rango_periodo(mes: int, anio: int) -> dict:
         
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
-            print(f"  ⚠️  No pude leer el informe de visitas ({response.status_code}): {ruta_visitas_cloud}")
-            print(f"      El correo saldrá sin rango de corte. Verifica nombre/ubicación del archivo.")
-            _log.warning("Informe de visitas no encontrado (%s): %s",
-                         response.status_code, ruta_visitas_cloud)
             return rango
-
+            
         df = pd.read_csv(
             io.BytesIO(response.content),
             sep=";", encoding="utf-8-sig", usecols=["FECHA_VISITA"],
@@ -923,11 +617,7 @@ def detectar_rango_periodo(mes: int, anio: int) -> dict:
         f_fin = df["F"].max().date()
         rango["fecha_inicio_dt"] = f_ini
         rango["fecha_fin_dt"]    = f_fin
-    except Exception as e:
-        # FIX: antes era un `except Exception: return rango` mudo — cualquier
-        # cambio de nombre de archivo, separador o columna se volvía invisible.
-        print(f"  ⚠️  detectar_rango_periodo falló: {e}")
-        _log.warning("detectar_rango_periodo falló: %s", e)
+    except Exception:
         return rango
 
     meses_es = {1:"enero", 2:"febrero", 3:"marzo", 4:"abril", 5:"mayo",
@@ -1128,63 +818,10 @@ def _resolver_acr_fuzzy_general(nombre: str, idx: dict) -> str:
     for nombre_bc, acr in nombre_a_acr.items():
         pal_bc = _palabras(nombre_bc)
         if pal_bc and (pal_v.issubset(pal_bc) or pal_bc.issubset(pal_v)):
-            # FIX: un ACRONIMO vacío (fila de Base cupos sin completar) no es
-            # un match válido — antes se agregaba al set y podía "resolver" a "".
-            if str(acr).strip():
-                candidatos.add(str(acr).strip())
+            candidatos.add(acr)
         if len(candidatos) > 1:
             return ""  # ambiguo — corta apenas encuentra un segundo candidato
     return candidatos.pop() if len(candidatos) == 1 else ""
-
-
-_CACHE_BC_SIN_ACR: dict = {}
-
-# Año del periodo que se está procesando. Lo fija main() al detectarlo; sirve
-# para que utilidades de diagnóstico resuelvan la carpeta correcta sin tener
-# que recibir el año por parámetro desde 6 sitios distintos.
-_ANIO_ACTIVO: int = datetime.now().year
-
-
-def _base_cupos_sin_acronimo() -> tuple[set, set]:
-    """
-    Devuelve (nombres, cédulas) de las filas de Base_cupos.xlsx que existen
-    pero NO tienen ACRONIMO.
-
-    Se lee el Excel crudo desde SharePoint en vez de pedírselo a
-    `base_cupos.py`, porque ese módulo descarta esas filas al normalizar
-    ("Se descartaron N filas por no tener ACRONIMO o NOMBRE") y por tanto no
-    puede informarlas. Sin esto, el diagnóstico del cruce dice "probablemente
-    no está en Base cupos" para gente que SÍ está — solo con la celda vacía —
-    y manda a buscar el problema donde no está.
-
-    Resultado cacheado: se descarga una sola vez por corrida.
-    """
-    if "data" in _CACHE_BC_SIN_ACR:
-        return _CACHE_BC_SIN_ACR["data"]
-
-    nombres, cedulas = set(), set()
-    try:
-        ruta_bc = f"{_carpeta_periodo(paths.RUTA_CARPETA_BASES_DYP, _ANIO_ACTIVO)}/Base_cupos.xlsx"
-        df_bc = _leer(ruta_bc, "Base_cupos.xlsx (diagnóstico de filas sin ACRONIMO)")
-        if not df_bc.empty:
-            df_bc.columns = [str(c).strip().upper() for c in df_bc.columns]
-            if "ACRONIMO" in df_bc.columns and "NOMBRE" in df_bc.columns:
-                acr_vacio = (
-                    df_bc["ACRONIMO"].isna()
-                    | (df_bc["ACRONIMO"].astype(str).str.strip() == "")
-                    | (df_bc["ACRONIMO"].astype(str).str.strip().str.lower() == "nan")
-                )
-                sin = df_bc[acr_vacio]
-                nombres = set(sin["NOMBRE"].astype(str).str.strip().str.upper())
-                if "CEDULA" in sin.columns:
-                    cedulas = set(
-                        sin["CEDULA"].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
-                    )
-    except Exception as e:
-        _log.warning("No pude leer Base_cupos crudo para el diagnóstico: %s", e)
-
-    _CACHE_BC_SIN_ACR["data"] = (nombres, cedulas)
-    return nombres, cedulas
 
 
 def _candidatos_parecidos(nombre: str, idx: dict, top: int = 3) -> list[str]:
@@ -1209,7 +846,7 @@ def _candidatos_parecidos(nombre: str, idx: dict, top: int = 3) -> list[str]:
     return [n for _, n in puntajes[:top]]
 
 
-def agregar_candidatos_base_cupos(candidatos: list[dict], mes: int, anio: int) -> int:
+def agregar_candidatos_base_cupos(candidatos: list[dict]) -> int:
     """
     Agrega a Base_cupos.xlsx (en SharePoint) una fila nueva por cada
     persona en `candidatos` que no se logró cruzar (ni por cédula ni por
@@ -1231,14 +868,7 @@ def agregar_candidatos_base_cupos(candidatos: list[dict], mes: int, anio: int) -
     if not candidatos:
         return 0
 
-    # FIX: usaba paths.RUTA_CARPETA_BASES_DYP directamente. Esa constante trae
-    # el año HORNEADO con AÑO_ACTUAL (el del reloj, evaluado una sola vez al
-    # importar paths.py) — el mismo problema que ya se corrigió en las otras 4
-    # rutas de BASES (CIF, Exhibiciones, D&P para Rutero/Listas/Ventas), pero
-    # aquí se había quedado sin tocar. Si se corre este comando en enero para
-    # cerrar diciembre, o en cualquier backfill de un periodo anterior, escribía
-    # (o intentaba leer) Base_cupos.xlsx en la carpeta del año EQUIVOCADO.
-    ruta_bc = f"{_carpeta_periodo(paths.RUTA_CARPETA_BASES_DYP, anio)}/Base_cupos.xlsx"
+    ruta_bc = f"{paths.RUTA_CARPETA_BASES_DYP}/Base_cupos.xlsx"
     df_bc = _leer(ruta_bc, "Base_cupos.xlsx (para agregar candidatos)")
     if df_bc.empty:
         print("  ⚠️  No se pudo leer Base_cupos.xlsx — no se agregó ningún candidato.")
@@ -1303,16 +933,6 @@ def agregar_candidatos_base_cupos(candidatos: list[dict], mes: int, anio: int) -
     return len(nuevas_filas)
 
 
-# Evita que _canonizar_nombre_gestor repita el mismo aviso una vez por cada
-# adjunto (37 veces en una corrida típica) para la misma persona.
-_AVISADOS_CANONIZAR: set = set()
-
-# Personas ya reportadas como "está en Base cupos pero sin ACRONIMO". El
-# diagnóstico corre una vez por módulo (CIF/SOS/NP/Precios/Exh), así que sin
-# esto la misma persona se reporta hasta 6 veces por corrida.
-_AVISADOS_SIN_ACRONIMO: set = set()
-
-
 def _canonizar_nombre_gestor(df: pd.DataFrame, idx_bc: dict, col: str = "NOMBRE_GESTOR") -> pd.DataFrame:
     """
     Reemplaza el nombre "crudo" de cada gestor (tal como quedó escrito en
@@ -1353,15 +973,7 @@ def _canonizar_nombre_gestor(df: pd.DataFrame, idx_bc: dict, col: str = "NOMBRE_
     falta = acr == ""
     if falta.any():
         nombres_sin_resolver = df.loc[falta, col].astype(str).str.strip().unique().tolist()
-        # FIX: esta función corre una vez POR ADJUNTO (37 veces en una corrida
-        # típica), y antes repetía el mismo aviso para la misma persona cada
-        # vez — en la corrida real llegó a imprimir el mismo nombre 7-8 veces
-        # seguidas, ahogando el log. Con 8 personas sin cruzar eso son ~60
-        # líneas de ruido idéntico. Se avisa una sola vez por corrida.
         for n in nombres_sin_resolver:
-            if n in _AVISADOS_CANONIZAR:
-                continue
-            _AVISADOS_CANONIZAR.add(n)
             mask_n = df[col].astype(str).str.strip() == n
             if "CEDULA" in df.columns:
                 cedulas_vistas = df.loc[mask_n, "CEDULA"].astype(str).str.strip().unique().tolist()
@@ -1510,35 +1122,11 @@ def cargar_kpis_v3(
     que estaba usando datos desactualizados. Ahora se ignora el disco local
     por completo, para no arriesgarse a eso.
     """
-    def _read_kpi(ruta_local, nombre_kpi: str, ruta_cloud: str | None = None,
-                  alternativos: list[str] | None = None) -> pd.DataFrame:
-        """
-        Lee el KPI desde SharePoint.
-
-        El nombre CANÓNICO es el que declara `paths.py` (`<MOD>_OUT_KPIS.name`)
-        y se prueba primero. `alternativos` es solo una red de seguridad: si el
-        ETL de origen llegara a subir el archivo con otro nombre, aquí se
-        detecta y se avisa, en vez de lo que pasaba antes — `_leer()` devuelve
-        un DataFrame vacío ante un 404, así que el KPI quedaba en blanco para
-        TODA la gente sin que nada fallara ni quedara registrado.
-        """
+    def _read_kpi(ruta_local, nombre_kpi: str, ruta_cloud: str | None = None) -> pd.DataFrame:
         if ruta_cloud:
             df = _leer(ruta_cloud, nombre_kpi)
             if not df.empty:
                 return df
-            carpeta  = ruta_cloud.rsplit("/", 1)[0]
-            canonico = ruta_cloud.rsplit("/", 1)[-1]
-            for alt in (alternativos or []):
-                if alt == canonico:
-                    continue
-                df = _leer(f"{carpeta}/{alt}", f"{nombre_kpi} (alterno)")
-                if not df.empty:
-                    print(f"    ⚠️  [{nombre_kpi}] No existe '{canonico}' (el nombre canónico de "
-                          f"paths.py), pero SÍ existe '{alt}'. Se usó el segundo para no perder "
-                          f"el KPI. Unifica el nombre: el ETL de origen y paths.py deben coincidir.")
-                    _log.warning("KPI %s: canónico=%s ausente, se usó alterno=%s",
-                                 nombre_kpi, canonico, alt)
-                    return df
 
         print(f"    ⚠️  KPI [{nombre_kpi}] No se encontró en SharePoint (¿ya corriste el ETL de este módulo para el periodo?): {ruta_cloud}")
         return pd.DataFrame()
@@ -1560,7 +1148,6 @@ def cargar_kpis_v3(
     df_cif_kpi = _filtrar_periodo(_read_kpi(
         ruta_cif_kpis, "CIF",
         ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_CIF}/{ruta_cif_kpis.name}",
-        alternativos=["KPIS_CIF.xlsx", "CIF_KPIS.xlsx"],
     ))
     if not df_cif_kpi.empty:
         df_cif_kpi = df_cif_kpi.rename(columns={
@@ -1577,7 +1164,6 @@ def cargar_kpis_v3(
     df_sos_kpi = _filtrar_periodo(_read_kpi(
         ruta_sos_kpis, "SOS",
         ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_SOS}/{ruta_sos_kpis.name}",
-        alternativos=["SOS_KPIS.xlsx", "KPIS_SOS.xlsx"],
     ))
     if not df_sos_kpi.empty:
         df_sos_kpi = df_sos_kpi.rename(columns={"CUMPLIMIENTO": "SOS_%"})
@@ -1589,7 +1175,6 @@ def cargar_kpis_v3(
     df_np_kpi = _filtrar_periodo(_read_kpi(
         ruta_np_kpis, "NP",
         ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_NP}/{ruta_np_kpis.name}",
-        alternativos=["NP_KPIS.xlsx", "NO_PRESENCIA_KPIS.xlsx"],
     ))
     if not df_np_kpi.empty:
         df_np_kpi = df_np_kpi.rename(columns={"EJECUCION": "NP_%"})
@@ -1601,7 +1186,6 @@ def cargar_kpis_v3(
     df_pr_kpi = _filtrar_periodo(_read_kpi(
         ruta_pr_kpis, "PRECIOS",
         ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_PRECIOS}/{ruta_pr_kpis.name}",
-        alternativos=["PRECIOS_KPIS.xlsx", "KPIS_PRECIOS.xlsx"],
     ))
     if not df_pr_kpi.empty:
         df_pr_kpi = df_pr_kpi.rename(columns={"CUMPLIMIENTO": "PRECIOS_%"})
@@ -1613,7 +1197,6 @@ def cargar_kpis_v3(
     df_exp_kpi = _filtrar_periodo(_read_kpi(
         ruta_exp_kpis, "EXHIB_PAG",
         ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/{ruta_exp_kpis.name}",
-        alternativos=["EXHIBICIONES_PAGADAS_KPIS.xlsx", "KPI_Exhibiciones_Pagadas.xlsx"],
     ))
     if not df_exp_kpi.empty:
         df_exp_kpi = df_exp_kpi.rename(columns={
@@ -1629,7 +1212,6 @@ def cargar_kpis_v3(
     df_egr_kpi = _filtrar_periodo(_read_kpi(
         ruta_egr_kpis, "EXHIB_GRA",
         ruta_cloud=f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/{ruta_egr_kpis.name}",
-        alternativos=["KPI_Exhibiciones_Gratis.xlsx", "EXHIBICIONES_GRATIS_KPIS.xlsx"],
     ), col_mes="Mes", col_anio="Año")
     if not df_egr_kpi.empty:
         df_egr_kpi = df_egr_kpi.rename(columns={
@@ -1643,23 +1225,6 @@ def cargar_kpis_v3(
             "CUMP_MEDIO":    "EXHIB_GRA_MEDIO_%",
         })
         df_egr_kpi["NOMBRE"] = df_egr_kpi["NOMBRE"].astype(str).str.strip().str.upper()
-        # FIX: CUMP_ALTO/CUMP_MEDIO vienen del ETL como ALTO/TARGET sin techo,
-        # así que pueden valer 6.375 (=637%) o 30.0 (=3000%). Al entrar como
-        # "_%" al CUMPL_GLOBAL inflaban el global de forma masiva. Se capan a
-        # 1.0 igual que ya hace _filas_gdd_y_lider() y construir_equipo_lider()
-        # para el HTML — así el detalle, el resumen y el correo coinciden.
-        # NOTA: el sobrecumplimiento de CIF_% (llega a ~110%) SÍ es válido
-        # según el criterio de negocio, así que ese KPI NO se capa. El cap de
-        # abajo aplica solo a exhibiciones gratis, donde los valores llegaban
-        # a 3.000% por ser una división sin techo.
-        for _c in ("EXHIB_GRA_ALTO_%", "EXHIB_GRA_MEDIO_%"):
-            if _c in df_egr_kpi.columns:
-                _v = pd.to_numeric(df_egr_kpi[_c], errors="coerce")
-                n_cap = int((_v > 1.0).sum())
-                if n_cap:
-                    print(f"    ℹ️  {_c}: {n_cap} fila(s) con sobrecumplimiento "
-                          f"(máx {_v.max():.2f}) capadas a 100%.")
-                df_egr_kpi[_c] = _v.clip(upper=1.0)
     df_egr_gest = df_egr_kpi.copy()
 
     # ── Enriquecer cada uno con ACRONIMO usando Base cupos ────────────────
@@ -1700,75 +1265,12 @@ def cargar_kpis_v3(
             if n_sin_resolver > 0:
                 aun_falta = falta & (df["ACRONIMO"] == "")
                 nombres_sin_resolver = df.loc[aun_falta, "NOMBRE"].unique().tolist()
-                # El listado completo se imprime solo la primera vez; en los
-                # módulos siguientes se resume, porque son casi siempre las
-                # MISMAS personas y repetir la lista entera 6 veces (una por
-                # módulo) no aporta información nueva.
-                nuevos = [n for n in nombres_sin_resolver
-                          if str(n).strip().upper() not in _AVISADOS_SIN_ACRONIMO]
-                if nuevos:
-                    print(f"    ⚠️  {n_sin_resolver} persona(s) sin ACRONIMO, se excluyen del cruce "
-                          f"({len(nombres_sin_resolver) - len(nuevos)} ya reportada(s) antes): {nuevos}")
-                else:
-                    print(f"    ⚠️  {n_sin_resolver} persona(s) sin ACRONIMO, se excluyen del cruce "
-                          f"(todas ya reportadas arriba).")
-                # FIX: separar los dos diagnósticos. Una persona puede ESTAR en
-                # Base cupos y aun así no resolver, si su fila no tiene ACRONIMO
-                # (típico de las filas que inserta --agregar-faltantes y nadie
-                # completó). Antes el mensaje decía "probablemente no está en
-                # Base cupos", que es falso y manda a buscar el problema donde
-                # no está.
-                nombres_bc_todos    = set(idx_bc.get("nombre_a_acronimo", {}).keys())
-                nombres_bc_sin_acr  = set(idx_bc.get("nombres_sin_acronimo", set()))
-                # FIX 2: `base_cupos.py` DESCARTA las filas sin ACRONIMO antes
-                # de construir los índices (en la corrida real: "Se descartaron
-                # 10 filas por no tener ACRONIMO o NOMBRE"). Por eso el idx no
-                # las conoce y este diagnóstico caía siempre en el "no está en
-                # Base cupos", que es engañoso: la persona SÍ está en el Excel,
-                # solo le falta llenar la celda. Se lee Base_cupos.xlsx crudo
-                # (una sola vez por corrida) para dar el mensaje correcto.
-                # Si `base_cupos.py` ya expone las filas sin ACRONIMO (versión
-                # nueva), se usan y NO se vuelve a descargar el Excel. La
-                # relectura queda solo como respaldo para versiones viejas del
-                # módulo que descartan esas filas sin informarlas.
-                ced_sin_acr_crudo = set(idx_bc.get("cedulas_sin_acronimo", set()))
-                if not nombres_bc_sin_acr and not ced_sin_acr_crudo:
-                    sin_acr_crudo, ced_sin_acr_crudo = _base_cupos_sin_acronimo()
-                    nombres_bc_sin_acr |= sin_acr_crudo
-
+                print(f"    ⚠️  {n_sin_resolver} persona(s) sin match exacto NI por palabras contra Base cupos "
+                      f"(quedan sin ACRONIMO, se excluyen del cruce): {nombres_sin_resolver}")
                 for n in nombres_sin_resolver:
-                    n_up = str(n).strip().upper()
-                    # También se compara por cédula: el nombre puede venir
-                    # escrito distinto entre el KPI y Base cupos.
-                    ced_n = ""
-                    if "CEDULA" in df.columns:
-                        _f = df.loc[aun_falta & (df["NOMBRE"] == n), "CEDULA"]
-                        if not _f.empty:
-                            ced_n = str(_f.iloc[0]).strip().replace(".0", "")
-                    if (n_up in nombres_bc_sin_acr
-                            or (ced_n and ced_n in ced_sin_acr_crudo)
-                            or (n_up in nombres_bc_todos
-                                and not str(idx_bc["nombre_a_acronimo"].get(n_up, "")).strip())):
-                        # Se avisa una sola vez por persona en toda la corrida:
-                        # esta rama se ejecuta una vez por MÓDULO (CIF, SOS, NP,
-                        # Precios, Exh Pag, Exh Gratis), así que sin este guard
-                        # la misma persona aparecía hasta 6 veces con el mismo
-                        # texto largo, ahogando el log.
-                        if n_up not in _AVISADOS_SIN_ACRONIMO:
-                            _AVISADOS_SIN_ACRONIMO.add(n_up)
-                            print(f"       · '{n}' — ⚠️ SÍ ESTÁ en Base cupos (cédula {ced_n or 's/d'}), "
-                                  f"pero su fila NO TIENE ACRONIMO. Complétalo en Base_cupos.xlsx "
-                                  f"(ACRONIMO + ROL EN ACTIVO); hasta entonces se excluye del cruce.")
-                        continue
-                    # Los que de verdad NO están en Base cupos también se
-                    # avisan una sola vez (antes WILMER VERA ARANGO y los
-                    # demás se repetían en cada módulo).
-                    if n_up in _AVISADOS_SIN_ACRONIMO:
-                        continue
-                    _AVISADOS_SIN_ACRONIMO.add(n_up)
                     candidatos = _candidatos_parecidos(n, idx_bc, top=3)
                     if candidatos:
-                        print(f"       · '{n}' — NO está en Base cupos. Más parecido(s): {candidatos}")
+                        print(f"       · '{n}' — más parecido(s) en Base cupos: {candidatos}")
                     else:
                         print(f"       · '{n}' — NINGÚN nombre de Base cupos comparte ni una palabra con este "
                               f"(probablemente no está en Base cupos, no es solo un tema de tildes)")
@@ -1851,10 +1353,9 @@ def cargar_kpis_v3(
 def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFrame) -> None:
     """
     Genera o actualiza MAESTRO_SUPERVISORES.xlsx desde Base cupos en la nube.
-
-    FIX: creaba la carpeta local de ALERTAS aunque la maestra se lee y se
-    escribe 100% en SharePoint.
     """
+    DIR_ALERTAS.mkdir(parents=True, exist_ok=True)
+
     df_bc   = bcm.cargar()
     sups_bc = bcm.supervisores(df_bc)
     nombres_bc = sorted(sups_bc["NOMBRE"].dropna().unique())
@@ -2086,28 +1587,10 @@ def ensamblar_detalle(
                 if c not in target.columns:
                     target[c] = np.nan
             return target
-        cand = df_calc[df_calc["ACRONIMO"].astype(str).str.strip() != ""]
-        # FIX: antes se hacía drop_duplicates a ciegas y se perdía el dato de
-        # la 2a fila sin avisar (caso real: una persona con dos supervisores
-        # reportada 2 veces en SOS/NP — su cumplimiento salía a la mitad).
-        # Ahora se denuncia y, si son valores numéricos, se promedian en vez
-        # de descartarse.
-        dups = cand[cand.duplicated("ACRONIMO", keep=False)]
-        if not dups.empty:
-            for acr, grupo in dups.groupby("ACRONIMO"):
-                nombres = grupo["NOMBRE"].astype(str).unique().tolist() if "NOMBRE" in grupo.columns else []
-                msg = (f"ACRONIMO {acr} aparece {len(grupo)} veces en el KPI de origen "
-                       f"{cols_disp} — se consolida promediando. Nombre(s): {nombres}")
-                print(f"    ⚠️  {msg}")
-                _log.warning(msg)
-            num_cols = [c for c in cols_disp
-                        if pd.api.types.is_numeric_dtype(cand[c])]
-            no_num   = [c for c in cols_disp if c not in num_cols]
-            agg_map  = {c: "mean" for c in num_cols}
-            agg_map.update({c: "first" for c in no_num})
-            merged = cand[["ACRONIMO"] + cols_disp].groupby("ACRONIMO", as_index=False).agg(agg_map)
-        else:
-            merged = cand[["ACRONIMO"] + cols_disp].drop_duplicates(subset=["ACRONIMO"])
+        merged = (
+            df_calc[df_calc["ACRONIMO"] != ""][["ACRONIMO"] + cols_disp]
+                  .drop_duplicates(subset=["ACRONIMO"])
+        )
         return target.merge(merged, on="ACRONIMO", how="left")
 
     # ── CIF (gestor + supervisor) ────────────────────────────────────────
@@ -2605,11 +2088,63 @@ def _aplicar_formato_tabla(
     ws.auto_filter.ref = ws.dimensions
 
 
-# NOTA: aquí vivían `guardar_detalle()` y `guardar_resumen()`, que escribían
-# DETALLE_CUMPLIMIENTO_<mm>_<aaaa>.xlsx y RESUMEN_CUMPLIMIENTO_<mm>_<aaaa>.xlsx
-# en la carpeta LOCAL de alertas. Eran código muerto (nadie las llamaba: main()
-# publica ambos en SharePoint con _guardar_excel_cloud). Se eliminan por ser
-# los últimos puntos del archivo que escribían en disco.
+def guardar_detalle(df: pd.DataFrame, mes: int, anio: int) -> Path:
+    DIR_ALERTAS.mkdir(parents=True, exist_ok=True)
+    ruta = DIR_ALERTAS / f"DETALLE_CUMPLIMIENTO_{mes:02d}_{anio}.xlsx"
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Detalle"
+
+    cols_pct = [
+        "CIF_COB_%", "CIF_FREC_%", "CIF_HRS_%", "CIF_%",
+        "NP_%", "PRECIOS_%", "SOS_%",
+        "EXHIB_PAG_%", "EXHIB_PAG_CAPTURA_%",
+        "EXHIB_GRA_ALTO_%", "EXHIB_GRA_MEDIO_%",
+        "VENTA_%", "IMPACTOS_%", "MSL_%", "PROD_NUEVOS_%",
+    ]
+    cols_venta = ["VENTA_TOTAL"]
+    _aplicar_formato_tabla(ws, df, cols_pct, cols_venta)
+
+    wb.save(ruta)
+    print(f"  ✅ Detalle guardado: {ruta}")
+    return ruta
+
+
+def guardar_resumen(df: pd.DataFrame, mes: int, anio: int) -> Path:
+    DIR_ALERTAS.mkdir(parents=True, exist_ok=True)
+    ruta = DIR_ALERTAS / f"RESUMEN_CUMPLIMIENTO_{mes:02d}_{anio}.xlsx"
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Resumen"
+
+    cols_pct   = [
+        "CIF_%", "NP_%", "PRECIOS_%", "SOS_%",
+        "EXHIB_PAG_%", "EXHIB_PAG_CAPTURA_%",
+        "EXHIB_GRA_ALTO_%", "EXHIB_GRA_MEDIO_%",
+        "VENTA_%", "IMPACTOS_%", "MSL_%", "PROD_NUEVOS_%",
+        "CUMPL_GLOBAL_%",
+    ]
+    cols_venta = ["VENTA_EQUIPO"]
+    _aplicar_formato_tabla(ws, df, cols_pct, cols_venta)
+
+    wb.save(ruta)
+    print(f"  ✅ Resumen guardado: {ruta}")
+    return ruta
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# E) ADJUNTOS POR SUPERVISOR  (4 hojas operativas + 3 hojas de productos nuevos)
+#    Hojas:
+#      1. Resumen Equipo
+#      2. CIF Detalle PDVs
+#      3. NP Detalle PDVs
+#      4. Precios y SOS Detalle PDVs
+#      5. ListSant     ← productos nuevos (target del segmento)
+#      6. DoyPackBaby
+#      7. CremasBaby
+# ─────────────────────────────────────────────────────────────────────────────
 
 _MENSAJE_VACIO      = "Sin incumplimientos para este periodo"
 _MENSAJE_NO_APLICA  = "No aplica para este rol"
@@ -2798,13 +2333,6 @@ def _hoja_cif_detalle(ws, df_cif_pdv: pd.DataFrame, acr_sup: str, idx_bc: dict |
             & (df_cif_pdv["ACRONIMO_SUP"].isin(acrs))
         ].copy()
 
-    # FIX: el rename NOMBRE → NOMBRE_GESTOR se hacía ~45 líneas más abajo, así
-    # que _canonizar_nombre_gestor(col="NOMBRE_GESTOR") entraba a su guarda
-    # `if col not in df.columns: return df` y no hacía NADA (no-op silencioso).
-    # Resultado: la hoja mostraba el nombre crudo de cada fila, con la misma
-    # persona escrita de formas distintas. Ahora se renombra primero.
-    if not pdvs.empty and "NOMBRE" in pdvs.columns:
-        pdvs = pdvs.rename(columns={"NOMBRE": "NOMBRE_GESTOR"})
     if idx_bc and not pdvs.empty:
         pdvs = _canonizar_nombre_gestor(pdvs, idx_bc, col="NOMBRE_GESTOR")
 
@@ -2850,7 +2378,7 @@ def _hoja_cif_detalle(ws, df_cif_pdv: pd.DataFrame, acr_sup: str, idx_bc: dict |
         df_out = pd.DataFrame(columns=cols_finales)
         df_out.loc[0] = [_MENSAJE_VACIO] + [None] * (len(cols_finales) - 1)
     else:
-        # (el rename ya se hizo arriba, antes de canonizar)
+        pdvs = pdvs.rename(columns={"NOMBRE": "NOMBRE_GESTOR"})
         df_out = (
             pdvs[cols_origen]
                 .sort_values(["NOMBRE_GESTOR", "VENTAS_PROMEDIO_MES"],
@@ -3017,11 +2545,6 @@ def _hoja_modulo_captura(
     _aplicar_formato_tabla(ws, df_out, cols_pct=[], cols_venta=[])
 
 
-# Caché del Consolidado de Impactos: la hoja se arma una vez por supervisor,
-# pero el archivo del periodo es único.
-_CACHE_IMPACTOS: dict = {}
-
-
 def _hoja_impactos_detalle(
     ws,
     df_detalle: pd.DataFrame,
@@ -3056,100 +2579,36 @@ def _hoja_impactos_detalle(
             cols_venta=[],
         )
 
-    # FIX: el Consolidado de Impactos se movió a la nube (SALIDAS/DYP) y ahora
-    # lleva mes/año en el nombre. El `paths.DYP_OUT_IMPACTOS.is_file()` local
-    # daba False siempre, así que esta hoja salía "No aplica" en TODOS los
-    # adjuntos sin ningún aviso.
-    from cumplimiento_dyp import MESES_INT_A_STR, parsear_nombre_asesor
-    mes_str  = MESES_INT_A_STR.get(int(mes), "")
-    anio_str = str(int(anio))
-
-    # Esta hoja se genera una vez POR SUPERVISOR, pero el consolidado del
-    # periodo es el mismo para todos. Sin caché se descargaba y parseaba una
-    # vez por cada destinatario (con 37 supervisores, 37 descargas evitables
-    # del mismo CSV). Mismo criterio que ya usa _CACHE_EXH_PLANNING.
-    cache_key = (int(mes), int(anio))
-    if cache_key in _CACHE_IMPACTOS:
-        cached = _CACHE_IMPACTOS[cache_key]
-        if cached is None:
-            _vacio(_MENSAJE_NO_APLICA)
-            return
-        df_imp = cached.copy()
-    else:
-        ruta_imp = None
-        _salidas_dyp = getattr(paths, "RUTA_CARPETA_SALIDAS_DYP", f"{paths._SALIDAS_ROOT}/DYP")
-        _cands_imp = []
-        if hasattr(paths, "cloud_dyp_impactos"):
-            _cands_imp.append(paths.cloud_dyp_impactos(mes, anio))
-        _cands_imp += [
-            f"{_salidas_dyp}/Consolidado_Impactos_{mes_str.upper()}_{anio}.csv",
-            f"{_salidas_dyp}/Consolidado_Impactos_{mes_str}_{anio}.csv",
-            f"{_salidas_dyp}/Consolidado_Impactos.csv",
-        ]
-        for _ruta in dict.fromkeys(_cands_imp):
-            ruta_imp = _descargar_a_temp(_ruta, f"Impactos {mes_str} {anio}")
-            if ruta_imp is not None:
-                break
-        if ruta_imp is None:
-            _CACHE_IMPACTOS[cache_key] = None
-            _vacio(_MENSAJE_NO_APLICA)
-            return
-
-        try:
-            df_imp = pd.read_csv(
-                str(ruta_imp),
-                sep="|", decimal=",", encoding="utf-8",
-                dtype=str, low_memory=False,
-            )
-            df_imp.columns = [str(c).strip() for c in df_imp.columns]
-        except Exception as e:
-            print(f"    ⚠️  No pude leer el Consolidado de Impactos: {e}")
-            _CACHE_IMPACTOS[cache_key] = None
-            _vacio(_MENSAJE_NO_APLICA)
-            return
-        _CACHE_IMPACTOS[cache_key] = df_imp.copy()
-
-    # FIX: el CSV real trae las columnas como 'Mes', 'Año' y
-    # 'Total Clientes a Impactar' (con la "a"). El código pedía 'MES', 'AÑO' y
-    # 'Total Clientes Impactar' → KeyError, y como el try/except solo cubría el
-    # read_csv, la excepción tumbaba TODO main(). Ahora se resuelven por
-    # detección, tolerando ambas variantes.
-    col_mes  = next((c for c in df_imp.columns if c.strip().upper() == "MES"), None)
-    col_anio = next((c for c in df_imp.columns if c.strip().upper() in ("AÑO", "ANO", "ANIO")), None)
-    col_ases = next((c for c in df_imp.columns if "asesor" in c.lower()), None)
-    col_ciud = next((c for c in df_imp.columns if "ciudad" in c.lower()), None)
-    col_plan = next((c for c in df_imp.columns
-                     if "clientes" in c.lower() and "impactar" in c.lower()), None)
-    col_real = next((c for c in df_imp.columns
-                     if "clientes" in c.lower() and "impactados" in c.lower()), None)
-    faltan = [n for n, c in [("MES", col_mes), ("AÑO", col_anio), ("Asesor", col_ases),
-                             ("Ciudad", col_ciud), ("Clientes a Impactar", col_plan),
-                             ("Clientes Impactados", col_real)] if c is None]
-    if faltan:
-        print(f"    ⚠️  Consolidado de Impactos sin columnas esperadas: {faltan}")
-        print(f"        Columnas encontradas: {list(df_imp.columns)}")
+    if not paths.DYP_OUT_IMPACTOS.is_file():
         _vacio(_MENSAJE_NO_APLICA)
         return
 
-    df_imp[col_mes]  = df_imp[col_mes].astype(str).str.strip().str.capitalize()
-    df_imp[col_anio] = df_imp[col_anio].astype(str).str.strip()
-    df_imp = df_imp[(df_imp[col_mes] == mes_str) & (df_imp[col_anio] == anio_str)].copy()
+    try:
+        df_imp = pd.read_csv(
+            str(paths.DYP_OUT_IMPACTOS),
+            sep="|", decimal=",", encoding="utf-8",
+            dtype={"MES": str, "AÑO": str},
+            low_memory=False,
+        )
+    except Exception:
+        _vacio(_MENSAJE_NO_APLICA)
+        return
+
+    # Filtrar al periodo activo
+    from cumplimiento_dyp import MESES_INT_A_STR, parsear_nombre_asesor
+    mes_str  = MESES_INT_A_STR.get(int(mes), "")
+    anio_str = str(int(anio))
+    df_imp["MES"] = df_imp["MES"].astype(str).str.strip().str.capitalize()
+    df_imp["AÑO"] = df_imp["AÑO"].astype(str).str.strip()
+    df_imp = df_imp[(df_imp["MES"] == mes_str) & (df_imp["AÑO"] == anio_str)].copy()
     if df_imp.empty:
         _vacio(_MENSAJE_NO_APLICA)
         return
 
-    def _num(serie):
-        # El CSV usa coma decimal y separador de miles con coma en algunos
-        # campos; se limpia antes de convertir.
-        return pd.to_numeric(
-            serie.astype(str).str.replace(".", "", regex=False).str.replace(",", ".", regex=False),
-            errors="coerce",
-        ).fillna(0)
-
-    df_imp["NOMBRE_GESTOR"]       = df_imp[col_ases].apply(parsear_nombre_asesor)
-    df_imp["CIUDAD"]              = df_imp[col_ciud].astype(str).str.strip()
-    df_imp["CLIENTES_IMPACTAR"]   = _num(df_imp[col_plan])
-    df_imp["CLIENTES_IMPACTADOS"] = _num(df_imp[col_real])
+    df_imp["NOMBRE_GESTOR"]       = df_imp["Asesor"].apply(parsear_nombre_asesor)
+    df_imp["CIUDAD"]              = df_imp["Ciudad"].astype(str).str.strip()
+    df_imp["CLIENTES_IMPACTAR"]   = pd.to_numeric(df_imp["Total Clientes Impactar"], errors="coerce").fillna(0)
+    df_imp["CLIENTES_IMPACTADOS"] = pd.to_numeric(df_imp["Clientes Impactados"],     errors="coerce").fillna(0)
 
     # Agregar por (NOMBRE_GESTOR, CIUDAD)
     agg = (
@@ -3244,16 +2703,8 @@ def _hoja_precios_sos_detalle(
 try:
     from etl_impactos_segmentos import SEGMENTOS_PRODNUEVOS as _SEGMENTOS_NUEVOS
 except Exception:
-    # FIX: el fallback traía ["Listerine_Sandia", "DoyPack_J&J_Baby",
-    # "Liserine_Kids", "Visine"] — ninguno de esos nombres existe como hoja en
-    # listas_referencia.xlsx, que trae ListSant / DoyPackBaby / CremasBaby
-    # (+ MSL, excluido por indicación del cliente). Como `_hoja_segmento_nuevo`
-    # hace `listas.get(nombre_segmento, {})`, con los nombres viejos el set de
-    # EANs salía SIEMPRE vacío y las hojas quedaban en blanco aunque el
-    # insumo estuviera bien. Nota: "Liserine_Kids" además venía con typo.
-    # Estos nombres deben coincidir EXACTAMENTE con las hojas del archivo de
-    # listas; si el cliente agrega un segmento, se agrega la hoja y aquí.
-    _SEGMENTOS_NUEVOS = ["ListSant", "DoyPackBaby", "CremasBaby"]
+    _SEGMENTOS_NUEVOS = ["Listerine_Sandia", "DoyPack_J&J_Baby",
+                          "Liserine_Kids", "Visine"]
 
 
 def _precargar_segmentos_nuevos(
@@ -3284,118 +2735,18 @@ def _precargar_segmentos_nuevos(
         print(f"  ⚠️  No pude importar etl_impactos_segmentos: {e}")
         return out
 
-    # FIX: rutero, listas y consolidado de ventas se movieron a la nube:
-    #   BASES DE RESPUESTAS/DYP/<año>/Rutero, .../Listas y SALIDAS/DYP.
-    # Los `is_file()` locales daban False y las 3 hojas de productos nuevos
-    # salían "No aplica" en todos los adjuntos, sin aviso. Se descargan a
-    # temporal para seguir usando etl_impactos_segmentos sin modificarlo.
-    import periodo_resolver as _pr_mod
-    _spec = _pr_mod.resolver(mes, anio)
-    # paths.RUTA_CARPETA_BASES_DYP YA trae el año (AÑO_ACTUAL). _carpeta_periodo
-    # lo normaliza al año del periodo sin duplicarlo.
-    _bases_dyp   = _carpeta_periodo(
-        getattr(paths, "RUTA_CARPETA_BASES_DYP", f"{paths._BASES_ROOT}/DYP"), anio)
-    _salidas_dyp = getattr(paths, "RUTA_CARPETA_SALIDAS_DYP", f"{paths._SALIDAS_ROOT}/DYP")
-
-    def _primer_disponible(candidatos: list[tuple[str, str]]) -> Path | None:
-        vistos = set()
-        for ruta, desc in candidatos:
-            if ruta in vistos:
-                continue          # evita pedir la misma URL dos veces
-            vistos.add(ruta)
-            p = _descargar_a_temp(ruta, desc)
-            if p is not None:
-                return p
-        return None
-
-    def _rutero_del_periodo(carpeta: str) -> str | None:
-        """
-        Busca en la carpeta de Rutero un archivo que corresponda AL PERIODO
-        (debe contener el mes y el año en el nombre).
-
-        FIX: la versión anterior tomaba el archivo *más reciente* de la
-        carpeta, y en la corrida real eso eligió `Rutero_Droguerias.xlsx`
-        (un genérico de 19 MB) en vez del rutero del mes — silenciosamente,
-        y los segmentos se calcularon contra el archivo equivocado. El
-        nombre correcto lleva mes y año ("RUTERO JULIO 2026 D&P.xlsx") y
-        cambia cada mes, así que se exige que ambos aparezcan; solo si no
-        hay ninguno con periodo se recurre al genérico, y avisando.
-        """
-        try:
-            hijos = _listar_hijos_cloud(carpeta)
-        except Exception:
-            return None
-        mes_up  = _spec.mes_str_upper
-        anio_s  = str(anio)
-        con_periodo, genericos = [], []
-        for h in hijos:
-            nom = h.get("name", "")
-            if not nom.lower().endswith(".xlsx") or nom.startswith("~$"):
-                continue
-            if not nom.upper().startswith("RUTERO"):
-                continue
-            nom_norm = _sin_tildes(nom).upper()
-            if mes_up in nom_norm and anio_s in nom_norm:
-                con_periodo.append(h)
-            else:
-                genericos.append(h)
-
-        if con_periodo:
-            con_periodo.sort(key=lambda h: h.get("lastModifiedDateTime", ""), reverse=True)
-            return f"{carpeta}/{con_periodo[0]['name']}"
-        if genericos:
-            genericos.sort(key=lambda h: h.get("lastModifiedDateTime", ""), reverse=True)
-            elegido = genericos[0]["name"]
-            print(f"    ⚠️  No hay rutero de {mes_up} {anio} en la carpeta; se usará "
-                  f"'{elegido}'. Verifica que sea el del periodo — si no lo es, "
-                  f"las hojas de productos nuevos saldrán con datos de otro mes.")
-            _log.warning("Rutero del periodo ausente; se usó el genérico %s", elegido)
-            return f"{carpeta}/{elegido}"
-        return None
-
-    _carpeta_rutero = f"{_bases_dyp}/Rutero"
-    _r_rutero = []
-    if hasattr(paths, "cloud_dyp_rutero"):
-        _r_rutero.append((paths.cloud_dyp_rutero(mes, anio), "Rutero D&P"))
-    _ruta_listada = _rutero_del_periodo(_carpeta_rutero)
-    if _ruta_listada:
-        _r_rutero.append((_ruta_listada, "Rutero D&P"))
-    ruta_rutero = _primer_disponible(_r_rutero + [
-        (f"{_carpeta_rutero}/RUTERO {_spec.mes_str_upper} {anio} D&P.xlsx", "Rutero D&P"),
-        (f"{_carpeta_rutero}/RUTERO_{_spec.mes_str_upper}_{anio}_D_P.xlsx", "Rutero D&P"),
-    ])
-    # Listas D&P: el nombre canónico es "MSL & Listas Target Catman.xlsx"
-    # (el mismo que ya declara paths.DYP_LISTAS_FILE). El "&" se codifica como
-    # %26 en la URL de Graph, así que no hay que escaparlo aparte.
-    _r_listas = [(paths.cloud_dyp_listas(anio), "Listas D&P")] if hasattr(paths, "cloud_dyp_listas") else []
-    ruta_listas = _primer_disponible(_r_listas + [
-        (f"{_bases_dyp}/Listas/{Path(paths.DYP_LISTAS_FILE).name}", "Listas D&P"),
-        (f"{_bases_dyp}/Listas/MSL & Listas Target Catman.xlsx",    "Listas D&P"),
-        (f"{_bases_dyp}/Listas/listas_referencia.xlsx",             "Listas D&P (nombre alterno)"),
-    ])
-    _r_ventas = [(paths.cloud_dyp_ventas(mes, anio), "Consolidado Ventas D&P")] if hasattr(paths, "cloud_dyp_ventas") else []
-    ruta_ventas = _primer_disponible(_r_ventas + [
-        (f"{_salidas_dyp}/Consolidado_Ventas_{_spec.mes_str_upper}_{anio}.csv", "Consolidado Ventas D&P"),
-        (f"{_salidas_dyp}/Consolidado_Ventas_{_spec.mes_str}_{anio}.csv",       "Consolidado Ventas D&P"),
-        (f"{_salidas_dyp}/Consolidado_Ventas.csv",                              "Consolidado Ventas D&P"),
-    ])
-
-    # Sin respaldo local: estos insumos viven solo en SharePoint. Si no están
-    # ahí hay que resolverlo en la nube, no taparlo con una copia vieja en
-    # disco que produciría un reporte con datos de otro periodo.
-
-    if not (ruta_rutero and ruta_listas and ruta_ventas):
-        faltan = [n for n, r in [("rutero", ruta_rutero), ("listas", ruta_listas),
-                                 ("consolidado de ventas", ruta_ventas)] if r is None]
-        print(f"  ⚠️  Faltan insumos D&P en la nube: {faltan}")
+    if not (paths.DYP_RUTERO_FILE.is_file()
+            and paths.DYP_LISTAS_FILE.is_file()
+            and paths.DYP_OUT_VENTAS.is_file()):
+        print("  ⚠️  Faltan insumos D&P (rutero / listas / consolidado de ventas)")
         print("       Las hojas de productos nuevos quedarán como 'No aplica'.")
         return out
 
     try:
-        rutero = eis.cargar_rutero(ruta_rutero)
-        listas = eis.cargar_listas(ruta_listas)
+        rutero = eis.cargar_rutero(paths.DYP_RUTERO_FILE)
+        listas = eis.cargar_listas(paths.DYP_LISTAS_FILE)
         # V2 (Sprint 14.3): cargar_ventas_desde_csv devuelve (ventas, desc_map)
-        ventas_result = eis.cargar_ventas_desde_csv(ruta_ventas)
+        ventas_result = eis.cargar_ventas_desde_csv(paths.DYP_OUT_VENTAS)
         ventas = ventas_result[0] if isinstance(ventas_result, tuple) else ventas_result
     except Exception as e:
         print(f"  ⚠️  Error cargando insumos de segmentos: {e}")
@@ -3551,7 +2902,7 @@ def _hoja_exh_pagadas_no_capturadas(ws, acr_sup: str, mes: int, anio: int,
         import periodo_resolver as pr_mod
         spec = pr_mod.resolver(mes, anio)
         try:
-            carpeta_exhib = _resolver_exhib_data_dir_cloud(anio)
+            carpeta_exhib = _resolver_exhib_data_dir_cloud()
             ruta_plan_cloud = _buscar_archivo_cloud(
                 carpeta_exhib,
                 rf"^PLANNING DE {re.escape(spec.mes_str_upper)} {spec.anio}\.xlsx$",
@@ -3861,10 +3212,7 @@ def generar_adjuntos_por_supervisor(
         # para resolver el destinatario).
         rutas[nombre_sup.upper()] = str(ruta)
 
-    # El conteo estaba fijo en "9 hojas" pero se generan 8 fijas + una por
-    # segmento de productos nuevos.
-    n_hojas = 8 + len(_SEGMENTOS_NUEVOS)
-    print(f"  ✅ {len(rutas)} adjuntos generados ({n_hojas} hojas c/u)")
+    print(f"  ✅ {len(rutas)} adjuntos generados (9 hojas c/u)")
     return rutas
 
 

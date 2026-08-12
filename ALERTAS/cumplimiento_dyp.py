@@ -54,6 +54,7 @@ import io
 import os
 import re
 import sys
+import unicodedata
 import tempfile
 import urllib.parse
 import requests
@@ -264,6 +265,63 @@ def armonizar_nombres_a_pt(
     return df
 
 
+def _norm_col(c) -> str:
+    """
+    Normaliza un nombre de columna para poder compararlo sin depender de
+    mayúsculas, tildes, espacios o de que la Ñ haya llegado mal codificada.
+
+    El "AÃ±o" que aparece al inspeccionar el CSV es la Ñ de "Año" en UTF-8
+    leída como latin-1 (mojibake). Se contempla explícitamente para que la
+    resolución funcione aunque el archivo cambie de codificación.
+    """
+    s = str(c).strip()
+    s = s.replace("Ã±", "ñ").replace("Ã‘", "Ñ")     # repara mojibake común
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+    return " ".join(s.upper().split())
+
+
+def _buscar_col(df, *alias, contiene: list[str] | None = None):
+    """
+    Devuelve el nombre REAL de la primera columna de `df` que coincida con
+    alguno de los `alias` (comparando normalizado), o que contenga todas las
+    palabras de `contiene`. None si no encuentra ninguna.
+
+    FIX: este módulo pedía las columnas como "MES" y "AÑO" en mayúsculas,
+    pero el Consolidado de Impactos las trae como "Mes" y "Año". Como el
+    chequeo era `if "MES" not in df.columns`, la función se rendía y devolvía
+    DataFrames vacíos → VENTA_%, IMPACTOS_%, MSL_% y PROD_NUEVOS_% salían en
+    blanco para TODOS los gestores ("D&P — gestores con datos: 0"), sin que
+    nada fallara de forma visible.
+    """
+    norm = {_norm_col(c): c for c in df.columns}
+    for a in alias:
+        real = norm.get(_norm_col(a))
+        if real is not None:
+            return real
+    if contiene:
+        req = [_norm_col(p) for p in contiene]
+        for n, real in norm.items():
+            if all(p in n for p in req):
+                return real
+    return None
+
+
+def _num_es(serie) -> pd.Series:
+    """
+    Convierte a número tolerando el formato del Consolidado de Impactos, que
+    usa COMA COMO SEPARADOR DE MILES ("111,000,000" = 111 millones).
+
+    FIX: el CSV se lee con `decimal=","`, así que `pd.to_numeric` sobre esos
+    valores devolvía NaN en 67 de 68 filas — la Cuota quedaba vacía y por
+    tanto VENTA_% salía NaN para todos, aunque IMPACTOS_% sí funcionara (sus
+    columnas son enteros pequeños sin separador). Se eliminan las comas y,
+    si el valor quedara con más de un punto, también se tratan como miles.
+    """
+    s = serie.astype(str).str.strip()
+    s = s.str.replace(",", "", regex=False)
+    return pd.to_numeric(s, errors="coerce").fillna(0)
+
+
 def parsear_nombre_asesor(s) -> str:
     """
     Extrae el nombre limpio de un asesor.
@@ -372,39 +430,51 @@ def _enriquecer_con_acronimo(
         _ruta_impactos_cloud(mes, anio), "Consolidado_Impactos.csv",
         sep="|", decimal=",", encoding="utf-8",
         dtype={"MES": str, "AÑO": str}, low_memory=False,
-    )) is not None and {"MES", "AÑO", "Asesor", "Supervisor"}.issubset(df_i.columns):
-        df_i["MES"] = df_i["MES"].fillna("").astype(str).str.strip().str.capitalize()
-        df_i["AÑO"] = df_i["AÑO"].fillna("").astype(str).str.strip()
+    )) is not None and all(_buscar_col(df_i, a, b) is not None
+                           for a, b in [("MES", "Mes"), ("AÑO", "Año"),
+                                        ("Asesor", "Asesor"), ("Supervisor", "Supervisor")]):
+        _cm = _buscar_col(df_i, "MES", "Mes")
+        _ca = _buscar_col(df_i, "AÑO", "Año", "ANIO", "ANO")
+        _cs = _buscar_col(df_i, "Asesor")
+        _cv = _buscar_col(df_i, "Supervisor")
+        df_i["MES"] = df_i[_cm].fillna("").astype(str).str.strip().str.capitalize()
+        df_i["AÑO"] = df_i[_ca].fillna("").astype(str).str.strip()
         df_i = df_i[(df_i["MES"] == mes_str) & (df_i["AÑO"] == anio_str)].copy()
-        df_i["_nombre"] = df_i["Asesor"].apply(parsear_nombre_asesor)
-        df_i["_codigo"] = df_i["Asesor"].apply(parsear_codigo_asesor)
+        df_i["_nombre"] = df_i[_cs].apply(parsear_nombre_asesor)
+        df_i["_codigo"] = df_i[_cs].apply(parsear_codigo_asesor)
         df_i["_acr"]    = df_i["_codigo"].map(cod_a_acr).fillna("")
-        df_i["_sup"]    = df_i["Supervisor"].astype(str).str.strip().str.upper()
+        df_i["_sup"]    = df_i[_cv].astype(str).str.strip().str.upper()
         for _, r in df_i.iterrows():
             pairs.append((r["_nombre"], r["_acr"], r["_sup"]))
 
-    try:
-        df_v = _leer_csv_cloud(
-            _ruta_ventas_cloud(mes, anio), "Consolidado_Ventas.csv",
-            sep="|", decimal=",", encoding="utf-8",
-            dtype={"Cod. Vendedor": str, "Vendedor": str, "Supervisor": str,
-                   "MES": str, "AÑO": str},
-            usecols=["Cod. Vendedor", "Vendedor", "Supervisor", "MES", "AÑO"],
-            low_memory=False,
-        )
-    except ValueError:
-        df_v = None
+    # FIX: usecols con nombres exactos lanzaba ValueError ante cualquier
+    # cambio de capitalización/tilde y el except dejaba df_v = None, perdiendo
+    # todo el mapeo de nombres desde ventas sin ningún aviso.
+    df_v = _leer_csv_cloud(
+        _ruta_ventas_cloud(mes, anio), "Consolidado_Ventas.csv",
+        sep="|", decimal=",", encoding="utf-8",
+        dtype=str, low_memory=False,
+    )
     if df_v is not None:
-        df_v["MES"] = df_v["MES"].fillna("").astype(str).str.strip().str.capitalize()
-        df_v["AÑO"] = df_v["AÑO"].fillna("").astype(str).str.strip()
+        _vm  = _buscar_col(df_v, "MES", "Mes")
+        _va  = _buscar_col(df_v, "AÑO", "Año", "ANIO", "ANO")
+        _vc  = _buscar_col(df_v, "Cod. Vendedor", "Cod Vendedor", contiene=["COD", "VENDEDOR"])
+        _vv  = _buscar_col(df_v, "Vendedor")
+        _vs  = _buscar_col(df_v, "Supervisor")
+        if None in (_vm, _va, _vc, _vv, _vs):
+            print(f"  ⚠️  Consolidado_Ventas sin columnas para el mapeo de nombres; se omite.")
+            df_v = None
+    if df_v is not None:
+        df_v["MES"] = df_v[_vm].fillna("").astype(str).str.strip().str.capitalize()
+        df_v["AÑO"] = df_v[_va].fillna("").astype(str).str.strip()
         df_v = df_v[(df_v["MES"] == mes_str) & (df_v["AÑO"] == anio_str)].copy()
-        df_v["_nombre"] = df_v["Vendedor"].astype(str).str.strip().str.upper()
+        df_v["_nombre"] = df_v[_vv].astype(str).str.strip().str.upper()
         df_v["_codigo"] = (
-            pd.to_numeric(df_v["Cod. Vendedor"], errors="coerce")
+            pd.to_numeric(df_v[_vc], errors="coerce")
               .astype("Int64").astype(str).replace("<NA>", "")
         )
         df_v["_acr"]    = df_v["_codigo"].map(cod_a_acr).fillna("")
-        df_v["_sup"]    = df_v["Supervisor"].astype(str).str.strip().str.upper()
+        df_v["_sup"]    = df_v[_vs].astype(str).str.strip().str.upper()
         v_unicas = df_v[["_nombre", "_acr", "_sup"]].drop_duplicates()
         for _, r in v_unicas.iterrows():
             pairs.append((r["_nombre"], r["_acr"], r["_sup"]))
@@ -502,24 +572,44 @@ def cumplimientos_venta_impactos(mes: int, anio: int) -> tuple[pd.DataFrame, pd.
     if df is None:
         print(f"  ⚠️  Falta Consolidado_Impactos en SharePoint ({ruta_impactos}) — VENTA_% e IMPACTOS_% serán NaN")
         return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
-    if "MES" not in df.columns or "AÑO" not in df.columns:
-        print(f"  ⚠️  {ruta_impactos} no tiene columnas MES/AÑO — VENTA_% e IMPACTOS_% serán NaN")
+    # FIX: se pedían "MES"/"AÑO" en mayúsculas y "Total Clientes Impactar",
+    # pero el CSV real trae "Mes", "Año" y "Total Clientes a Impactar" (con
+    # la "a"). El chequeo estricto hacía que la función retornara vacío y
+    # VENTA_%/IMPACTOS_% quedaran en NaN para todos. Ahora se resuelven por
+    # nombre normalizado, tolerando mayúsculas, tildes y mojibake.
+    col_mes  = _buscar_col(df, "MES", "Mes")
+    col_anio = _buscar_col(df, "AÑO", "Año", "ANIO", "ANO")
+    col_ases = _buscar_col(df, "Asesor")
+    col_sup  = _buscar_col(df, "Supervisor")
+    col_cuo  = _buscar_col(df, "Cuota")
+    col_ven  = _buscar_col(df, "Venta")
+    col_plan = _buscar_col(df, "Total Clientes a Impactar", "Total Clientes Impactar",
+                           contiene=["CLIENTES", "IMPACTAR"])
+    col_real = _buscar_col(df, "Clientes Impactados", contiene=["CLIENTES", "IMPACTADOS"])
+
+    faltan = [n for n, c in [("Mes", col_mes), ("Año", col_anio), ("Asesor", col_ases),
+                             ("Supervisor", col_sup), ("Cuota", col_cuo), ("Venta", col_ven),
+                             ("Clientes a Impactar", col_plan),
+                             ("Clientes Impactados", col_real)] if c is None]
+    if faltan:
+        print(f"  ⚠️  {ruta_impactos} sin columnas esperadas: {faltan} — VENTA_% e IMPACTOS_% serán NaN")
         print(f"      Columnas encontradas: {list(df.columns)}")
         return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
-    df["MES"] = df["MES"].fillna("").astype(str).str.strip().str.capitalize()
-    df["AÑO"] = df["AÑO"].fillna("").astype(str).str.strip()
+
+    df["MES"] = df[col_mes].fillna("").astype(str).str.strip().str.capitalize()
+    df["AÑO"] = df[col_anio].fillna("").astype(str).str.strip()
     df = df[(df["MES"] == mes_str) & (df["AÑO"] == anio_str)].copy()
 
     if df.empty:
         print(f"  ⚠️  Consolidado_Impactos sin filas para {mes_str}-{anio_str}")
         return pd.DataFrame(columns=cols_g), pd.DataFrame(columns=cols_s)
 
-    df["NOMBRE"]            = df["Asesor"].apply(parsear_nombre_asesor)
-    df["SUPERVISOR_LIDER"]  = df["Supervisor"].astype(str).str.strip().str.upper()
-    df["Cuota"]             = pd.to_numeric(df["Cuota"], errors="coerce").fillna(0)
-    df["Venta"]             = pd.to_numeric(df["Venta"], errors="coerce").fillna(0)
-    df["Total Clientes Impactar"] = pd.to_numeric(df["Total Clientes Impactar"], errors="coerce").fillna(0)
-    df["Clientes Impactados"]     = pd.to_numeric(df["Clientes Impactados"],     errors="coerce").fillna(0)
+    df["NOMBRE"]            = df[col_ases].apply(parsear_nombre_asesor)
+    df["SUPERVISOR_LIDER"]  = df[col_sup].astype(str).str.strip().str.upper()
+    df["Cuota"]             = _num_es(df[col_cuo])
+    df["Venta"]             = _num_es(df[col_ven])
+    df["Total Clientes Impactar"] = _num_es(df[col_plan])
+    df["Clientes Impactados"]     = _num_es(df[col_real])
 
     # Excluir filas con NOMBRE vacío (defensivo)
     df = df[df["NOMBRE"].astype(str).str.len() > 0].copy()
@@ -570,33 +660,48 @@ def _cargar_ventas_periodo(mes: int, anio: int) -> pd.DataFrame:
     anio_str = str(int(anio))
 
     ruta_ventas = _ruta_ventas_cloud(mes, anio)
-    try:
-        df = _leer_csv_cloud(
-            ruta_ventas, "Consolidado_Ventas.csv",
-            sep="|", decimal=",", encoding="utf-8",
-            dtype={"Cod. Cliente": str, "Cod. EAN Producto": str,
-                   "Vendedor": str, "Supervisor": str,
-                   "MES": str, "AÑO": str},
-            usecols=["Cod. Cliente", "Cod. EAN Producto",
-                     "Vendedor", "Supervisor",
-                     "Cantidades Totales", "MES", "AÑO"],
-            low_memory=False,
-        )
-    except ValueError as e:
-        print(f"  ⚠️  {ruta_ventas} no tiene las columnas esperadas: {e}")
-        return pd.DataFrame()
+    # FIX: `usecols` con nombres exactos hace que pandas lance ValueError si
+    # una sola columna cambia de capitalización o tilde (p.ej. "Año" vs "AÑO"),
+    # y el except devolvía un DataFrame vacío → MSL_% y PROD_NUEVOS_% en NaN
+    # para todos. Se lee sin usecols y se resuelven los nombres reales; el
+    # archivo es grande, así que se limitan las columnas DESPUÉS de resolver.
+    df = _leer_csv_cloud(
+        ruta_ventas, "Consolidado_Ventas.csv",
+        sep="|", decimal=",", encoding="utf-8",
+        dtype=str, low_memory=False,
+    )
     if df is None:
         return pd.DataFrame()
-    if "MES" not in df.columns or "AÑO" not in df.columns:
-        print(f"  ⚠️  {ruta_ventas} no tiene columnas MES/AÑO. Columnas encontradas: {list(df.columns)}")
+
+    col_mes  = _buscar_col(df, "MES", "Mes")
+    col_anio = _buscar_col(df, "AÑO", "Año", "ANIO", "ANO")
+    col_cli  = _buscar_col(df, "Cod. Cliente", "Cod Cliente", contiene=["COD", "CLIENTE"])
+    col_ean  = _buscar_col(df, "Cod. EAN Producto", "Cod EAN Producto", contiene=["EAN"])
+    col_vend = _buscar_col(df, "Vendedor")
+    col_sup  = _buscar_col(df, "Supervisor")
+    col_cant = _buscar_col(df, "Cantidades Totales", contiene=["CANTIDADES", "TOTALES"])
+
+    faltan = [n for n, c in [("Mes", col_mes), ("Año", col_anio), ("Cod. Cliente", col_cli),
+                             ("Cod. EAN Producto", col_ean), ("Vendedor", col_vend),
+                             ("Supervisor", col_sup), ("Cantidades Totales", col_cant)]
+              if c is None]
+    if faltan:
+        print(f"  ⚠️  {ruta_ventas} sin columnas esperadas: {faltan}")
+        print(f"      Columnas encontradas: {list(df.columns)}")
         return pd.DataFrame()
-    df["MES"] = df["MES"].fillna("").astype(str).str.strip().str.capitalize()
-    df["AÑO"] = df["AÑO"].fillna("").astype(str).str.strip()
+
+    df = df.rename(columns={
+        col_cli: "Cod. Cliente", col_ean: "Cod. EAN Producto",
+        col_vend: "Vendedor", col_sup: "Supervisor",
+        col_cant: "Cantidades Totales",
+    })
+    df["MES"] = df[col_mes].fillna("").astype(str).str.strip().str.capitalize()
+    df["AÑO"] = df[col_anio].fillna("").astype(str).str.strip()
     df = df[(df["MES"] == mes_str) & (df["AÑO"] == anio_str)].copy()
     if df.empty:
         return df
 
-    df["Cantidades Totales"] = pd.to_numeric(df["Cantidades Totales"], errors="coerce").fillna(0)
+    df["Cantidades Totales"] = _num_es(df["Cantidades Totales"])
     df["Cod. Cliente"]      = df["Cod. Cliente"].fillna("").astype(str).str.strip()
     df["Cod. EAN Producto"] = df["Cod. EAN Producto"].map(_ean_clean)
     df["Vendedor"]          = df["Vendedor"].fillna("").astype(str).str.strip().str.upper()

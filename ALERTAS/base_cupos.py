@@ -99,6 +99,28 @@ def _limpiar_ruta_graph(ruta_sharepoint: str) -> str:
     return ruta_sharepoint.lstrip("/")
 
 
+def _subir_bytes_cloud(data: bytes, ruta_sharepoint: str, descripcion: str) -> bool:
+    """
+    Sube bytes a SharePoint vía Graph. Se usa para publicar el diagnóstico de
+    Base cupos en la nube en vez de dejarlo en el disco local del equipo que
+    corre la ETL (donde nadie más lo ve).
+    """
+    try:
+        token = paths.obtener_token_azure()
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/octet-stream",
+        }
+        drive_id = _obtener_default_drive_id(token)
+        ruta = urllib.parse.quote(_limpiar_ruta_graph(ruta_sharepoint))
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{ruta}:/content"
+        r = requests.put(url, headers=headers, data=data)
+        return r.status_code in (200, 201)
+    except Exception as e:
+        print(f"  ⚠️  No pude subir {descripcion}: {e}", file=sys.stderr)
+        return False
+
+
 def _leer_excel_cloud(ruta_sharepoint: str, descripcion: str, sheet_name=0) -> pd.DataFrame:
     """Lee un archivo Excel (opcionalmente una hoja específica) directamente desde SharePoint vía Graph API."""
     print(f"  ⏳ Leyendo {descripcion} desde SharePoint ({ruta_sharepoint})...")
@@ -161,7 +183,14 @@ def _es_lider(rol: str) -> bool:
 # CARGA Y NORMALIZACIÓN
 # ─────────────────────────────────────────────────────────────────────────────
 
-def cargar() -> pd.DataFrame:
+_CACHE_BASE_CUPOS: dict = {}
+# Filas descartadas por no tener ACRONIMO/NOMBRE. Se guardan para que
+# construir_indices() pueda exponerlas y el diagnóstico del cruce distinga
+# "no está en Base cupos" de "está pero sin ACRONIMO".
+_CACHE_DESCARTADOS: dict = {}
+
+
+def cargar(forzar: bool = False) -> pd.DataFrame:
     """
     Lee `Base_cupos.xlsx` y devuelve un DataFrame normalizado con:
         ACRONIMO          str   (mayúsculas, strip)
@@ -179,6 +208,13 @@ def cargar() -> pd.DataFrame:
     Filtra registros sin ACRONIMO o sin NOMBRE.
     Genera automáticamente un archivo de auditoría Excel en caliente para depuración.
     """
+    # FIX: esta función se invoca varias veces por corrida (universo,
+    # maestra de supervisores, hojas de adjuntos). Sin caché descargaba el
+    # mismo Excel de SharePoint en cada llamada y repetía todo el bloque de
+    # auditoría, ensuciando el log con el mismo aviso 3 veces.
+    if not forzar and "df" in _CACHE_BASE_CUPOS:
+        return _CACHE_BASE_CUPOS["df"].copy()
+
     df = _leer_excel_cloud(RUTA_BASE_CUPOS_CLOUD, "Base_cupos.xlsx", sheet_name="Tabla total roles")
     df_original_raw = df.copy()  # Respaldamos el estado crudo para el reporte de auditoría
 
@@ -230,16 +266,23 @@ def cargar() -> pd.DataFrame:
     # ─────────────────────────────────────────────────────────────────────────
     # ⚙️ EXPORTACIÓN AUTOMÁTICA DE AUDITORÍA (SISTEMA DE DEPURACIÓN EN CALIENTE)
     # ─────────────────────────────────────────────────────────────────────────
+    # FIX: este reporte se escribía SOLO en el disco local del equipo que
+    # corre la ETL (C:\Users\...\Temp), lo que contradice el esquema
+    # "todo en la nube" y hace que nadie más pueda verlo. Ahora se arma en
+    # memoria y se sube a SharePoint junto a Base_cupos.xlsx; además los
+    # registros descartados se listan en consola, que es lo que de verdad
+    # hay que accionar.
     try:
-        ruta_debug = Path(tempfile.gettempdir()) / "DEBUG_Base_Cupos_Normalizada.xlsx"
-        
-        # Construimos un reporte estructurado con múltiples hojas para análisis
-        with pd.ExcelWriter(ruta_debug, engine="openpyxl") as writer:
+        import io as _io
+        _buffer_debug = _io.BytesIO()
+
+        with pd.ExcelWriter(_buffer_debug, engine="openpyxl") as writer:
             # Hoja 1: El universo procesado y limpio definitivo
             df_filtrado.to_excel(writer, sheet_name="1. Base_Limpia_Final", index=False)
             
             # Hoja 2: Muestra qué registros eliminó el filtro defensivo (sin acrónimo o nombre)
             df_descartados = df[sin_acronimo_o_nombre].copy()
+            _CACHE_DESCARTADOS["df"] = df_descartados.copy()
             df_descartados.to_excel(writer, sheet_name="2. Registros_Descartados", index=False)
             
             # Hoja 3: Análisis rápido de duplicados por llave primaria ACRONIMO
@@ -267,9 +310,23 @@ def cargar() -> pd.DataFrame:
                 df_dup_cedula = df_filtrado[mask_cedula_dup].sort_values(by="CEDULA")
                 df_dup_cedula.to_excel(writer, sheet_name="4. Duplicados_Cedula", index=False)
 
-        print(f"\n⚠️ [AUDITORÍA] Diagnóstico generado en: {ruta_debug}")
+        # Subir el diagnóstico a SharePoint, junto a Base_cupos.xlsx
+        ruta_debug_cloud = f"{paths.RUTA_CARPETA_BASES_DYP}/DEBUG_Base_Cupos_Normalizada.xlsx"
+        if _subir_bytes_cloud(_buffer_debug.getvalue(), ruta_debug_cloud,
+                              "Diagnóstico Base cupos"):
+            print(f"\n⚠️ [AUDITORÍA] Diagnóstico subido a: {ruta_debug_cloud}")
+        else:
+            print(f"\n⚠️ [AUDITORÍA] No se pudo subir el diagnóstico a SharePoint.")
+
         if total_descartados > 0:
-            print(f"⚠️ [AUDITORÍA] Cuidado: Se descartaron {total_descartados} filas por no tener ACRONIMO o NOMBRE. Revisa la pestaña 2.")
+            print(f"⚠️ [AUDITORÍA] Se descartaron {total_descartados} fila(s) por no tener "
+                  f"ACRONIMO o NOMBRE — esas personas NO cruzan y quedan fuera de los reportes:")
+            # Listarlas en consola: es lo accionable, y evita tener que abrir
+            # el Excel de diagnóstico para saber a quién le falta la celda.
+            for _, _r in df_descartados.iterrows():
+                _nom = str(_r.get("NOMBRE", "") or _r.get("Nombre", "")).strip()
+                _ced = str(_r.get("CEDULA", "") or _r.get("Cedula", "")).strip().replace(".0", "")
+                print(f"     · {_nom or '(sin nombre)':40s} cédula: {_ced or 's/d'}")
         if len(df_duplicados_acr) > 0:
             print(f"⚠️ [AUDITORÍA] Advertencia: Se encontraron acrónimos duplicados en la maestra. Revisa la pestaña 3.")
         if len(df_dup_cedula) > 0:
@@ -282,7 +339,9 @@ def cargar() -> pd.DataFrame:
         print(f"\n⚠ No se pudo generar el archivo de depuración de cupos: {e}", file=sys.stderr)
     # ─────────────────────────────────────────────────────────────────────────
 
-    return df_filtrado.reset_index(drop=True)
+    resultado = df_filtrado.reset_index(drop=True)
+    _CACHE_BASE_CUPOS["df"] = resultado.copy()
+    return resultado
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -323,11 +382,30 @@ def construir_indices(df_bc: pd.DataFrame) -> dict:
             .set_index("ACRONIMO")["NOMBRE"]
             .to_dict()
     )
+    # FIX: las filas sin ACRONIMO se descartan al normalizar, así que quien
+    # consuma estos índices no puede distinguir "esta persona no está en Base
+    # cupos" de "sí está, pero le falta llenar el ACRONIMO" — dos problemas
+    # muy distintos que se accionan de forma distinta. Se exponen aquí para
+    # que el diagnóstico del cruce pueda dar el mensaje correcto.
+    _sin_acr = _CACHE_DESCARTADOS.get("df")
+    nombres_sin_acr, cedulas_sin_acr = set(), set()
+    if _sin_acr is not None and not _sin_acr.empty:
+        if "NOMBRE" in _sin_acr.columns:
+            nombres_sin_acr = set(
+                _sin_acr["NOMBRE"].astype(str).str.strip().str.upper()
+            )
+        if "CEDULA" in _sin_acr.columns:
+            cedulas_sin_acr = set(
+                _sin_acr["CEDULA"].astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+            )
+
     return {
         "cedula_a_acronimo": cedula_a_acr,
         "codigo_a_acronimo": codigo_a_acr,
         "nombre_a_acronimo": nombre_a_acr,
         "acronimo_a_nombre": acr_a_nombre,
+        "nombres_sin_acronimo": nombres_sin_acr,
+        "cedulas_sin_acronimo": cedulas_sin_acr,
     }
 
 
