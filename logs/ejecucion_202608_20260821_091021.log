@@ -1,0 +1,94 @@
+2026-08-21 09:10:21  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260821_091021.log
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260821T091021_b79c6b
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-21 09:10:21
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      Run ID: 20260821T091021_b79c6b
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      Periodo: Agosto_2026 (08/2026)
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['ventas']
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-21 09:10:21  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 09:10:21  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 08/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 09:10:29  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-21 09:10:31  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-21 09:10:31  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-21 09:10:31  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-21 09:10:31  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 09:10:31  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-21 09:10:31  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 09:10:37  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,525 filas PT  |  3,251 filas módulos cargadas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [ISM] 2,482 filas PT  |  883 filas módulos cargadas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,007 filas totales
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 8 | Año 2026
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 128 PDVs DISCOUNTER excluidos
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 4,878 → 4,352 filas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,352 filas retenidas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 78 PDVs DISCOUNTER excluidos
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 941 → 862 filas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 862 filas retenidas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] precios: D9 — filtro OBSERVACIÓN/ROL 4,124 → 3,643 filas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,643 filas retenidas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 759 → 691 filas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 691 filas retenidas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 4,036 → 3,566 filas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,566 filas retenidas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 733 → 667 filas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 667 filas retenidas
+2026-08-21 09:10:38  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-21 09:10:38  [etl.orquestador]   ✓ INFO      shared_loader completado en 17.7s
+2026-08-21 09:10:38  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 09:10:38  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-08-21 09:10:38  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 09:10:38  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 09:10:38  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-08-21 09:10:38  [etl.ventas]        · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-21 09:10:42  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-21 09:10:42  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 09:10:52  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 09:11:54  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Agosto_2026: ['08. Agosto base ventas.xlsx', 'RUTERO AGOSTO 2026 D&P.xlsx']
+2026-08-21 09:12:04  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 50,184 filas previas de Agosto_2026 reemplazadas
+2026-08-21 09:12:08  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 08. Agosto base ventas.xlsx
+2026-08-21 09:12:58  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO AGOSTO 2026 D&P.xlsx
+2026-08-21 09:14:48  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas_AGOSTO_2026.csv (399,135 filas)
+2026-08-21 09:14:49  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 399,135 filas en el consolidado → 58,820 del periodo 08/2026
+2026-08-21 09:14:50  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 58,820 filas × 50 col  →  20,669 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 09:14:54  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 17,371 fila(s) del periodo 08/2026 eliminadas
+2026-08-21 09:14:55  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 20,669 filas en lotes de 1,000…
+2026-08-21 09:15:06  [etl.ventas]        · DEBUG     [stdout] 20,669/20,669 (100%)
+2026-08-21 09:15:06  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 20,669 filas cargadas (08/2026)
+2026-08-21 09:15:06  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 09:15:08  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 09:15:09  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 09:15:11  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 09:15:12  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 09:15:13  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 09:15:16  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos_AGOSTO_2026.csv (408 filas)
+2026-08-21 09:15:16  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 08/2026
+2026-08-21 09:15:17  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 08/2026 eliminadas
+2026-08-21 09:15:17  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (08/2026)
+2026-08-21 09:15:17  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (399,135 filas en consolidado)
+2026-08-21 09:15:23  [etl.ventas]        ✓ INFO      Duración total: 278.8s
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 278.8s
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK             278.8s
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              17.7s
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        302.6s
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  296.5s
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -6.0s
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO        09:10:21  [shared_loader]     PT Directo y ISM no están en local para periodo 08/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260821_091021.log
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      Fin: 2026-08-21 09:15:23
+2026-08-21 09:15:23  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

@@ -1,0 +1,1181 @@
+2026-08-19 13:21:10  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260819_132110.log
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260819T132110_d3a9c3
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-19 13:21:10
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      Run ID: 20260819T132110_d3a9c3
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      Periodo: Agosto_2026 (08/2026)
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif', 'nopresencia', 'precios', 'sos', 'exhib_pagadas', 'exhib_gratis', 'ventas', 'impactos', 'impactos_segmentos']
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-19 13:21:10  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:21:10  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 08/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-19 13:21:17  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:19  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:19  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:19  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:19  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-19 13:21:19  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-19 13:21:19  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,525 filas PT  |  3,251 filas módulos cargadas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [ISM] 2,482 filas PT  |  883 filas módulos cargadas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,007 filas totales
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 8 | Año 2026
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 128 PDVs DISCOUNTER excluidos
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 4,878 → 4,352 filas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,352 filas retenidas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 78 PDVs DISCOUNTER excluidos
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 941 → 862 filas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 862 filas retenidas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] precios: D9 — filtro OBSERVACIÓN/ROL 4,124 → 3,643 filas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,643 filas retenidas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 759 → 691 filas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 691 filas retenidas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 4,036 → 3,566 filas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,566 filas retenidas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 733 → 667 filas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 667 filas retenidas
+2026-08-19 13:21:21  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-19 13:21:21  [etl.orquestador]   ✓ INFO      shared_loader completado en 11.4s
+2026-08-19 13:21:21  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:21:21  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 9 ETLs en paralelo (0 skipped)
+2026-08-19 13:21:21  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:21:21  [etl.nopresencia]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:21:21  [etl.cif]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:21:21  [etl.nopresencia]   ✓ INFO      ETL No Presencia — iniciando
+2026-08-19 13:21:21  [etl.precios]       ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:21:21  [etl.precios]       ✓ INFO      ETL Precios — iniciando
+2026-08-19 13:21:21  [etl.cif]           ✓ INFO      ETL CIF — iniciando
+2026-08-19 13:21:21  [etl.exhib_pagadas]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:21:21  [etl.sos]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:21:21  [etl.exhib_gratis]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:21:21  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — iniciando
+2026-08-19 13:21:21  [etl.sos]           ✓ INFO      ETL SOS — iniciando
+2026-08-19 13:21:21  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — iniciando
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:21:21  [etl.sos]           ✓ INFO      PT filtrado para SOS: 736 PDVs únicos
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:21  [etl.nopresencia]   · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:21:21  [etl.cif]           · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:21:21  [etl.precios]       · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:21:21  [etl.sos]           · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:21:21  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:21:21  [etl.exhib_gratis]  · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:21:24  [etl.nopresencia]   ✓ INFO      Usando DataFrame de PT proporcionado por el orquestador (5,214 filas)
+2026-08-19 13:21:24  [etl.nopresencia]   · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:21:24  [etl.cif]           · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:21:24  [etl.precios]       · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:21:24  [etl.sos]           · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:21:24  [etl.exhib_pagadas]  · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:21:24  [etl.exhib_gratis]  · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:21:24  [etl.nopresencia]   · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:21:24  [etl.cif]           · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:21:24  [etl.precios]       · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:21:24  [etl.sos]           · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:21:24  [etl.exhib_pagadas]  · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:21:24  [etl.exhib_gratis]  · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:21:24  [etl.precios]       ✓ INFO      PT filtrado para Precios: 804 PDVs únicos — periodo AGOSTO_2026
+2026-08-19 13:21:24  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:21:24  [etl.cif]           · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:21:24  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:21:24  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:21:24  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:21:24  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:21:24  [etl.cif]           ✓ INFO      Paso 1 — PT consolidado: 11,007 filas
+2026-08-19 13:21:24  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.nopresencia]   · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:21:24  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:21:24  [etl.precios]       · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:21:24  [etl.sos]           · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:21:24  [etl.exhib_pagadas]  · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:21:24  [etl.exhib_gratis]  · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:21:24  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-08-19 13:21:24  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:21:24  [etl.cif]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:21:24  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:21:24  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:21:24  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:21:24  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:21:25  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:21:25  [etl.cif]           · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:21:25  [etl.precios]       · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:21:25  [etl.sos]           · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:21:25  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:21:25  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:21:25  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.cif]           · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.precios]       · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.sos]           · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.nopresencia]   · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.cif]           · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.precios]       · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.sos]           · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.exhib_pagadas]  · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.exhib_gratis]  · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.nopresencia]   · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.cif]           · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.precios]       · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.sos]           · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.exhib_pagadas]  · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:25  [etl.exhib_gratis]  · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:21:27  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:21:27  [etl.cif]           · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:21:27  [etl.precios]       · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:21:27  [etl.sos]           · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:21:27  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:21:27  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:21:27  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:21:27  [etl.cif]           · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:21:27  [etl.precios]       · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:21:27  [etl.sos]           · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:21:27  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:21:27  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:21:32  [etl.nopresencia]   ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:21:32  [etl.cif]           ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:21:32  [etl.precios]       ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:21:32  [etl.sos]           ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:21:32  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:21:32  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:21:34  [etl.nopresencia]   · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.
+2026-08-19 13:21:34  [etl.cif]           · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.
+2026-08-19 13:21:34  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:21:34  [etl.cif]           · DEBUG     [stdout] ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:21:34  [etl.sos]           · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.  ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:21:34  [etl.precios]       · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.  ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:21:34  [etl.exhib_pagadas]  · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.  ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:21:34  [etl.exhib_gratis]  · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.  ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:21:34  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:21:34  [etl.cif]           · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:21:34  [etl.precios]       · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:21:34  [etl.sos]           · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:21:34  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:21:34  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:21:34  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:21:34  [etl.cif]           · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:21:34  [etl.precios]       · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:21:34  [etl.sos]           · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:21:34  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:21:34  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:21:35  [etl.nopresencia]   ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:21:35  [etl.cif]           ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:21:35  [etl.precios]       ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:21:35  [etl.sos]           ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:21:35  [etl.exhib_pagadas]  ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:21:35  [etl.exhib_gratis]  ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.nopresencia]   · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.cif]           · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.precios]       · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.sos]           · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.exhib_pagadas]  · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:35  [etl.exhib_gratis]  · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:21:36  [etl.nopresencia]   · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:36  [etl.cif]           · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:36  [etl.precios]       · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:36  [etl.sos]           · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:36  [etl.exhib_pagadas]  · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:36  [etl.exhib_gratis]  · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:21:36  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:21:36  [etl.cif]           · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:21:36  [etl.precios]       · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:21:36  [etl.sos]           · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:21:36  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:21:36  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:21:39  [etl.nopresencia]   · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:21:39  [etl.cif]           · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:21:39  [etl.precios]       · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:21:39  [etl.sos]           · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:21:39  [etl.exhib_pagadas]  · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:21:39  [etl.exhib_gratis]  · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:21:44  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:44  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:44  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:44  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:44  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:44  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:45  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:45  [etl.cif]           ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:45  [etl.precios]       ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:45  [etl.sos]           ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:45  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:45  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:21:45  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.nopresencia]   · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:21:45  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:21:45  [etl.precios]       · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:21:45  [etl.sos]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:21:45  [etl.exhib_pagadas]  · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:21:45  [etl.exhib_gratis]  · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:21:45  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-08-19 13:21:45  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-08-19 13:21:47  [etl.nopresencia]   ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:21:47  [etl.cif]           ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:21:47  [etl.precios]       ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:21:47  [etl.sos]           ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:21:47  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:21:47  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:21:55  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado_exhibiciones_pagadas Agosto 2026.xlsx
+2026-08-19 13:21:55  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado_exhibiciones_pagadas Agosto 2026.xlsx
+2026-08-19 13:21:55  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado_exhibiciones_pagadas Agosto 2026.xlsx
+2026-08-19 13:21:55  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado_exhibiciones_pagadas Agosto 2026.xlsx
+2026-08-19 13:21:55  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado_exhibiciones_pagadas Agosto 2026.xlsx
+2026-08-19 13:21:56  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado_exhibiciones_pagadas Agosto 2026.xlsx
+2026-08-19 13:22:05  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Rexhibiciones_pagadas_agrupado Agosto 2026.xlsx
+2026-08-19 13:22:05  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Rexhibiciones_pagadas_agrupado Agosto 2026.xlsx
+2026-08-19 13:22:05  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Rexhibiciones_pagadas_agrupado Agosto 2026.xlsx
+2026-08-19 13:22:05  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Rexhibiciones_pagadas_agrupado Agosto 2026.xlsx
+2026-08-19 13:22:05  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Rexhibiciones_pagadas_agrupado Agosto 2026.xlsx
+2026-08-19 13:22:05  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Rexhibiciones_pagadas_agrupado Agosto 2026.xlsx
+2026-08-19 13:22:06  [etl.nopresencia]   ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo Directo Agosto 2026.xlsx — 7,716 gestores cargados
+2026-08-19 13:22:06  [etl.cif]           ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo Directo Agosto 2026.xlsx — 7,716 gestores cargados
+2026-08-19 13:22:06  [etl.precios]       ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo Directo Agosto 2026.xlsx — 7,716 gestores cargados
+2026-08-19 13:22:06  [etl.sos]           ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo Directo Agosto 2026.xlsx — 7,716 gestores cargados
+2026-08-19 13:22:06  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo Directo Agosto 2026.xlsx — 7,716 gestores cargados
+2026-08-19 13:22:06  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo Directo Agosto 2026.xlsx — 7,716 gestores cargados
+2026-08-19 13:22:08  [etl.nopresencia]   · DEBUG     [stdout] 🗑️  exhibiciones_pagadas_detalle: 2,768 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:22:08  [etl.cif]           · DEBUG     [stdout] 🗑️  exhibiciones_pagadas_detalle: 2,768 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:22:08  [etl.precios]       · DEBUG     [stdout] 🗑️  exhibiciones_pagadas_detalle: 2,768 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:22:08  [etl.sos]           · DEBUG     [stdout] 🗑️  exhibiciones_pagadas_detalle: 2,768 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:22:08  [etl.exhib_pagadas]  · DEBUG     [stdout] 🗑️  exhibiciones_pagadas_detalle: 2,768 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:22:08  [etl.exhib_gratis]  · DEBUG     [stdout] 🗑️  exhibiciones_pagadas_detalle: 2,768 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:22:13  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:22:13  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:22:13  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:22:13  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:22:13  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:22:13  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:22:13  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Reporte capturas unificado generado en SharePoint.
+2026-08-19 13:22:13  [etl.cif]           ✓ INFO      [stdout] ✅ Reporte capturas unificado generado en SharePoint.
+2026-08-19 13:22:13  [etl.precios]       ✓ INFO      [stdout] ✅ Reporte capturas unificado generado en SharePoint.
+2026-08-19 13:22:13  [etl.sos]           ✓ INFO      [stdout] ✅ Reporte capturas unificado generado en SharePoint.
+2026-08-19 13:22:13  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Reporte capturas unificado generado en SharePoint.
+2026-08-19 13:22:13  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Reporte capturas unificado generado en SharePoint.
+2026-08-19 13:22:13  [etl.precios]       ✓ INFO      Reporte de captura de precios generado
+2026-08-19 13:22:13  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (AGOSTO_2026) ---
+2026-08-19 13:22:13  [etl.nopresencia]   ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo ISM Agosto 2026.xlsx — 1,982 gestores cargados
+2026-08-19 13:22:13  [etl.cif]           ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo ISM Agosto 2026.xlsx — 1,982 gestores cargados
+2026-08-19 13:22:13  [etl.precios]       ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo ISM Agosto 2026.xlsx — 1,982 gestores cargados
+2026-08-19 13:22:13  [etl.precios]       · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (AGOSTO_2026) ---
+2026-08-19 13:22:13  [etl.sos]           ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo ISM Agosto 2026.xlsx — 1,982 gestores cargados
+2026-08-19 13:22:13  [etl.sos]           · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (AGOSTO_2026) ---
+2026-08-19 13:22:13  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo ISM Agosto 2026.xlsx — 1,982 gestores cargados
+2026-08-19 13:22:13  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (AGOSTO_2026) ---
+2026-08-19 13:22:13  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo ISM Agosto 2026.xlsx — 1,982 gestores cargados
+2026-08-19 13:22:13  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (AGOSTO_2026) ---
+2026-08-19 13:22:13  [etl.cif]           · DEBUG     [stdout] --- PASO 3: Generando Análisis Detallado (AGOSTO_2026) ---
+2026-08-19 13:22:15  [etl.nopresencia]   ✓ INFO      [stdout] ✅ exhibiciones_pagadas_detalle: 2,768 filas cargadas (08/2026)
+2026-08-19 13:22:15  [etl.cif]           ✓ INFO      [stdout] ✅ exhibiciones_pagadas_detalle: 2,768 filas cargadas (08/2026)
+2026-08-19 13:22:15  [etl.precios]       ✓ INFO      [stdout] ✅ exhibiciones_pagadas_detalle: 2,768 filas cargadas (08/2026)
+2026-08-19 13:22:15  [etl.sos]           ✓ INFO      [stdout] ✅ exhibiciones_pagadas_detalle: 2,768 filas cargadas (08/2026)
+2026-08-19 13:22:15  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ exhibiciones_pagadas_detalle: 2,768 filas cargadas (08/2026)
+2026-08-19 13:22:15  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ exhibiciones_pagadas_detalle: 2,768 filas cargadas (08/2026)
+2026-08-19 13:22:15  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ¡Hecho! Archivos subidos a SharePoint en Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES
+2026-08-19 13:22:15  [etl.cif]           ✓ INFO      [stdout] ✅ ¡Hecho! Archivos subidos a SharePoint en Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES
+2026-08-19 13:22:15  [etl.precios]       ✓ INFO      [stdout] ✅ ¡Hecho! Archivos subidos a SharePoint en Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES
+2026-08-19 13:22:15  [etl.sos]           ✓ INFO      [stdout] ✅ ¡Hecho! Archivos subidos a SharePoint en Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES
+2026-08-19 13:22:15  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ ¡Hecho! Archivos subidos a SharePoint en Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES
+2026-08-19 13:22:15  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ ¡Hecho! Archivos subidos a SharePoint en Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES
+2026-08-19 13:22:15  [etl.nopresencia]   · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Agosto_2026) ---
+2026-08-19 13:22:15  [etl.cif]           · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Agosto_2026) ---
+2026-08-19 13:22:15  [etl.precios]       · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Agosto_2026) ---
+2026-08-19 13:22:15  [etl.sos]           · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Agosto_2026) ---
+2026-08-19 13:22:15  [etl.exhib_pagadas]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Agosto_2026) ---
+2026-08-19 13:22:15  [etl.exhib_gratis]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES PAGADAS por empleado  (Agosto_2026) ---
+2026-08-19 13:22:19  [etl.nopresencia]   · DEBUG     [stdout] Leyendo desde nube: Resultado_exhibiciones_pagadas Agosto 2026.xlsx (2768 filas)
+2026-08-19 13:22:19  [etl.cif]           · DEBUG     [stdout] Leyendo desde nube: Resultado_exhibiciones_pagadas Agosto 2026.xlsx (2768 filas)
+2026-08-19 13:22:19  [etl.precios]       · DEBUG     [stdout] Leyendo desde nube: Resultado_exhibiciones_pagadas Agosto 2026.xlsx (2768 filas)
+2026-08-19 13:22:19  [etl.sos]           · DEBUG     [stdout] Leyendo desde nube: Resultado_exhibiciones_pagadas Agosto 2026.xlsx (2768 filas)
+2026-08-19 13:22:19  [etl.exhib_pagadas]  · DEBUG     [stdout] Leyendo desde nube: Resultado_exhibiciones_pagadas Agosto 2026.xlsx (2768 filas)
+2026-08-19 13:22:19  [etl.exhib_gratis]  · DEBUG     [stdout] Leyendo desde nube: Resultado_exhibiciones_pagadas Agosto 2026.xlsx (2768 filas)
+2026-08-19 13:22:19  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  CANTIDAD_PLANEADA > 0: 591/2768 filas | CANTIDAD_EJECUTADA > 0: 5/2768 filas
+2026-08-19 13:22:19  [etl.cif]           · DEBUG     [stdout] ℹ️  CANTIDAD_PLANEADA > 0: 591/2768 filas | CANTIDAD_EJECUTADA > 0: 5/2768 filas
+2026-08-19 13:22:19  [etl.precios]       · DEBUG     [stdout] ℹ️  CANTIDAD_PLANEADA > 0: 591/2768 filas | CANTIDAD_EJECUTADA > 0: 5/2768 filas
+2026-08-19 13:22:19  [etl.sos]           · DEBUG     [stdout] ℹ️  CANTIDAD_PLANEADA > 0: 591/2768 filas | CANTIDAD_EJECUTADA > 0: 5/2768 filas
+2026-08-19 13:22:19  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  CANTIDAD_PLANEADA > 0: 591/2768 filas | CANTIDAD_EJECUTADA > 0: 5/2768 filas
+2026-08-19 13:22:19  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  CANTIDAD_PLANEADA > 0: 591/2768 filas | CANTIDAD_EJECUTADA > 0: 5/2768 filas
+2026-08-19 13:22:35  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-08-19 13:22:35  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-08-19 13:22:35  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-08-19 13:22:35  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-08-19 13:22:35  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-08-19 13:22:35  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS.xlsx
+2026-08-19 13:22:35  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — completado
+2026-08-19 13:22:44  [etl.exhib_pagadas]  ✓ INFO      Duración total: 74.0s
+2026-08-19 13:22:44  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:22:44  [etl.orquestador]   ✓ INFO      ETL 'exhib_pagadas' terminó — ✓ OK en 74.0s
+2026-08-19 13:22:44  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-08-19 13:22:44  [etl.nopresencia]   · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-19 13:22:44  [etl.cif]           · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-19 13:22:44  [etl.precios]       · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-19 13:22:44  [etl.sos]           · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-19 13:22:44  [etl.ventas]        · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-19 13:22:46  [etl.nopresencia]   · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-19 13:22:46  [etl.cif]           · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-19 13:22:46  [etl.precios]       · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-19 13:22:46  [etl.sos]           · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-19 13:22:46  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-19 13:22:46  [etl.nopresencia]   · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-19 13:22:46  [etl.cif]           · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-19 13:22:46  [etl.precios]       · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-19 13:22:46  [etl.sos]           · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-19 13:22:46  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-19 13:22:55  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 20
+2026-08-19 13:22:55  [etl.cif]           ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 20
+2026-08-19 13:22:55  [etl.precios]       ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 20
+2026-08-19 13:22:55  [etl.sos]           ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 20
+2026-08-19 13:22:55  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 20
+2026-08-19 13:23:21  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:21  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:21  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:21  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:22  [etl.ventas]        ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:22  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:22  [etl.cif]           ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:22  [etl.precios]       ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:22  [etl.sos]           ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:22  [etl.ventas]        ✓ INFO      [stdout] ✅ ÉXITO: Agrupado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Agrupado_PT_08_2026.csv
+2026-08-19 13:23:22  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.ventas]        · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.nopresencia]   · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES NUBE (CRUCE PRIORIZANDO BASE VENTAS)  (Agosto_2026)
+2026-08-19 13:23:22  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES NUBE (CRUCE PRIORIZANDO BASE VENTAS)  (Agosto_2026)
+2026-08-19 13:23:22  [etl.precios]       · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES NUBE (CRUCE PRIORIZANDO BASE VENTAS)  (Agosto_2026)
+2026-08-19 13:23:22  [etl.sos]           · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES NUBE (CRUCE PRIORIZANDO BASE VENTAS)  (Agosto_2026)
+2026-08-19 13:23:22  [etl.ventas]        · DEBUG     [stdout] INICIANDO PASO 3: INVOLVES NUBE (CRUCE PRIORIZANDO BASE VENTAS)  (Agosto_2026)
+2026-08-19 13:23:22  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:23:22  [etl.ventas]        · DEBUG     [stdout] ========================================
+2026-08-19 13:23:25  [etl.nopresencia]   · DEBUG     [stdout] 📂 Informe de colaboradores: informe_colaboradores_agosto_2026.xlsx
+2026-08-19 13:23:25  [etl.cif]           · DEBUG     [stdout] 📂 Informe de colaboradores: informe_colaboradores_agosto_2026.xlsx
+2026-08-19 13:23:25  [etl.precios]       · DEBUG     [stdout] 📂 Informe de colaboradores: informe_colaboradores_agosto_2026.xlsx
+2026-08-19 13:23:25  [etl.sos]           · DEBUG     [stdout] 📂 Informe de colaboradores: informe_colaboradores_agosto_2026.xlsx
+2026-08-19 13:23:25  [etl.ventas]        · DEBUG     [stdout] 📂 Informe de colaboradores: informe_colaboradores_agosto_2026.xlsx
+2026-08-19 13:23:27  [etl.nopresencia]   · DEBUG     [stdout] 📂 Base puntos de venta: BASE PUNTOS DE VENTA AGOSTO 2026.xlsx
+2026-08-19 13:23:27  [etl.cif]           · DEBUG     [stdout] 📂 Base puntos de venta: BASE PUNTOS DE VENTA AGOSTO 2026.xlsx
+2026-08-19 13:23:27  [etl.precios]       · DEBUG     [stdout] 📂 Base puntos de venta: BASE PUNTOS DE VENTA AGOSTO 2026.xlsx
+2026-08-19 13:23:27  [etl.sos]           · DEBUG     [stdout] 📂 Base puntos de venta: BASE PUNTOS DE VENTA AGOSTO 2026.xlsx
+2026-08-19 13:23:27  [etl.ventas]        · DEBUG     [stdout] 📂 Base puntos de venta: BASE PUNTOS DE VENTA AGOSTO 2026.xlsx
+2026-08-19 13:23:28  [etl.nopresencia]   · DEBUG     [stdout] 📂 Informe gerencial de visitas: informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:23:28  [etl.cif]           · DEBUG     [stdout] 📂 Informe gerencial de visitas: informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:23:28  [etl.precios]       · DEBUG     [stdout] 📂 Informe gerencial de visitas: informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:23:28  [etl.sos]           · DEBUG     [stdout] 📂 Informe gerencial de visitas: informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:23:28  [etl.ventas]        · DEBUG     [stdout] 📂 Informe gerencial de visitas: informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:23:36  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/ANALISIS_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:23:36  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/ANALISIS_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:23:36  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/ANALISIS_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:23:36  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/ANALISIS_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:23:36  [etl.ventas]        ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/ANALISIS_PRECIOS_AGOSTO_2026.xlsx
+2026-08-19 13:23:36  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Análisis detallado guardado en SharePoint.
+2026-08-19 13:23:36  [etl.cif]           ✓ INFO      [stdout] ✅ Análisis detallado guardado en SharePoint.
+2026-08-19 13:23:36  [etl.precios]       ✓ INFO      [stdout] ✅ Análisis detallado guardado en SharePoint.
+2026-08-19 13:23:36  [etl.sos]           ✓ INFO      [stdout] ✅ Análisis detallado guardado en SharePoint.
+2026-08-19 13:23:36  [etl.ventas]        ✓ INFO      [stdout] ✅ Análisis detallado guardado en SharePoint.
+2026-08-19 13:23:42  [etl.nopresencia]   · DEBUG     [stdout] 🗑️  precios_analisis_detalle: 19,043 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:23:42  [etl.cif]           · DEBUG     [stdout] 🗑️  precios_analisis_detalle: 19,043 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:23:42  [etl.precios]       · DEBUG     [stdout] 🗑️  precios_analisis_detalle: 19,043 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:23:42  [etl.sos]           · DEBUG     [stdout] 🗑️  precios_analisis_detalle: 19,043 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:23:42  [etl.ventas]        · DEBUG     [stdout] 🗑️  precios_analisis_detalle: 19,043 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:23:57  [etl.nopresencia]   ✓ INFO      [stdout] ✓ [SharePoint] informe-gerencial-visitas_202608.xlsx — 60,547 filas
+2026-08-19 13:23:57  [etl.cif]           ✓ INFO      [stdout] ✓ [SharePoint] informe-gerencial-visitas_202608.xlsx — 60,547 filas
+2026-08-19 13:23:57  [etl.precios]       ✓ INFO      [stdout] ✓ [SharePoint] informe-gerencial-visitas_202608.xlsx — 60,547 filas
+2026-08-19 13:23:57  [etl.sos]           ✓ INFO      [stdout] ✓ [SharePoint] informe-gerencial-visitas_202608.xlsx — 60,547 filas
+2026-08-19 13:23:57  [etl.ventas]        ✓ INFO      [stdout] ✓ [SharePoint] informe-gerencial-visitas_202608.xlsx — 60,547 filas
+2026-08-19 13:23:58  [etl.nopresencia]   · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 54,261 filas 'Sin check-in' (89.6%); quedan 6,286 visitas efectivas.
+2026-08-19 13:23:58  [etl.cif]           · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 54,261 filas 'Sin check-in' (89.6%); quedan 6,286 visitas efectivas.
+2026-08-19 13:23:58  [etl.precios]       · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 54,261 filas 'Sin check-in' (89.6%); quedan 6,286 visitas efectivas.
+2026-08-19 13:23:58  [etl.sos]           · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 54,261 filas 'Sin check-in' (89.6%); quedan 6,286 visitas efectivas.
+2026-08-19 13:23:58  [etl.ventas]        · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 54,261 filas 'Sin check-in' (89.6%); quedan 6,286 visitas efectivas.
+2026-08-19 13:24:03  [etl.nopresencia]   · DEBUG     [stdout] Encuestas consolidadas: 3,374 filas
+2026-08-19 13:24:03  [etl.cif]           · DEBUG     [stdout] Encuestas consolidadas: 3,374 filas
+2026-08-19 13:24:03  [etl.precios]       · DEBUG     [stdout] Encuestas consolidadas: 3,374 filas
+2026-08-19 13:24:03  [etl.sos]           · DEBUG     [stdout] Encuestas consolidadas: 3,374 filas
+2026-08-19 13:24:03  [etl.ventas]        · DEBUG     [stdout] Encuestas consolidadas: 3,374 filas
+2026-08-19 13:24:03  [etl.nopresencia]   · DEBUG     [stdout] Plan de trabajo:        9,680 filas
+2026-08-19 13:24:03  [etl.cif]           · DEBUG     [stdout] Plan de trabajo:        9,680 filas
+2026-08-19 13:24:03  [etl.precios]       · DEBUG     [stdout] Plan de trabajo:        9,680 filas
+2026-08-19 13:24:03  [etl.sos]           · DEBUG     [stdout] Plan de trabajo:        9,680 filas
+2026-08-19 13:24:03  [etl.ventas]        · DEBUG     [stdout] Plan de trabajo:        9,680 filas
+2026-08-19 13:24:03  [etl.nopresencia]   · DEBUG     [stdout] Visitas realizadas:     6,286 filas
+2026-08-19 13:24:03  [etl.cif]           · DEBUG     [stdout] Visitas realizadas:     6,286 filas
+2026-08-19 13:24:03  [etl.precios]       · DEBUG     [stdout] Visitas realizadas:     6,286 filas
+2026-08-19 13:24:03  [etl.sos]           · DEBUG     [stdout] Visitas realizadas:     6,286 filas
+2026-08-19 13:24:03  [etl.ventas]        · DEBUG     [stdout] Visitas realizadas:     6,286 filas
+2026-08-19 13:24:04  [etl.nopresencia]   · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-08-19 13:24:04  [etl.cif]           · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-08-19 13:24:04  [etl.precios]       · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-08-19 13:24:04  [etl.sos]           · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-08-19 13:24:04  [etl.ventas]        · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-08-19 13:24:06  [etl.nopresencia]   · DEBUG     [stdout] Implementadas pagadas:          1,504 filas
+2026-08-19 13:24:06  [etl.cif]           · DEBUG     [stdout] Implementadas pagadas:          1,504 filas
+2026-08-19 13:24:06  [etl.precios]       · DEBUG     [stdout] Implementadas pagadas:          1,504 filas
+2026-08-19 13:24:06  [etl.sos]           · DEBUG     [stdout] Implementadas pagadas:          1,504 filas
+2026-08-19 13:24:06  [etl.ventas]        · DEBUG     [stdout] Implementadas pagadas:          1,504 filas
+2026-08-19 13:24:06  [etl.nopresencia]   · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-08-19 13:24:06  [etl.cif]           · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-08-19 13:24:06  [etl.precios]       · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-08-19 13:24:06  [etl.sos]           · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-08-19 13:24:06  [etl.ventas]        · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-08-19 13:24:06  [etl.nopresencia]   ✓ INFO      [stdout] ✅ precios_analisis_detalle: 19,043 filas cargadas (08/2026)
+2026-08-19 13:24:06  [etl.cif]           ✓ INFO      [stdout] ✅ precios_analisis_detalle: 19,043 filas cargadas (08/2026)
+2026-08-19 13:24:06  [etl.precios]       ✓ INFO      [stdout] ✅ precios_analisis_detalle: 19,043 filas cargadas (08/2026)
+2026-08-19 13:24:06  [etl.sos]           ✓ INFO      [stdout] ✅ precios_analisis_detalle: 19,043 filas cargadas (08/2026)
+2026-08-19 13:24:06  [etl.ventas]        ✓ INFO      [stdout] ✅ precios_analisis_detalle: 19,043 filas cargadas (08/2026)
+2026-08-19 13:24:06  [etl.precios]       ✓ INFO      Análisis detallado de precios generado
+2026-08-19 13:24:07  [etl.nopresencia]   · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN PRECIOS por gestor  (Agosto_2026) ---
+2026-08-19 13:24:07  [etl.cif]           · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN PRECIOS por gestor  (Agosto_2026) ---
+2026-08-19 13:24:07  [etl.precios]       · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN PRECIOS por gestor  (Agosto_2026) ---
+2026-08-19 13:24:07  [etl.sos]           · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN PRECIOS por gestor  (Agosto_2026) ---
+2026-08-19 13:24:07  [etl.ventas]        · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN PRECIOS por gestor  (Agosto_2026) ---
+2026-08-19 13:24:10  [etl.nopresencia]   · DEBUG     [stdout] Leyendo desde cloud: REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx (804 filas)
+2026-08-19 13:24:10  [etl.cif]           · DEBUG     [stdout] Leyendo desde cloud: REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx (804 filas)
+2026-08-19 13:24:10  [etl.precios]       · DEBUG     [stdout] Leyendo desde cloud: REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx (804 filas)
+2026-08-19 13:24:10  [etl.sos]           · DEBUG     [stdout] Leyendo desde cloud: REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx (804 filas)
+2026-08-19 13:24:10  [etl.ventas]        · DEBUG     [stdout] Leyendo desde cloud: REPORTE_CAPTURA_PRECIOS_AGOSTO_2026.xlsx (804 filas)
+2026-08-19 13:24:11  [etl.nopresencia]   · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:11  [etl.cif]           · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:11  [etl.precios]       · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:11  [etl.sos]           · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:11  [etl.ventas]        · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:11  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:24:11  [etl.cif]           ⚠ WARNING   [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:24:11  [etl.precios]       ⚠ WARNING   [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:24:11  [etl.sos]           ⚠ WARNING   [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:24:11  [etl.ventas]        ⚠ WARNING   [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:24:13  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Mes activo: 122 gestores.
+2026-08-19 13:24:13  [etl.cif]           ✓ INFO      [stdout] ✅ Mes activo: 122 gestores.
+2026-08-19 13:24:13  [etl.precios]       ✓ INFO      [stdout] ✅ Mes activo: 122 gestores.
+2026-08-19 13:24:13  [etl.sos]           ✓ INFO      [stdout] ✅ Mes activo: 122 gestores.
+2026-08-19 13:24:13  [etl.ventas]        ✓ INFO      [stdout] ✅ Mes activo: 122 gestores.
+2026-08-19 13:24:16  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS.xlsx
+2026-08-19 13:24:16  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS.xlsx
+2026-08-19 13:24:16  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS.xlsx
+2026-08-19 13:24:16  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS.xlsx
+2026-08-19 13:24:16  [etl.ventas]        ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS.xlsx
+2026-08-19 13:24:19  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Agosto_2026: ['08. Agosto base ventas.xlsx', 'RUTERO AGOSTO 2026 D&P.xlsx']
+2026-08-19 13:24:19  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.cif]           ✓ INFO      [stdout] ℹ️  Reprocesando 2 archivo(s) de Agosto_2026: ['08. Agosto base ventas.xlsx', 'RUTERO AGOSTO 2026 D&P.xlsx']  ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.precios]       ✓ INFO      [stdout] ℹ️  Reprocesando 2 archivo(s) de Agosto_2026: ['08. Agosto base ventas.xlsx', 'RUTERO AGOSTO 2026 D&P.xlsx']  ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.sos]           ✓ INFO      [stdout] ℹ️  Reprocesando 2 archivo(s) de Agosto_2026: ['08. Agosto base ventas.xlsx', 'RUTERO AGOSTO 2026 D&P.xlsx']  ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.ventas]        ✓ INFO      [stdout] ℹ️  Reprocesando 2 archivo(s) de Agosto_2026: ['08. Agosto base ventas.xlsx', 'RUTERO AGOSTO 2026 D&P.xlsx']  ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/PRECIOS/PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.cif]           ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.precios]       ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.sos]           ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.ventas]        ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: PRECIOS_KPIS_HISTORICO.xlsx
+2026-08-19 13:24:19  [etl.precios]       ✓ INFO      KPI precios consolidado
+2026-08-19 13:24:19  [etl.precios]       ✓ INFO      ETL Precios — completado
+2026-08-19 13:24:25  [etl.precios]       ✓ INFO      Duración total: 177.9s
+2026-08-19 13:24:25  [etl.impactos]      ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:24:25  [etl.orquestador]   ✓ INFO      ETL 'precios' terminó — ✓ OK en 177.9s
+2026-08-19 13:24:25  [etl.impactos]      ✓ INFO      ETL Impactos D&P — iniciando
+2026-08-19 13:24:25  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_PROCESADO_AGOSTO_2026.xlsx
+2026-08-19 13:24:25  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_PROCESADO_AGOSTO_2026.xlsx
+2026-08-19 13:24:25  [etl.impactos]      ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_PROCESADO_AGOSTO_2026.xlsx
+2026-08-19 13:24:25  [etl.nopresencia]   · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-19 13:24:25  [etl.cif]           · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-19 13:24:25  [etl.impactos]      · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-19 13:24:25  [etl.nopresencia]   ✓ INFO      Encuestas de No Presencia procesadas
+2026-08-19 13:24:25  [etl.nopresencia]   · DEBUG     [stdout] --- INICIANDO: Bloque Plan de Trabajo (Semanas) ---   Implementadas gratis/concurso: 700 filas
+2026-08-19 13:24:25  [etl.cif]           · DEBUG     [stdout] --- INICIANDO: Bloque Plan de Trabajo (Semanas) ---   Implementadas gratis/concurso: 700 filas
+2026-08-19 13:24:25  [etl.impactos]      · DEBUG     [stdout] --- INICIANDO: Bloque Plan de Trabajo (Semanas) ---   Implementadas gratis/concurso: 700 filas
+2026-08-19 13:24:25  [etl.nopresencia]   · DEBUG     [stdout] ── Consolidando y escribiendo en SharePoint ─────
+2026-08-19 13:24:25  [etl.cif]           · DEBUG     [stdout] ── Consolidando y escribiendo en SharePoint ─────
+2026-08-19 13:24:25  [etl.impactos]      · DEBUG     [stdout] ── Consolidando y escribiendo en SharePoint ─────
+2026-08-19 13:24:26  [etl.nopresencia]   ✓ INFO      Plan de Trabajo por semanas procesado
+2026-08-19 13:24:26  [etl.nopresencia]   · DEBUG     [stdout] --- GENERANDO MATRIZ COMPARATIVA FINAL NO PRESENCIA ---
+2026-08-19 13:24:26  [etl.cif]           · DEBUG     [stdout] --- GENERANDO MATRIZ COMPARATIVA FINAL NO PRESENCIA ---
+2026-08-19 13:24:26  [etl.impactos]      · DEBUG     [stdout] --- GENERANDO MATRIZ COMPARATIVA FINAL NO PRESENCIA ---
+2026-08-19 13:24:28  [etl.nopresencia]   · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-19 13:24:28  [etl.cif]           · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-19 13:24:28  [etl.impactos]      · DEBUG     [stdout] 🎯 Procesando periodo: Agosto_2026 (Año: 2026)
+2026-08-19 13:24:28  [etl.nopresencia]   · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-19 13:24:28  [etl.cif]           · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-19 13:24:28  [etl.impactos]      · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-19 13:24:37  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx
+2026-08-19 13:24:37  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx
+2026-08-19 13:24:37  [etl.impactos]      ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx
+2026-08-19 13:24:37  [etl.nopresencia]   · DEBUG     [stdout] 🏁 FINALIZADO: Reporte generado en SharePoint: REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx
+2026-08-19 13:24:37  [etl.cif]           · DEBUG     [stdout] 🏁 FINALIZADO: Reporte generado en SharePoint: REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx
+2026-08-19 13:24:37  [etl.impactos]      · DEBUG     [stdout] 🏁 FINALIZADO: Reporte generado en SharePoint: REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx
+2026-08-19 13:24:37  [etl.nopresencia]   ✓ INFO      Matriz de seguimiento generada
+2026-08-19 13:24:37  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 20
+2026-08-19 13:24:38  [etl.cif]           ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 20
+2026-08-19 13:24:38  [etl.impactos]      · DEBUG     [stdout] --- GENERANDO ANÁLISIS DE AGOTADOS (INVOLVES) ---
+2026-08-19 13:24:38  [etl.impactos]      ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 20
+2026-08-19 13:24:38  [etl.nopresencia]   · DEBUG     [stdout] --- GENERANDO ANÁLISIS DE AGOTADOS (INVOLVES) ---
+2026-08-19 13:24:38  [etl.cif]           · DEBUG     [stdout] --- GENERANDO ANÁLISIS DE AGOTADOS (INVOLVES) ---
+2026-08-19 13:24:49  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Reprocesando 1 archivo(s) de Agosto_2026: ['08. Agosto base impactos - cuota.xlsx']
+2026-08-19 13:24:49  [etl.cif]           · DEBUG     [stdout] ℹ️  Reprocesando 1 archivo(s) de Agosto_2026: ['08. Agosto base impactos - cuota.xlsx']
+2026-08-19 13:24:49  [etl.impactos]      · DEBUG     [stdout] ℹ️  Reprocesando 1 archivo(s) de Agosto_2026: ['08. Agosto base impactos - cuota.xlsx']
+2026-08-19 13:24:51  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠️ No pude leer el consolidado previo de impactos ('MES'); reconstruyo desde cero
+2026-08-19 13:24:51  [etl.cif]           ⚠ WARNING   [stdout] ⚠️ No pude leer el consolidado previo de impactos ('MES'); reconstruyo desde cero
+2026-08-19 13:24:51  [etl.impactos]      ⚠ WARNING   [stdout] ⚠️ No pude leer el consolidado previo de impactos ('MES'); reconstruyo desde cero
+2026-08-19 13:24:51  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-19 13:24:51  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-19 13:24:51  [etl.impactos]      · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-19 13:24:53  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-19 13:24:53  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-19 13:24:53  [etl.impactos]      · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-19 13:24:54  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-19 13:24:54  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-19 13:24:54  [etl.impactos]      · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-19 13:24:56  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-19 13:24:56  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-19 13:24:56  [etl.impactos]      · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-19 13:24:58  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-19 13:24:58  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-19 13:24:58  [etl.impactos]      · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-19 13:24:59  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-19 13:24:59  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-19 13:24:59  [etl.impactos]      · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-19 13:25:04  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos_AGOSTO_2026.csv (408 filas)
+2026-08-19 13:25:04  [etl.cif]           ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos_AGOSTO_2026.csv (408 filas)
+2026-08-19 13:25:04  [etl.impactos]      ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos_AGOSTO_2026.csv (408 filas)
+2026-08-19 13:25:04  [etl.impactos]      ✓ INFO      ETL Impactos D&P — completado (408 filas en consolidado)
+2026-08-19 13:25:06  [etl.nopresencia]   ✓ INFO      [stdout] ✓ Output escrito con éxito en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado exhibiciones gratis.xlsx (4,723 filas)
+2026-08-19 13:25:06  [etl.cif]           ✓ INFO      [stdout] ✓ Output escrito con éxito en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado exhibiciones gratis.xlsx (4,723 filas)
+2026-08-19 13:25:07  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  exhibiciones_gratis_detalle: 4723 filas en el archivo → 2204 del periodo 08/2026
+2026-08-19 13:25:07  [etl.cif]           · DEBUG     [stdout] ℹ️  exhibiciones_gratis_detalle: 4723 filas en el archivo → 2204 del periodo 08/2026
+2026-08-19 13:25:09  [etl.nopresencia]   · DEBUG     [stdout] 🗑️  exhibiciones_gratis_detalle: 2,204 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:25:09  [etl.cif]           · DEBUG     [stdout] 🗑️  exhibiciones_gratis_detalle: 2,204 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:25:10  [etl.impactos]      ✓ INFO      Duración total: 39.3s
+2026-08-19 13:25:11  [etl.impactos_segmentos]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:25:11  [etl.orquestador]   ✓ INFO      ETL 'impactos' terminó — ✓ OK en 39.3s
+2026-08-19 13:25:11  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — iniciando
+2026-08-19 13:25:11  [etl.nopresencia]   · DEBUG     [stdout] =======================================================
+2026-08-19 13:25:11  [etl.cif]           · DEBUG     [stdout] =======================================================
+2026-08-19 13:25:11  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-08-19 13:25:11  [etl.nopresencia]   · DEBUG     [stdout] ETL — Impacto por Segmento (V2, Cloud)
+2026-08-19 13:25:11  [etl.cif]           · DEBUG     [stdout] ETL — Impacto por Segmento (V2, Cloud)
+2026-08-19 13:25:11  [etl.impactos_segmentos]  · DEBUG     [stdout] ETL — Impacto por Segmento (V2, Cloud)
+2026-08-19 13:25:11  [etl.nopresencia]   · DEBUG     [stdout] =======================================================
+2026-08-19 13:25:11  [etl.cif]           · DEBUG     [stdout] =======================================================
+2026-08-19 13:25:11  [etl.impactos_segmentos]  · DEBUG     [stdout] =======================================================
+2026-08-19 13:25:11  [etl.nopresencia]   · DEBUG     [stdout] [1/5] Descargando rutero desde SharePoint...
+2026-08-19 13:25:11  [etl.cif]           · DEBUG     [stdout] [1/5] Descargando rutero desde SharePoint...
+2026-08-19 13:25:11  [etl.impactos_segmentos]  · DEBUG     [stdout] [1/5] Descargando rutero desde SharePoint...
+2026-08-19 13:25:13  [etl.nopresencia]   ✓ INFO      [stdout] ✅ exhibiciones_gratis_detalle: 2,204 filas cargadas (08/2026)
+2026-08-19 13:25:13  [etl.cif]           ✓ INFO      [stdout] ✅ exhibiciones_gratis_detalle: 2,204 filas cargadas (08/2026)
+2026-08-19 13:25:13  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ exhibiciones_gratis_detalle: 2,204 filas cargadas (08/2026)
+2026-08-19 13:25:13  [etl.nopresencia]   · DEBUG     [stdout] ── Resumen de Exhibiciones ──────────────────────
+2026-08-19 13:25:13  [etl.cif]           · DEBUG     [stdout] ── Resumen de Exhibiciones ──────────────────────
+2026-08-19 13:25:13  [etl.impactos_segmentos]  · DEBUG     [stdout] ── Resumen de Exhibiciones ──────────────────────
+2026-08-19 13:25:13  [etl.nopresencia]   · DEBUG     [stdout] Total Exhibiciones:                                        9,971
+2026-08-19 13:25:13  [etl.cif]           · DEBUG     [stdout] Total Exhibiciones:                                        9,971
+2026-08-19 13:25:13  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones:                                        9,971
+2026-08-19 13:25:14  [etl.nopresencia]   · DEBUG     [stdout] Total Exhibiciones Gratis:                                   6,222
+2026-08-19 13:25:14  [etl.cif]           · DEBUG     [stdout] Total Exhibiciones Gratis:                                   6,222
+2026-08-19 13:25:14  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones Gratis:                                   6,222
+2026-08-19 13:25:14  [etl.nopresencia]   · DEBUG     [stdout] Total Exhibiciones Pagadas:                                 3,748
+2026-08-19 13:25:14  [etl.cif]           · DEBUG     [stdout] Total Exhibiciones Pagadas:                                 3,748
+2026-08-19 13:25:14  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones Pagadas:                                 3,748
+2026-08-19 13:25:14  [etl.nopresencia]   · DEBUG     [stdout] Total Exhibiciones Alto Impacto:                            3,988
+2026-08-19 13:25:14  [etl.cif]           · DEBUG     [stdout] Total Exhibiciones Alto Impacto:                            3,988
+2026-08-19 13:25:14  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones Alto Impacto:                            3,988
+2026-08-19 13:25:14  [etl.nopresencia]   · DEBUG     [stdout] Total Exhibiciones Medio Impacto:                           5,981
+2026-08-19 13:25:14  [etl.cif]           · DEBUG     [stdout] Total Exhibiciones Medio Impacto:                           5,981
+2026-08-19 13:25:14  [etl.impactos_segmentos]  · DEBUG     [stdout] Total Exhibiciones Medio Impacto:                           5,981
+2026-08-19 13:25:14  [etl.nopresencia]   · DEBUG     [stdout] ─────────────────────────────────────────────────
+2026-08-19 13:25:14  [etl.cif]           · DEBUG     [stdout] ─────────────────────────────────────────────────
+2026-08-19 13:25:14  [etl.impactos_segmentos]  · DEBUG     [stdout] ─────────────────────────────────────────────────
+2026-08-19 13:25:14  [etl.nopresencia]   · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado (Agosto_2026) ---
+2026-08-19 13:25:14  [etl.cif]           · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado (Agosto_2026) ---
+2026-08-19 13:25:14  [etl.impactos_segmentos]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado (Agosto_2026) ---
+2026-08-19 13:25:22  [etl.nopresencia]   · DEBUG     [stdout] Leyendo archivo desde SharePoint (4723 filas)
+2026-08-19 13:25:22  [etl.cif]           · DEBUG     [stdout] Leyendo archivo desde SharePoint (4723 filas)
+2026-08-19 13:25:22  [etl.impactos_segmentos]  · DEBUG     [stdout] Leyendo archivo desde SharePoint (4723 filas)
+2026-08-19 13:25:24  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/ANALISIS_AGOTADOS_AGOSTO_2026.xlsx
+2026-08-19 13:25:24  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/ANALISIS_AGOTADOS_AGOSTO_2026.xlsx
+2026-08-19 13:25:24  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/ANALISIS_AGOTADOS_AGOSTO_2026.xlsx
+2026-08-19 13:25:24  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ÉXITO: Reporte de Agotados guardado en SharePoint.
+2026-08-19 13:25:24  [etl.cif]           ✓ INFO      [stdout] ✅ ÉXITO: Reporte de Agotados guardado en SharePoint.
+2026-08-19 13:25:24  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ ÉXITO: Reporte de Agotados guardado en SharePoint.
+2026-08-19 13:25:32  [etl.nopresencia]   · DEBUG     [stdout] 🗑️  np_agotados_detalle: 0 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:25:32  [etl.cif]           · DEBUG     [stdout] 🗑️  np_agotados_detalle: 0 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:25:32  [etl.impactos_segmentos]  · DEBUG     [stdout] 🗑️  np_agotados_detalle: 0 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:25:39  [etl.nopresencia]   ✓ INFO      [stdout] ✅ np_agotados_detalle: 8,177 filas cargadas (08/2026)
+2026-08-19 13:25:39  [etl.cif]           ✓ INFO      [stdout] ✅ np_agotados_detalle: 8,177 filas cargadas (08/2026)
+2026-08-19 13:25:39  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ np_agotados_detalle: 8,177 filas cargadas (08/2026)
+2026-08-19 13:25:39  [etl.nopresencia]   ✓ INFO      Análisis de agotados generado
+2026-08-19 13:25:39  [etl.nopresencia]   · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN NP por gestor (Agosto_2026) ---
+2026-08-19 13:25:39  [etl.cif]           · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN NP por gestor (Agosto_2026) ---
+2026-08-19 13:25:39  [etl.impactos_segmentos]  · DEBUG     [stdout] --- PASO KPI (V3): RESUMEN NP por gestor (Agosto_2026) ---
+2026-08-19 13:25:42  [etl.nopresencia]   · DEBUG     [stdout] Leyendo desde cloud: REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx (1231 filas)
+2026-08-19 13:25:42  [etl.cif]           · DEBUG     [stdout] Leyendo desde cloud: REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx (1231 filas)
+2026-08-19 13:25:42  [etl.impactos_segmentos]  · DEBUG     [stdout] Leyendo desde cloud: REPORTE_NO_PRESENCIA_AGOSTO_2026.xlsx (1231 filas)
+2026-08-19 13:25:42  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Mes activo guardado en SharePoint: 95 empleados → KPI_Exhibiciones_Gratis.xlsx
+2026-08-19 13:25:42  [etl.cif]           ✓ INFO      [stdout] ✅ Mes activo guardado en SharePoint: 95 empleados → KPI_Exhibiciones_Gratis.xlsx
+2026-08-19 13:25:42  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Mes activo guardado en SharePoint: 95 empleados → KPI_Exhibiciones_Gratis.xlsx
+2026-08-19 13:25:45  [etl.nopresencia]   · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:45  [etl.cif]           · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:45  [etl.impactos_segmentos]  · DEBUG     [stdout] ⏳ Histórico descargado desde SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:45  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠️  CEDULA vacía en el origen para 5/1231 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:25:45  [etl.cif]           ⚠ WARNING   [stdout] ⚠️  CEDULA vacía en el origen para 5/1231 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:25:45  [etl.impactos_segmentos]  ⚠ WARNING   [stdout] ⚠️  CEDULA vacía en el origen para 5/1231 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:25:47  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Involves_Procesado_08_2026.csv
+2026-08-19 13:25:47  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Involves_Procesado_08_2026.csv
+2026-08-19 13:25:47  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Involves_Procesado_08_2026.csv
+2026-08-19 13:25:47  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Paso 3 en nube finalizado.
+2026-08-19 13:25:47  [etl.cif]           ✓ INFO      [stdout] ✅ Paso 3 en nube finalizado.
+2026-08-19 13:25:47  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Paso 3 en nube finalizado.
+2026-08-19 13:25:47  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:25:47  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:25:47  [etl.impactos_segmentos]  · DEBUG     [stdout] ========================================
+2026-08-19 13:25:47  [etl.nopresencia]   · DEBUG     [stdout] INICIANDO PASO 4: JUSTIFICACIONES NUBE  (Agosto_2026)
+2026-08-19 13:25:47  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 4: JUSTIFICACIONES NUBE  (Agosto_2026)
+2026-08-19 13:25:47  [etl.impactos_segmentos]  · DEBUG     [stdout] INICIANDO PASO 4: JUSTIFICACIONES NUBE  (Agosto_2026)
+2026-08-19 13:25:47  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:25:47  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:25:47  [etl.impactos_segmentos]  · DEBUG     [stdout] ========================================
+2026-08-19 13:25:48  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Mes activo: 118 gestores.
+2026-08-19 13:25:48  [etl.cif]           ✓ INFO      [stdout] ✅ Mes activo: 118 gestores.
+2026-08-19 13:25:48  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Mes activo: 118 gestores.
+2026-08-19 13:25:49  [etl.nopresencia]   · DEBUG     [stdout] 📂 Base puntos de venta: BASE PUNTOS DE VENTA AGOSTO 2026.xlsx
+2026-08-19 13:25:49  [etl.cif]           · DEBUG     [stdout] 📂 Base puntos de venta: BASE PUNTOS DE VENTA AGOSTO 2026.xlsx
+2026-08-19 13:25:49  [etl.impactos_segmentos]  · DEBUG     [stdout] 📂 Base puntos de venta: BASE PUNTOS DE VENTA AGOSTO 2026.xlsx
+2026-08-19 13:25:51  [etl.nopresencia]   · DEBUG     [stdout] 📂 Informe gerencial de visitas: informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:25:51  [etl.cif]           · DEBUG     [stdout] 📂 Informe gerencial de visitas: informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:25:51  [etl.impactos_segmentos]  · DEBUG     [stdout] 📂 Informe gerencial de visitas: informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:25:52  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS.xlsx
+2026-08-19 13:25:52  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS.xlsx
+2026-08-19 13:25:52  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS.xlsx
+2026-08-19 13:25:54  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Histórico actualizado en SharePoint → KPI_Exhibiciones_Gratis_Historico.xlsx
+2026-08-19 13:25:54  [etl.cif]           ✓ INFO      [stdout] ✅ Histórico actualizado en SharePoint → KPI_Exhibiciones_Gratis_Historico.xlsx
+2026-08-19 13:25:54  [etl.impactos_segmentos]  ✓ INFO      [stdout] ✅ Histórico actualizado en SharePoint → KPI_Exhibiciones_Gratis_Historico.xlsx
+2026-08-19 13:25:54  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — completado
+2026-08-19 13:25:56  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:56  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:56  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:56  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:56  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/NO PRESENCIA/NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:57  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:57  [etl.cif]           ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:57  [etl.precios]       ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:57  [etl.sos]           ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:57  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ Histórico actualizado subido a SharePoint: NO_PRESENCIA_KPIS_HISTORICO.xlsx
+2026-08-19 13:25:57  [etl.nopresencia]   ✓ INFO      KPI No Presencia consolidado y cargado
+2026-08-19 13:25:57  [etl.nopresencia]   ✓ INFO      ETL No Presencia — completado
+2026-08-19 13:25:59  [etl.exhib_gratis]  ✓ INFO      Duración total: 273.1s
+2026-08-19 13:25:59  [etl.orquestador]   ✓ INFO      ETL 'exhib_gratis' terminó — ✓ OK en 273.1s
+2026-08-19 13:26:01  [etl.nopresencia]   ✓ INFO      Duración total: 275.2s
+2026-08-19 13:26:01  [etl.orquestador]   ✓ INFO      ETL 'nopresencia' terminó — ✓ OK en 275.2s
+2026-08-19 13:27:24  [etl.sos]           ✓ INFO      Encuestas SOS consolidadas
+2026-08-19 13:27:25  [etl.sos]           ✓ INFO      Cumplimiento de captura calculado
+2026-08-19 13:27:32  [etl.sos]           ✓ INFO      Target normalizado
+2026-08-19 13:27:56  [etl.cif]           ✓ INFO      ETL CIF — completado
+2026-08-19 13:27:58  [etl.nopresencia]   · DEBUG     [stdout] → Listerine_Sandia...
+2026-08-19 13:27:58  [etl.nopresencia]   · DEBUG     [stdout] → DoyPack_J&J_Baby...
+2026-08-19 13:27:59  [etl.nopresencia]   · DEBUG     [stdout] → SKU: DoyPack_Shampoo_Baby
+2026-08-19 13:27:59  [etl.nopresencia]   · DEBUG     [stdout] → SKU: DoyPack_BañoLiquido_Baby
+2026-08-19 13:27:59  [etl.nopresencia]   · DEBUG     [stdout] → Liserine_Kids...
+2026-08-19 13:28:03  [etl.cif]           ✓ INFO      Duración total: 394.6s
+2026-08-19 13:28:03  [etl.orquestador]   ✓ INFO      ETL 'cif' terminó — ✓ OK en 394.6s
+2026-08-19 13:28:03  [etl.nopresencia]   · DEBUG     [stdout] → Visine...
+2026-08-19 13:28:03  [etl.nopresencia]   · DEBUG     [stdout] [5/5] Escribiendo Excel + dashboard en SharePoint...
+2026-08-19 13:29:16  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠ No se encontró el Plan de Trabajo SOS (AGOSTO_2026) — PARTICIPACION_SOS se calculará SIN los filtros D9 (OBSERVACIÓN) / D10 (DISCOUNTER)
+2026-08-19 13:29:16  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas_AGOSTO_2026.csv (417,109 filas)
+2026-08-19 13:29:19  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  dyp_ventas_detalle: 417109 filas en el archivo → 100368 del periodo 08/2026
+2026-08-19 13:29:23  [etl.nopresencia]   · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 18,000 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:29:25  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/SALIDAS/SOS/Reporte_SOS_Final_Calculado_AGOSTO_2026.xlsx
+2026-08-19 13:29:26  [etl.nopresencia]   · DEBUG     [stdout] 🗑️  sos_detalle: 0 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:29:27  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Archivo generado y subido a SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/impacto_segmentos.xlsx
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] Resumen por pestaña (período Agosto-2026):
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] Segmento                             PDVs   Con impacto   Sin impacto
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] ----------------------------------------------------------------------
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] MustStock                          11,839         6,842         4,997
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] Listerine_Sandia                      857           395           462
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] DoyPack_Shampoo_Baby                1,478            79         1,399
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] DoyPack_BañoLiquido_Baby            1,478            72         1,406
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] Liserine_Kids                         338           155           183
+2026-08-19 13:29:27  [etl.nopresencia]   · DEBUG     [stdout] Visine                                811           164           647
+2026-08-19 13:29:27  [etl.impactos_segmentos]  ✓ INFO      ETL Impactos por Segmento — completado
+2026-08-19 13:29:31  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 100,368 filas en lotes de 1,000…
+2026-08-19 13:29:31  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 100,368 filas en lotes de 1,000…
+2026-08-19 13:29:31  [etl.impactos_segmentos]  ✓ INFO      Duración total: 256.5s
+2026-08-19 13:29:31  [etl.orquestador]   ✓ INFO      ETL 'impactos_segmentos' terminó — ✓ OK en 256.5s
+2026-08-19 13:29:31  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3000-4000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 0-1000 (1/4) — reintento en 2s
+2026-08-19 13:29:31  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3000-4000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 0-1000 (1/4) — reintento en 2s
+2026-08-19 13:29:35  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 0-1000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 3000-4000 (2/4) — reintento en 4s
+2026-08-19 13:29:35  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 0-1000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 3000-4000 (2/4) — reintento en 4s
+2026-08-19 13:29:40  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3000-4000 (3/4) — reintento en 8s     ⏳ dyp_ventas_detalle: fallo de red en filas 0-1000 (3/4) — reintento en 8s
+2026-08-19 13:29:40  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3000-4000 (3/4) — reintento en 8s     ⏳ dyp_ventas_detalle: fallo de red en filas 0-1000 (3/4) — reintento en 8s
+2026-08-19 13:29:50  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 1000 partido en dos tras 4 intentos     ↪ lote de 1000 partido en dos tras 4 intentos
+2026-08-19 13:29:50  [etl.cif]           · DEBUG     [stdout] ↪ lote de 1000 partido en dos tras 4 intentos     ↪ lote de 1000 partido en dos tras 4 intentos
+2026-08-19 13:29:50  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 0-500 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 3000-3500 (1/4) — reintento en 2s
+2026-08-19 13:29:50  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 0-500 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 3000-3500 (1/4) — reintento en 2s
+2026-08-19 13:29:53  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 0-500 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 3000-3500 (2/4) — reintento en 4s
+2026-08-19 13:29:53  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 0-500 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 3000-3500 (2/4) — reintento en 4s
+2026-08-19 13:29:59  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3500-4000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 500-1000 (1/4) — reintento en 2s
+2026-08-19 13:29:59  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3500-4000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 500-1000 (1/4) — reintento en 2s
+2026-08-19 13:30:01  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 500-1000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 3500-4000 (2/4) — reintento en 4s
+2026-08-19 13:30:01  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 500-1000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 3500-4000 (2/4) — reintento en 4s
+2026-08-19 13:30:07  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 500-1000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 3500-4000 (3/4) — reintento en 8s
+2026-08-19 13:30:07  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 500-1000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 3500-4000 (3/4) — reintento en 8s
+2026-08-19 13:30:15  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 500 partido en dos tras 4 intentos     ↪ lote de 500 partido en dos tras 4 intentos
+2026-08-19 13:30:15  [etl.cif]           · DEBUG     [stdout] ↪ lote de 500 partido en dos tras 4 intentos     ↪ lote de 500 partido en dos tras 4 intentos
+2026-08-19 13:30:16  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3500-3750 (1/4) — reintento en 2s
+2026-08-19 13:30:16  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3500-3750 (1/4) — reintento en 2s
+2026-08-19 13:30:16  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 500-750 (1/4) — reintento en 2s
+2026-08-19 13:30:16  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 500-750 (1/4) — reintento en 2s
+2026-08-19 13:30:20  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3750-4000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 750-1000 (1/4) — reintento en 2s
+2026-08-19 13:30:20  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3750-4000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 750-1000 (1/4) — reintento en 2s
+2026-08-19 13:30:23  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 750-1000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 3750-4000 (2/4) — reintento en 4s
+2026-08-19 13:30:23  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 750-1000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 3750-4000 (2/4) — reintento en 4s
+2026-08-19 13:30:28  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 750-1000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 3750-4000 (3/4) — reintento en 8s
+2026-08-19 13:30:28  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 750-1000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 3750-4000 (3/4) — reintento en 8s
+2026-08-19 13:30:37  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 250 partido en dos tras 4 intentos     ↪ lote de 250 partido en dos tras 4 intentos
+2026-08-19 13:30:37  [etl.cif]           · DEBUG     [stdout] ↪ lote de 250 partido en dos tras 4 intentos     ↪ lote de 250 partido en dos tras 4 intentos
+2026-08-19 13:30:37  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3750-3875 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 750-875 (1/4) — reintento en 2s
+2026-08-19 13:30:37  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3750-3875 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 750-875 (1/4) — reintento en 2s
+2026-08-19 13:30:40  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3750-3875 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 750-875 (2/4) — reintento en 4s
+2026-08-19 13:30:40  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 3750-3875 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 750-875 (2/4) — reintento en 4s
+2026-08-19 13:30:45  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 4000-5000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 1000-2000 (1/4) — reintento en 2s
+2026-08-19 13:30:45  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 4000-5000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 1000-2000 (1/4) — reintento en 2s
+2026-08-19 13:30:48  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1000-2000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 4000-5000 (2/4) — reintento en 4s
+2026-08-19 13:30:48  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1000-2000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 4000-5000 (2/4) — reintento en 4s
+2026-08-19 13:30:54  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1000-2000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 4000-5000 (3/4) — reintento en 8s
+2026-08-19 13:30:54  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1000-2000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 4000-5000 (3/4) — reintento en 8s
+2026-08-19 13:31:03  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 1000 partido en dos tras 4 intentos     ↪ lote de 1000 partido en dos tras 4 intentos
+2026-08-19 13:31:03  [etl.cif]           · DEBUG     [stdout] ↪ lote de 1000 partido en dos tras 4 intentos     ↪ lote de 1000 partido en dos tras 4 intentos
+2026-08-19 13:31:04  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1000-1500 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 4000-4500 (1/4) — reintento en 2s
+2026-08-19 13:31:04  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1000-1500 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 4000-4500 (1/4) — reintento en 2s
+2026-08-19 13:31:06  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 4000-4500 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 1000-1500 (2/4) — reintento en 4s
+2026-08-19 13:31:06  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 4000-4500 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 1000-1500 (2/4) — reintento en 4s
+2026-08-19 13:31:12  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1000-1500 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 4000-4500 (3/4) — reintento en 8s
+2026-08-19 13:31:12  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1000-1500 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 4000-4500 (3/4) — reintento en 8s
+2026-08-19 13:31:21  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 500 partido en dos tras 4 intentos     ↪ lote de 500 partido en dos tras 4 intentos
+2026-08-19 13:31:21  [etl.cif]           · DEBUG     [stdout] ↪ lote de 500 partido en dos tras 4 intentos     ↪ lote de 500 partido en dos tras 4 intentos
+2026-08-19 13:31:23  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 4500-5000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 1500-2000 (1/4) — reintento en 2s
+2026-08-19 13:31:23  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 4500-5000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 1500-2000 (1/4) — reintento en 2s
+2026-08-19 13:31:28  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1500-2000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 4500-5000 (2/4) — reintento en 4s
+2026-08-19 13:31:28  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1500-2000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 4500-5000 (2/4) — reintento en 4s
+2026-08-19 13:31:33  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1500-2000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 4500-5000 (3/4) — reintento en 8s
+2026-08-19 13:31:33  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1500-2000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 4500-5000 (3/4) — reintento en 8s
+2026-08-19 13:31:43  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 500 partido en dos tras 4 intentos     ↪ lote de 500 partido en dos tras 4 intentos
+2026-08-19 13:31:43  [etl.cif]           · DEBUG     [stdout] ↪ lote de 500 partido en dos tras 4 intentos     ↪ lote de 500 partido en dos tras 4 intentos
+2026-08-19 13:31:44  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1750-2000 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 4750-5000 (1/4) — reintento en 2s
+2026-08-19 13:31:44  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1750-2000 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 4750-5000 (1/4) — reintento en 2s
+2026-08-19 13:31:47  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 4750-5000 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 1750-2000 (2/4) — reintento en 4s
+2026-08-19 13:31:47  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 4750-5000 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 1750-2000 (2/4) — reintento en 4s
+2026-08-19 13:31:51  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1750-2000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 4750-5000 (3/4) — reintento en 8s
+2026-08-19 13:31:51  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1750-2000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 4750-5000 (3/4) — reintento en 8s
+2026-08-19 13:32:01  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 250 partido en dos tras 4 intentos     ↪ lote de 250 partido en dos tras 4 intentos
+2026-08-19 13:32:01  [etl.cif]           · DEBUG     [stdout] ↪ lote de 250 partido en dos tras 4 intentos     ↪ lote de 250 partido en dos tras 4 intentos
+2026-08-19 13:32:02  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1875-2000 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 5000-6000 (1/4) — reintento en 2s
+2026-08-19 13:32:02  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1875-2000 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 5000-6000 (1/4) — reintento en 2s
+2026-08-19 13:32:05  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 5000-6000 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 1875-2000 (2/4) — reintento en 4s
+2026-08-19 13:32:05  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 5000-6000 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 1875-2000 (2/4) — reintento en 4s
+2026-08-19 13:32:10  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 5000-6000 (3/4) — reintento en 8s     ⏳ dyp_ventas_detalle: fallo de red en filas 1875-2000 (3/4) — reintento en 8s
+2026-08-19 13:32:10  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 5000-6000 (3/4) — reintento en 8s     ⏳ dyp_ventas_detalle: fallo de red en filas 1875-2000 (3/4) — reintento en 8s
+2026-08-19 13:32:20  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 125 partido en dos tras 4 intentos     ↪ lote de 1000 partido en dos tras 4 intentos
+2026-08-19 13:32:20  [etl.cif]           · DEBUG     [stdout] ↪ lote de 125 partido en dos tras 4 intentos     ↪ lote de 1000 partido en dos tras 4 intentos
+2026-08-19 13:32:20  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1875-1937 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 5000-5500 (1/4) — reintento en 2s
+2026-08-19 13:32:20  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 1875-1937 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 5000-5500 (1/4) — reintento en 2s
+2026-08-19 13:32:24  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 2000-3000 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 5500-6000 (1/4) — reintento en 2s
+2026-08-19 13:32:24  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 2000-3000 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 5500-6000 (1/4) — reintento en 2s
+2026-08-19 13:32:26  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 5500-6000 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 2000-3000 (2/4) — reintento en 4s
+2026-08-19 13:32:26  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 5500-6000 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 2000-3000 (2/4) — reintento en 4s
+2026-08-19 13:32:32  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 6000-7000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 3000-4000 (1/4) — reintento en 2s
+2026-08-19 13:32:32  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 6000-7000 (1/4) — reintento en 2s     ⏳ dyp_ventas_detalle: fallo de red en filas 3000-4000 (1/4) — reintento en 2s
+2026-08-19 13:32:36  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 6000-7000 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 3000-4000 (2/4) — reintento en 4s
+2026-08-19 13:32:36  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 6000-7000 (2/4) — reintento en 4s     ⏳ dyp_ventas_detalle: fallo de red en filas 3000-4000 (2/4) — reintento en 4s
+2026-08-19 13:32:41  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3000-4000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 6000-7000 (3/4) — reintento en 8s
+2026-08-19 13:32:41  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3000-4000 (3/4) — reintento en 8s     ⏳ sos_detalle: fallo de red en filas 6000-7000 (3/4) — reintento en 8s
+2026-08-19 13:32:50  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 1000 partido en dos tras 4 intentos     ↪ lote de 1000 partido en dos tras 4 intentos
+2026-08-19 13:32:50  [etl.cif]           · DEBUG     [stdout] ↪ lote de 1000 partido en dos tras 4 intentos     ↪ lote de 1000 partido en dos tras 4 intentos
+2026-08-19 13:32:51  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3000-3500 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 6000-6500 (1/4) — reintento en 2s
+2026-08-19 13:32:51  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3000-3500 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 6000-6500 (1/4) — reintento en 2s
+2026-08-19 13:32:53  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3000-3500 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 6000-6500 (2/4) — reintento en 4s
+2026-08-19 13:32:53  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3000-3500 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 6000-6500 (2/4) — reintento en 4s
+2026-08-19 13:32:58  [etl.nopresencia]   · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 6000-6500 (3/4) — reintento en 8s     ⏳ dyp_ventas_detalle: fallo de red en filas 3000-3500 (3/4) — reintento en 8s
+2026-08-19 13:32:58  [etl.cif]           · DEBUG     [stdout] ⏳ sos_detalle: fallo de red en filas 6000-6500 (3/4) — reintento en 8s     ⏳ dyp_ventas_detalle: fallo de red en filas 3000-3500 (3/4) — reintento en 8s
+2026-08-19 13:33:08  [etl.nopresencia]   · DEBUG     [stdout] ↪ lote de 500 partido en dos tras 4 intentos     ↪ lote de 500 partido en dos tras 4 intentos
+2026-08-19 13:33:08  [etl.cif]           · DEBUG     [stdout] ↪ lote de 500 partido en dos tras 4 intentos     ↪ lote de 500 partido en dos tras 4 intentos
+2026-08-19 13:33:12  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3500-4000 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 7000-7792 (1/4) — reintento en 2s
+2026-08-19 13:33:12  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3500-4000 (1/4) — reintento en 2s     ⏳ sos_detalle: fallo de red en filas 7000-7792 (1/4) — reintento en 2s
+2026-08-19 13:33:15  [etl.nopresencia]   · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3500-4000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 7000-7792 (2/4) — reintento en 4s
+2026-08-19 13:33:15  [etl.cif]           · DEBUG     [stdout] ⏳ dyp_ventas_detalle: fallo de red en filas 3500-4000 (2/4) — reintento en 4s     ⏳ sos_detalle: fallo de red en filas 7000-7792 (2/4) — reintento en 4s
+2026-08-19 13:33:21  [etl.nopresencia]   ✓ INFO      [stdout] ✅ sos_detalle: 7,792 filas cargadas (08/2026)
+2026-08-19 13:33:21  [etl.cif]           ✓ INFO      [stdout] ✅ sos_detalle: 7,792 filas cargadas (08/2026)
+2026-08-19 13:33:21  [etl.nopresencia]   ✓ INFO      [stdout] ✅ EXITO: Reporte Final SOS subido a SharePoint.
+2026-08-19 13:33:21  [etl.cif]           ✓ INFO      [stdout] ✅ EXITO: Reporte Final SOS subido a SharePoint.
+2026-08-19 13:33:21  [etl.sos]           ✓ INFO      Cruce triple y cálculo SOS completado
+2026-08-19 13:33:21  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 6 (V3): RESUMEN KPI SOS por gestor (Agosto_2026) ---
+2026-08-19 13:33:21  [etl.cif]           · DEBUG     [stdout] --- PASO 6 (V3): RESUMEN KPI SOS por gestor (Agosto_2026) ---
+2026-08-19 13:33:24  [etl.nopresencia]   ✗ ERROR     [stdout] ❌ No existe cumplimiento en SharePoint para AGOSTO_2026
+2026-08-19 13:33:24  [etl.cif]           ✗ ERROR     [stdout] ❌ No existe cumplimiento en SharePoint para AGOSTO_2026
+2026-08-19 13:33:24  [etl.sos]           ✓ INFO      KPI SOS consolidado
+2026-08-19 13:33:24  [etl.sos]           ✓ INFO      ETL SOS — completado
+2026-08-19 13:33:29  [etl.sos]           ✓ INFO      Duración total: 722.2s
+2026-08-19 13:33:29  [etl.orquestador]   ✓ INFO      ETL 'sos' terminó — ✓ OK en 722.2s
+2026-08-19 13:33:51  [etl.nopresencia]   · DEBUG     [stdout] 25,000/100,368 (24%)
+2026-08-19 13:33:51  [etl.cif]           · DEBUG     [stdout] 25,000/100,368 (24%)
+2026-08-19 13:33:51  [etl.precios]       · DEBUG     [stdout] 25,000/100,368 (24%)
+2026-08-19 13:34:22  [etl.nopresencia]   · DEBUG     [stdout] 50,000/100,368 (49%)
+2026-08-19 13:34:22  [etl.cif]           · DEBUG     [stdout] 50,000/100,368 (49%)
+2026-08-19 13:34:22  [etl.precios]       · DEBUG     [stdout] 50,000/100,368 (49%)
+2026-08-19 13:34:59  [etl.nopresencia]   · DEBUG     [stdout] 75,000/100,368 (74%)
+2026-08-19 13:34:59  [etl.cif]           · DEBUG     [stdout] 75,000/100,368 (74%)
+2026-08-19 13:34:59  [etl.precios]       · DEBUG     [stdout] 75,000/100,368 (74%)
+2026-08-19 13:35:34  [etl.nopresencia]   · DEBUG     [stdout] 100,000/100,368 (99%)
+2026-08-19 13:35:34  [etl.cif]           · DEBUG     [stdout] 100,000/100,368 (99%)
+2026-08-19 13:35:34  [etl.precios]       · DEBUG     [stdout] 100,000/100,368 (99%)
+2026-08-19 13:35:34  [etl.nopresencia]   · DEBUG     [stdout] 100,368/100,368 (100%)
+2026-08-19 13:35:34  [etl.cif]           · DEBUG     [stdout] 100,368/100,368 (100%)
+2026-08-19 13:35:34  [etl.precios]       · DEBUG     [stdout] 100,368/100,368 (100%)
+2026-08-19 13:35:34  [etl.nopresencia]   ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 100,368 filas cargadas (08/2026)
+2026-08-19 13:35:34  [etl.cif]           ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 100,368 filas cargadas (08/2026)
+2026-08-19 13:35:34  [etl.precios]       ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 100,368 filas cargadas (08/2026)
+2026-08-19 13:35:34  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-19 13:35:34  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-19 13:35:34  [etl.precios]       · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-19 13:35:36  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-19 13:35:36  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-19 13:35:36  [etl.precios]       · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-19 13:35:37  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-19 13:35:37  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-19 13:35:37  [etl.precios]       · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-19 13:35:38  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-19 13:35:38  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-19 13:35:38  [etl.precios]       · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-19 13:35:39  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-19 13:35:39  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-19 13:35:39  [etl.precios]       · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-19 13:35:41  [etl.nopresencia]   · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-19 13:35:41  [etl.cif]           · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-19 13:35:41  [etl.precios]       · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-19 13:35:44  [etl.nopresencia]   ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos_AGOSTO_2026.csv (408 filas)
+2026-08-19 13:35:44  [etl.cif]           ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos_AGOSTO_2026.csv (408 filas)
+2026-08-19 13:35:44  [etl.precios]       ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos_AGOSTO_2026.csv (408 filas)
+2026-08-19 13:35:44  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 08/2026
+2026-08-19 13:35:44  [etl.cif]           · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 08/2026
+2026-08-19 13:35:44  [etl.precios]       · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 08/2026
+2026-08-19 13:35:45  [etl.nopresencia]   · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:35:45  [etl.cif]           · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:35:45  [etl.precios]       · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 08/2026 eliminadas
+2026-08-19 13:35:45  [etl.nopresencia]   ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (08/2026)
+2026-08-19 13:35:45  [etl.cif]           ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (08/2026)
+2026-08-19 13:35:45  [etl.precios]       ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (08/2026)
+2026-08-19 13:35:45  [etl.nopresencia]   ✗ ERROR     [stdout] ❌ Sin archivos de impacto_segmentos para consolidar en la nube.
+2026-08-19 13:35:45  [etl.cif]           ✗ ERROR     [stdout] ❌ Sin archivos de impacto_segmentos para consolidar en la nube.
+2026-08-19 13:35:45  [etl.precios]       ✗ ERROR     [stdout] ❌ Sin archivos de impacto_segmentos para consolidar en la nube.
+2026-08-19 13:35:45  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (417,109 filas en consolidado)
+2026-08-19 13:35:50  [etl.ventas]        ✓ INFO      Duración total: 781.4s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 781.4s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        cif                    ✓ OK             394.6s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        nopresencia            ✓ OK             275.2s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        precios                ✓ OK             177.9s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        sos                    ✓ OK             722.2s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        exhib_pagadas          ✓ OK              74.0s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        exhib_gratis           ✓ OK             273.1s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK             781.4s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        impactos               ✓ OK              39.3s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        impactos_segmentos     ✓ OK             256.5s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              11.4s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        879.8s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                 3005.6s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        Ahorro estimado                        2125.8s
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  5 ERROR  |  13 WARNING
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ························································
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        ERROR (5)
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ························································
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:33:24  [nopresencia]       [stdout] ❌ No existe cumplimiento en SharePoint para AGOSTO_2026
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:33:24  [cif]               [stdout] ❌ No existe cumplimiento en SharePoint para AGOSTO_2026
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:35:45  [nopresencia]       [stdout] ❌ Sin archivos de impacto_segmentos para consolidar en la nube.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:35:45  [cif]               [stdout] ❌ Sin archivos de impacto_segmentos para consolidar en la nube.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:35:45  [precios]           [stdout] ❌ Sin archivos de impacto_segmentos para consolidar en la nube.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ························································
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        WARNING (13)
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ························································
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:21:10  [shared_loader]     PT Directo y ISM no están en local para periodo 08/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:24:11  [nopresencia]       [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:24:11  [cif]               [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:24:11  [precios]           [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:24:11  [sos]               [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:24:11  [ventas]            [stdout] ⚠️  CEDULA vacía en el origen para 1/804 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:24:51  [nopresencia]       [stdout] ⚠️ No pude leer el consolidado previo de impactos ('MES'); reconstruyo desde cero
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:24:51  [cif]               [stdout] ⚠️ No pude leer el consolidado previo de impactos ('MES'); reconstruyo desde cero
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:24:51  [impactos]          [stdout] ⚠️ No pude leer el consolidado previo de impactos ('MES'); reconstruyo desde cero
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:25:45  [nopresencia]       [stdout] ⚠️  CEDULA vacía en el origen para 5/1231 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:25:45  [cif]               [stdout] ⚠️  CEDULA vacía en el origen para 5/1231 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:25:45  [impactos_segmentos]  [stdout] ⚠️  CEDULA vacía en el origen para 5/1231 filas — esas personas no van a poder cruzar por cédula, solo por nombre.
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO        13:29:16  [nopresencia]       [stdout] ⚠ No se encontró el Plan de Trabajo SOS (AGOSTO_2026) — PARTICIPACION_SOS se calculará SIN los filtros D9 (OBSERVACIÓN) / D10 (DISCOUNTER)
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260819_132110.log
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      Fin: 2026-08-19 13:35:50
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      FASE FINAL — Regenerando capa GOLD
+2026-08-19 13:35:50  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-08-19 13:35:50  [etl.nopresencia]   · DEBUG     [stdout] ☁️  Output: Equipo Información/BI/INVOLVES/SALIDAS/GOLD (SharePoint)
+2026-08-19 13:35:50  [etl.cif]           · DEBUG     [stdout] ☁️  Output: Equipo Información/BI/INVOLVES/SALIDAS/GOLD (SharePoint)
+2026-08-19 13:35:50  [etl.precios]       · DEBUG     [stdout] ☁️  Output: Equipo Información/BI/INVOLVES/SALIDAS/GOLD (SharePoint)
+2026-08-19 13:35:50  [etl.sos]           · DEBUG     [stdout] ☁️  Output: Equipo Información/BI/INVOLVES/SALIDAS/GOLD (SharePoint)
+2026-08-19 13:35:50  [etl.nopresencia]   · DEBUG     [stdout] 🔍 Filtrando a periodos: Agosto_2026
+2026-08-19 13:35:50  [etl.cif]           · DEBUG     [stdout] 🔍 Filtrando a periodos: Agosto_2026
+2026-08-19 13:35:50  [etl.precios]       · DEBUG     [stdout] 🔍 Filtrando a periodos: Agosto_2026
+2026-08-19 13:35:50  [etl.sos]           · DEBUG     [stdout] 🔍 Filtrando a periodos: Agosto_2026
+2026-08-19 13:35:58  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠  CIF histórico no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): No se pudo descargar CIF histórico desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): 404
+2026-08-19 13:35:58  [etl.cif]           ⚠ WARNING   [stdout] ⚠  CIF histórico no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): No se pudo descargar CIF histórico desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): 404
+2026-08-19 13:35:58  [etl.precios]       ⚠ WARNING   [stdout] ⚠  CIF histórico no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): No se pudo descargar CIF histórico desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): 404
+2026-08-19 13:35:58  [etl.sos]           ⚠ WARNING   [stdout] ⚠  CIF histórico no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): No se pudo descargar CIF histórico desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): 404
+2026-08-19 13:36:12  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠  Exh. Pagadas histórico no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): No se pudo descargar Exh. Pagadas histórico desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): 404
+2026-08-19 13:36:12  [etl.cif]           ⚠ WARNING   [stdout] ⚠  Exh. Pagadas histórico no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): No se pudo descargar Exh. Pagadas histórico desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): 404
+2026-08-19 13:36:12  [etl.precios]       ⚠ WARNING   [stdout] ⚠  Exh. Pagadas histórico no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): No se pudo descargar Exh. Pagadas histórico desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): 404
+2026-08-19 13:36:12  [etl.sos]           ⚠ WARNING   [stdout] ⚠  Exh. Pagadas histórico no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): No se pudo descargar Exh. Pagadas histórico desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): 404
+2026-08-19 13:36:17  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠ NP histórico: 19 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.cif]           ⚠ WARNING   [stdout] ⚠ NP histórico: 19 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.precios]       ⚠ WARNING   [stdout] ⚠ NP histórico: 19 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.sos]           ⚠ WARNING   [stdout] ⚠ NP histórico: 19 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠ Precios histórico: 2 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.cif]           ⚠ WARNING   [stdout] ⚠ Precios histórico: 2 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.precios]       ⚠ WARNING   [stdout] ⚠ Precios histórico: 2 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.sos]           ⚠ WARNING   [stdout] ⚠ Precios histórico: 2 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠ SOS histórico: 7 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.cif]           ⚠ WARNING   [stdout] ⚠ SOS histórico: 7 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.precios]       ⚠ WARNING   [stdout] ⚠ SOS histórico: 7 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:17  [etl.sos]           ⚠ WARNING   [stdout] ⚠ SOS histórico: 7 fila(s) duplicada(s) por persona/periodo — se conserva la última
+2026-08-19 13:36:20  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          131 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_cumplimientos_gestor.csv
+2026-08-19 13:36:20  [etl.cif]           ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          131 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_cumplimientos_gestor.csv
+2026-08-19 13:36:20  [etl.precios]       ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          131 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_cumplimientos_gestor.csv
+2026-08-19 13:36:20  [etl.sos]           ✓ INFO      [stdout] ✓ fact_cumplimientos_gestor          131 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_cumplimientos_gestor.csv
+2026-08-19 13:36:31  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_cif_pdv                     4,942 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_cif_pdv.csv
+2026-08-19 13:36:31  [etl.cif]           ✓ INFO      [stdout] ✓ fact_cif_pdv                     4,942 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_cif_pdv.csv
+2026-08-19 13:36:31  [etl.precios]       ✓ INFO      [stdout] ✓ fact_cif_pdv                     4,942 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_cif_pdv.csv
+2026-08-19 13:36:31  [etl.sos]           ✓ INFO      [stdout] ✓ fact_cif_pdv                     4,942 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_cif_pdv.csv
+2026-08-19 13:36:40  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_np_reporte                  1,231 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_np_reporte.csv
+2026-08-19 13:36:40  [etl.cif]           ✓ INFO      [stdout] ✓ fact_np_reporte                  1,231 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_np_reporte.csv
+2026-08-19 13:36:40  [etl.precios]       ✓ INFO      [stdout] ✓ fact_np_reporte                  1,231 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_np_reporte.csv
+2026-08-19 13:36:40  [etl.sos]           ✓ INFO      [stdout] ✓ fact_np_reporte                  1,231 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_np_reporte.csv
+2026-08-19 13:36:50  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_np_agotados                 8,177 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_np_agotados.csv
+2026-08-19 13:36:50  [etl.cif]           ✓ INFO      [stdout] ✓ fact_np_agotados                 8,177 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_np_agotados.csv
+2026-08-19 13:36:50  [etl.precios]       ✓ INFO      [stdout] ✓ fact_np_agotados                 8,177 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_np_agotados.csv
+2026-08-19 13:36:50  [etl.sos]           ✓ INFO      [stdout] ✓ fact_np_agotados                 8,177 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_np_agotados.csv
+2026-08-19 13:36:59  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_precios_captura               804 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_precios_captura.csv
+2026-08-19 13:36:59  [etl.cif]           ✓ INFO      [stdout] ✓ fact_precios_captura               804 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_precios_captura.csv
+2026-08-19 13:36:59  [etl.precios]       ✓ INFO      [stdout] ✓ fact_precios_captura               804 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_precios_captura.csv
+2026-08-19 13:36:59  [etl.sos]           ✓ INFO      [stdout] ✓ fact_precios_captura               804 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_precios_captura.csv
+2026-08-19 13:37:12  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_precios_analisis           19,043 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_precios_analisis.csv
+2026-08-19 13:37:12  [etl.cif]           ✓ INFO      [stdout] ✓ fact_precios_analisis           19,043 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_precios_analisis.csv
+2026-08-19 13:37:12  [etl.precios]       ✓ INFO      [stdout] ✓ fact_precios_analisis           19,043 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_precios_analisis.csv
+2026-08-19 13:37:12  [etl.sos]           ✓ INFO      [stdout] ✓ fact_precios_analisis           19,043 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_precios_analisis.csv
+2026-08-19 13:37:26  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_sos_pdv                     7,792 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_sos_pdv.csv
+2026-08-19 13:37:26  [etl.cif]           ✓ INFO      [stdout] ✓ fact_sos_pdv                     7,792 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_sos_pdv.csv
+2026-08-19 13:37:26  [etl.precios]       ✓ INFO      [stdout] ✓ fact_sos_pdv                     7,792 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_sos_pdv.csv
+2026-08-19 13:37:26  [etl.sos]           ✓ INFO      [stdout] ✓ fact_sos_pdv                     7,792 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_sos_pdv.csv
+2026-08-19 13:37:36  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_exh_pagadas                 2,768 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_exh_pagadas.csv
+2026-08-19 13:37:36  [etl.cif]           ✓ INFO      [stdout] ✓ fact_exh_pagadas                 2,768 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_exh_pagadas.csv
+2026-08-19 13:37:36  [etl.precios]       ✓ INFO      [stdout] ✓ fact_exh_pagadas                 2,768 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_exh_pagadas.csv
+2026-08-19 13:37:36  [etl.sos]           ✓ INFO      [stdout] ✓ fact_exh_pagadas                 2,768 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_exh_pagadas.csv
+2026-08-19 13:37:43  [etl.nopresencia]   ✓ INFO      [stdout] ✓ fact_exh_gratis                  2,204 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_exh_gratis.csv
+2026-08-19 13:37:43  [etl.cif]           ✓ INFO      [stdout] ✓ fact_exh_gratis                  2,204 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_exh_gratis.csv
+2026-08-19 13:37:43  [etl.precios]       ✓ INFO      [stdout] ✓ fact_exh_gratis                  2,204 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_exh_gratis.csv
+2026-08-19 13:37:43  [etl.sos]           ✓ INFO      [stdout] ✓ fact_exh_gratis                  2,204 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/fact_exh_gratis.csv
+2026-08-19 13:37:49  [etl.nopresencia]   ✓ INFO      [stdout] ✓ dim_personas                       222 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_personas.csv
+2026-08-19 13:37:49  [etl.cif]           ✓ INFO      [stdout] ✓ dim_personas                       222 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_personas.csv
+2026-08-19 13:37:49  [etl.precios]       ✓ INFO      [stdout] ✓ dim_personas                       222 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_personas.csv
+2026-08-19 13:37:49  [etl.sos]           ✓ INFO      [stdout] ✓ dim_personas                       222 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_personas.csv
+2026-08-19 13:38:00  [etl.nopresencia]   ✓ INFO      [stdout] ✓ dim_pdv                          4,158 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_pdv.csv
+2026-08-19 13:38:00  [etl.cif]           ✓ INFO      [stdout] ✓ dim_pdv                          4,158 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_pdv.csv
+2026-08-19 13:38:00  [etl.precios]       ✓ INFO      [stdout] ✓ dim_pdv                          4,158 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_pdv.csv
+2026-08-19 13:38:00  [etl.sos]           ✓ INFO      [stdout] ✓ dim_pdv                          4,158 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_pdv.csv
+2026-08-19 13:38:03  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠  KPIS_CIF_HISTORICO.xlsx no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): No se pudo descargar KPIS_CIF_HISTORICO.xlsx desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): 404
+2026-08-19 13:38:03  [etl.cif]           ⚠ WARNING   [stdout] ⚠  KPIS_CIF_HISTORICO.xlsx no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): No se pudo descargar KPIS_CIF_HISTORICO.xlsx desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): 404
+2026-08-19 13:38:03  [etl.precios]       ⚠ WARNING   [stdout] ⚠  KPIS_CIF_HISTORICO.xlsx no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): No se pudo descargar KPIS_CIF_HISTORICO.xlsx desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): 404
+2026-08-19 13:38:03  [etl.sos]           ⚠ WARNING   [stdout] ⚠  KPIS_CIF_HISTORICO.xlsx no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): No se pudo descargar KPIS_CIF_HISTORICO.xlsx desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/CIF/KPIS_CIF_HISTORICO.xlsx): 404
+2026-08-19 13:38:17  [etl.nopresencia]   ⚠ WARNING   [stdout] ⚠  EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): No se pudo descargar EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): 404
+2026-08-19 13:38:17  [etl.cif]           ⚠ WARNING   [stdout] ⚠  EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): No se pudo descargar EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): 404
+2026-08-19 13:38:17  [etl.precios]       ⚠ WARNING   [stdout] ⚠  EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): No se pudo descargar EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): 404
+2026-08-19 13:38:17  [etl.sos]           ⚠ WARNING   [stdout] ⚠  EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx no encontrado en SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): No se pudo descargar EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx desde SharePoint (Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/EXHIBICIONES_PAGADAS_KPIS_HISTORICO.xlsx): 404
+2026-08-19 13:38:23  [etl.nopresencia]   ✓ INFO      [stdout] ✓ dim_periodo                          1 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_periodo.csv
+2026-08-19 13:38:23  [etl.cif]           ✓ INFO      [stdout] ✓ dim_periodo                          1 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_periodo.csv
+2026-08-19 13:38:23  [etl.precios]       ✓ INFO      [stdout] ✓ dim_periodo                          1 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_periodo.csv
+2026-08-19 13:38:23  [etl.sos]           ✓ INFO      [stdout] ✓ dim_periodo                          1 filas → Equipo Información/BI/INVOLVES/SALIDAS/GOLD/dim_periodo.csv
+2026-08-19 13:38:23  [etl.orquestador]   ✓ INFO      GOLD regenerado OK

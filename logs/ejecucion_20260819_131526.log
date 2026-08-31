@@ -1,0 +1,4 @@
+2026-08-19 13:15:26  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_20260819_131526.log
+2026-08-19 13:15:26  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 1 PDVs DISCOUNTER excluidos
+2026-08-19 13:15:26  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 3 → 1 filas
+2026-08-19 13:15:26  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 1 filas retenidas

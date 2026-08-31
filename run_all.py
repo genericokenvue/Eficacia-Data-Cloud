@@ -204,13 +204,10 @@ def _run_precios(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     df_pt_unificado['ID_PDV_INVOLVES'] = df_pt_unificado['ID_PDV_INVOLVES'].astype(str).str.strip()
     df_pt_unificado = df_pt_unificado.groupby('ID_PDV_INVOLVES').first().reset_index()
 
-    ruta_pt_final = os.path.join(str(paths.CIF_PT_DIR), f"Plan_Trabajo_Precios_{periodo}.xlsx")
-    
-    # Asegurar que el directorio local exista antes de escribir el archivo
-    os.makedirs(os.path.dirname(ruta_pt_final), exist_ok=True)
-    
-    df_pt_unificado.to_excel(ruta_pt_final, index=False)
-    log.info(f"PT filtrado persistido: {len(df_pt_unificado):,} PDVs únicos — periodo {periodo}")
+    # El PT va directo a los pasos siguientes como DataFrame. Antes se escribía
+    # además una copia local en BASES/CIF/PLAN DE TRABAJO, pero nadie la leía:
+    # cuando Precios necesita recuperar su PT, lo busca en SharePoint.
+    log.info(f"PT filtrado para Precios: {len(df_pt_unificado):,} PDVs únicos — periodo {periodo}")
 
     # Delegamos la ejecución pasando headers y site_id a todo el flujo
     generar_reporte_captura_precios(df_pt_unificado, periodo, spec, headers, site_id)
@@ -245,26 +242,40 @@ def _run_sos(df_pt: pd.DataFrame, mes: int, anio: int) -> None:
     df_pt_unificado['ID_PDV_INVOLVES'] = df_pt_unificado['ID_PDV_INVOLVES'].astype(str).str.strip()
     df_pt_unificado = df_pt_unificado.groupby('ID_PDV_INVOLVES').first().reset_index()
     
-    ruta_salida = Path("pt_consolidado_sos_final.xlsx")
-    df_pt_unificado.to_excel(ruta_salida, index=False)
-    log.info(f"PT filtrado persistido: {len(df_pt_unificado):,} PDVs únicos")
+    # El PT va directo al paso 3 como DataFrame. Antes se escribía además en
+    # 'pt_consolidado_sos_final.xlsx' (en el directorio desde donde se ejecuta
+    # el comando), pero ningún script lo leía: quedaba de una versión anterior
+    # en que SOS tomaba su PT del disco.
+    log.info(f"PT filtrado para SOS: {len(df_pt_unificado):,} PDVs únicos")
 
     # Autenticación requerida por los pasos nativos de etl_sos
     token = etl_sos.obtener_token_azure()
     headers = {"Authorization": f"Bearer {token}"}
     site_id = etl_sos.obtener_site_id(headers)
 
-    # Delegamos la ejecución secuencial pasando los argumentos que exige el módulo
-    etl_sos.ejecutar_paso_2_consolidar_encuestas(spec, headers, site_id)
-    log.info("Encuestas SOS consolidadas")
+    # Delegamos la ejecución secuencial pasando los argumentos que exige el módulo.
+    #
+    # El paso 2 devuelve la encuesta consolidada y hay que pasársela al paso 3.
+    # Antes se le pasaba un DataFrame vacío: el paso 3 lo interpretaba como
+    # "no me dieron datos" e intentaba recargarlos de SharePoint buscando
+    # Plan_Trabajo_SOS_Completo_<periodo>.xlsx, que run_all nunca genera porque
+    # no llama al paso 1. Al no encontrarlo devolvía vacío sin avisar, no se
+    # creaba Cumplimiento_Captura_SOS_<periodo>.xlsx, y el paso 6 terminaba con
+    # "No existe cumplimiento en SharePoint".
+    df_enc_sos, _ = etl_sos.ejecutar_paso_2_consolidar_encuestas(spec, headers, site_id)
+    log.info(f"Encuestas SOS consolidadas ({len(df_enc_sos):,} filas)")
 
-    etl_sos.ejecutar_paso_3_cumplimiento_captura(df_pt_unificado, pd.DataFrame(), spec, headers, site_id)
+    etl_sos.ejecutar_paso_3_cumplimiento_captura(df_pt_unificado, df_enc_sos, spec, headers, site_id)
     log.info("Cumplimiento de captura calculado")
 
     etl_sos.ejecutar_paso_4_normalizar_target_dinamico(spec, headers, site_id)
     log.info("Target normalizado")
 
-    etl_sos.ejecutar_paso_5_cruce_triple_y_calculo(spec, headers, site_id)
+    # Se le pasa el PT para que aplique D9/D10: run_all no ejecuta el paso 1,
+    # así que el archivo Plan_Trabajo_SOS_Completo_* no existe y sin esto el
+    # cálculo de participación salía sin filtrar.
+    etl_sos.ejecutar_paso_5_cruce_triple_y_calculo(
+        spec, headers, site_id, df_pt=df_pt_unificado)
     log.info("Cruce triple y cálculo SOS completado")
 
     etl_sos.generar_resumen_kpi_sos(spec, headers, site_id)
@@ -370,7 +381,10 @@ REGISTRO_ETLS = {
     "exhib_gratis"       : {"fn": _run_exhibiciones_gratis,    "clave_pt": None},
     "ventas"             : {"fn": _run_ventas,                 "clave_pt": None},
     "impactos"           : {"fn": _run_impactos,               "clave_pt": None},
-    "impactos_segmentos" : {"fn": _run_impactos_segmentos,     "clave_pt": None},
+    # impactos_segmentos LEE el Consolidado_Ventas.csv que produce `ventas`,
+    # así que no puede correr en paralelo con él: tiene que esperarlo.
+    "impactos_segmentos" : {"fn": _run_impactos_segmentos,     "clave_pt": None,
+                            "depende_de": ("ventas",)},
 }
 
 
@@ -624,25 +638,61 @@ def orquestar(
 
         tareas.append((nombre, cfg["fn"], df_pt, spec))
 
-    separador(log_sys, "─")
-    log_sys.info(f"FASE 1 — Lanzando {len(tareas)} ETLs en paralelo "
-                 f"({len(skipped)} skipped)")
-    separador(log_sys, "─")
-
     resultados: dict = {}
     for nom in skipped:
         resultados[nom] = {"tiempo": 0.0, "error": None, "skipped": True}
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futuros = {
-            executor.submit(_ejecutar_etl, nombre, fn, df_pt, spec, run_id): nombre
-            for nombre, fn, df_pt, spec in tareas
-        }
-        for futuro in as_completed(futuros):
-            nombre, t_etl, error = futuro.result()
-            resultados[nombre] = {"tiempo": t_etl, "error": error, "skipped": False}
-            estado = "✓ OK" if error is None else "✗ FALLÓ"
-            log_sys.info(f"ETL '{nombre}' terminó — {estado} en {t_etl:.1f}s")
+    # Se reparten en dos olas: primero los ETLs sin dependencias, y después los
+    # que necesitan la salida de alguno de la primera.
+    #
+    # Hoy el único caso es impactos_segmentos, que lee el Consolidado_Ventas.csv
+    # que produce `ventas`. Antes esto no importaba porque leía los consolidados
+    # con el periodo en el nombre, que ya existían de corridas anteriores; al
+    # pasar a un archivo único, arrancaba antes de que `ventas` lo escribiera y
+    # se llevaba un 404 — pero igual terminaba marcando OK, con el dashboard
+    # armado sin las ventas.
+    def _pendientes(nombre: str) -> tuple:
+        deps = REGISTRO_ETLS.get(nombre, {}).get("depende_de") or ()
+        return tuple(d for d in deps if d in {t[0] for t in tareas})
+
+    ola_1 = [t for t in tareas if not _pendientes(t[0])]
+    ola_2 = [t for t in tareas if _pendientes(t[0])]
+
+    def _lanzar(lote, etiqueta):
+        if not lote:
+            return
+        separador(log_sys, "─")
+        log_sys.info(f"{etiqueta} — Lanzando {len(lote)} ETLs en paralelo "
+                     f"({len(skipped)} skipped)")
+        separador(log_sys, "─")
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futuros = {
+                executor.submit(_ejecutar_etl, nombre, fn, df_pt, spec, run_id): nombre
+                for nombre, fn, df_pt, spec in lote
+            }
+            for futuro in as_completed(futuros):
+                nombre, t_etl, error = futuro.result()
+                resultados[nombre] = {"tiempo": t_etl, "error": error, "skipped": False}
+                estado = "✓ OK" if error is None else "✗ FALLÓ"
+                log_sys.info(f"ETL '{nombre}' terminó — {estado} en {t_etl:.1f}s")
+
+    _lanzar(ola_1, "FASE 1")
+
+    # Si aquello de lo que dependen falló, correrlos igual solo produce un
+    # resultado silenciosamente incompleto. Mejor marcarlos y no ejecutarlos.
+    ola_2_ok = []
+    for tarea in ola_2:
+        nombre = tarea[0]
+        rotas = [d for d in _pendientes(nombre)
+                 if resultados.get(d, {}).get("error") is not None]
+        if rotas:
+            msg = f"no se ejecutó: falló {', '.join(rotas)}, de quien depende"
+            log_sys.error(f"ETL '{nombre}' {msg}")
+            resultados[nombre] = {"tiempo": 0.0, "error": msg, "skipped": False}
+        else:
+            ola_2_ok.append(tarea)
+
+    _lanzar(ola_2_ok, "FASE 2 (dependientes)")
 
     t_total = time.perf_counter() - t_total_inicio
 
@@ -716,6 +766,16 @@ if __name__ == "__main__":
     log_root.info(f"Run ID compartido para esta corrida: {run_id}")
 
     for i, spec in enumerate(specs, 1):
+        # Las carpetas de BASES llevan el año en la ruta. Sin esto se buscarían
+        # los insumos en la carpeta del año del reloj, no la del periodo: al
+        # cerrar diciembre en enero, o al reprocesar un año anterior, la lectura
+        # devuelve vacío sin dar error.
+        #
+        # Va aquí, antes de `orquestar`, porque los periodos se procesan de
+        # forma secuencial: dentro de uno, todos los ETLs en paralelo comparten
+        # el mismo año y no hay carrera entre hilos.
+        paths.usar_anio(spec.anio)
+
         if len(specs) > 1:
             log_root.info("")
             log_root.info(f"▶ PERIODO {i}/{len(specs)}: {spec.etiqueta}")

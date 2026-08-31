@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 # --- LIBRERÍAS PROPIAS Y RESOLUCIÓN DE RUTAS ---
 import paths
 import periodo_resolver as pr
+import supabase_io
 
 # --- LIBRERÍAS REQUERIDAS PARA SUPABASE ---
 from supabase import create_client
@@ -101,7 +102,7 @@ from shared_loader import (
 )
 
 # =============================================================================
-# 3. FUNCIONES DEL BLOQUE 1 (CONSOLIDACIÓN PT) — ¡SIN FILTRO DISCOUNTER!
+# 3. FUNCIONES DEL BLOQUE 1 (CONSOLIDACIÓN PT) — filtro DISCOUNTER (D10) aplicado
 # =============================================================================
 
 def ejecutar_paso_1_consolidar_pt_np(spec: pr.PeriodoSpec, headers, site_id):
@@ -148,6 +149,14 @@ def ejecutar_paso_1_consolidar_pt_np(spec: pr.PeriodoSpec, headers, site_id):
                 return pd.DataFrame()
 
             df_val_filtrado = df_val[df_val[col_filtro] == 1].copy()
+            if "SUB CANAL" in df_val_filtrado.columns:
+                n_antes_dc = len(df_val_filtrado)
+                df_val_filtrado = df_val_filtrado[
+                    df_val_filtrado["SUB CANAL"].astype(str).str.strip().str.upper() != "DISCOUNTER"
+                ]
+                n_dc = n_antes_dc - len(df_val_filtrado)
+                if n_dc > 0:
+                    print(f"  {fuente}: filtro DISCOUNTER → {n_dc} PDVs excluidos")
 
             OBS_A_ROL = {
                 "REPORTA GESTOR": "GESTOR",
@@ -375,6 +384,15 @@ def generar_analisis_agotados(periodo_nom, headers, site_id):
     subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_NP, nombre_agotados, analisis)
     print(f"✅ ÉXITO: Reporte de Agotados guardado en SharePoint.")
 
+    # Esta función recibe el periodo como texto ('AGOSTO_2026'), no un spec:
+    # la llaman tanto el main de este ETL como run_all.py con esa forma.
+    _mes_txt, _, _anio_txt = str(periodo_nom).rpartition("_")
+    _mes = next((n for n, t in MESES_ESPANOL.items() if t == _mes_txt.upper()), None)
+    if _mes and _anio_txt.isdigit():
+        supabase_io.cargar_detalle_seguro("np_agotados_detalle", analisis, _mes, int(_anio_txt))
+    else:
+        print(f"  ⚠️  No pude deducir el periodo de '{periodo_nom}' — no se sube a Supabase")
+
 def generar_resumen_kpi_no_presencia(spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO KPI (V3): RESUMEN NP por gestor ({spec.etiqueta}) ---")
     periodo_nom = f"{MESES_ESPANOL[spec.mes]}_{spec.anio}"
@@ -424,35 +442,8 @@ def generar_resumen_kpi_no_presencia(spec: pr.PeriodoSpec, headers, site_id):
         subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_NP, nombre_hist, df_hist_local)
         print(f"  ✅ Histórico actualizado subido a SharePoint: {nombre_hist}")
 
-    try:
-        if os.path.exists(str(paths.NP_OUT_KPIS)):
-            print(f"  🚀 Preparando cargue del KPI de No Presencia consolidado a Supabase...")
-            df_kpi = pd.read_excel(str(paths.NP_OUT_KPIS))
-            
-            # Limpieza exhaustiva de nombres de columnas para Supabase
-            df_kpi.columns = (
-                df_kpi.columns.str.strip()
-                .str.lower()
-                .str.replace(" ", "_")
-                .str.replace("á", "a")
-                .str.replace("é", "e")
-                .str.replace("í", "i")
-                .str.replace("ó", "o")
-                .str.replace("ú", "u")
-            )
-            
-            if 'año' in df_kpi.columns:
-                df_kpi = df_kpi.rename(columns={'año': 'anio'})
-            
-            df_kpi = df_kpi.replace([np.inf, -np.inf], 0)
-            df_kpi_limpio = df_kpi.astype(object).where(pd.notnull(df_kpi), None)
-            
-            registros_json = df_kpi_limpio.to_dict(orient="records")
-            
-            supabase.table("no_presencia_kpis").upsert(registros_json).execute()
-            print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} filas subidas de forma exitosa a Supabase.")
-    except Exception as ex_cloud:
-        print(f"  ⚠ ADVERTENCIA EN CARGA CLOUD: {ex_cloud}")
+    # El KPI agregado ya no va a Supabase: lo que se carga es el DETALLE
+    # (tabla np_agotados_detalle). El KPI sigue publicándose como Excel en SharePoint.
 
 if __name__ == "__main__":
     import argparse
@@ -470,6 +461,10 @@ if __name__ == "__main__":
     site_id = obtener_site_id(headers)
 
     for i, spec in enumerate(specs, 1):
+        # Las carpetas de BASES llevan el año en la ruta; sin esto se
+        # buscarían los insumos en la carpeta del año del reloj.
+        paths.usar_anio(spec.anio)
+
         print("=" * 50)
         print(f" INICIANDO ETL UNIFICADO NO PRESENCIA CLOUD ({spec.etiqueta})")
         print("=" * 50)

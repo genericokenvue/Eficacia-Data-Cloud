@@ -1,0 +1,395 @@
+2026-08-19 13:50:49  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260819_135049.log
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260819T135049_30b9e8
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-19 13:50:49
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      Run ID: 20260819T135049_30b9e8
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      Periodo: Agosto_2026 (08/2026)
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif', 'nopresencia', 'precios', 'sos', 'exhib_pagadas', 'exhib_gratis', 'ventas', 'impactos', 'impactos_segmentos']
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-19 13:50:49  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:50:49  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 08/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-19 13:50:57  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:00  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:00  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:00  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:00  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-19 13:51:00  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-19 13:51:00  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-19 13:51:05  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,525 filas PT  |  3,251 filas módulos cargadas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [ISM] 2,482 filas PT  |  883 filas módulos cargadas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,007 filas totales
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 8 | Año 2026
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 128 PDVs DISCOUNTER excluidos
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 4,878 → 4,352 filas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,352 filas retenidas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 78 PDVs DISCOUNTER excluidos
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 941 → 862 filas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 862 filas retenidas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [DIRECTO] precios: D9 — filtro OBSERVACIÓN/ROL 4,124 → 3,643 filas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,643 filas retenidas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 759 → 691 filas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 691 filas retenidas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 4,036 → 3,566 filas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,566 filas retenidas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 733 → 667 filas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 667 filas retenidas
+2026-08-19 13:51:07  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-19 13:51:07  [etl.orquestador]   ✓ INFO      shared_loader completado en 18.4s
+2026-08-19 13:51:07  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:51:07  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 9 ETLs en paralelo (0 skipped)
+2026-08-19 13:51:07  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:51:07  [etl.cif]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:51:07  [etl.nopresencia]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:51:07  [etl.cif]           ✓ INFO      ETL CIF — iniciando
+2026-08-19 13:51:07  [etl.exhib_pagadas]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:51:07  [etl.nopresencia]   ✓ INFO      ETL No Presencia — iniciando
+2026-08-19 13:51:07  [etl.exhib_gratis]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:51:07  [etl.precios]       ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:51:07  [etl.exhib_pagadas]  ✓ INFO      ETL Exhibiciones Pagadas — iniciando
+2026-08-19 13:51:07  [etl.sos]           ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:51:07  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — iniciando
+2026-08-19 13:51:07  [etl.precios]       ✓ INFO      ETL Precios — iniciando
+2026-08-19 13:51:07  [etl.sos]           ✓ INFO      ETL SOS — iniciando
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.sos]           ✓ INFO      PT filtrado para SOS: 736 PDVs únicos
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:07  [etl.cif]           · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:51:07  [etl.nopresencia]   · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:51:07  [etl.exhib_pagadas]  · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:51:07  [etl.exhib_gratis]  · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:51:07  [etl.precios]       · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:51:07  [etl.sos]           · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-08-19 13:51:13  [etl.precios]       ✓ INFO      PT filtrado para Precios: 804 PDVs únicos — periodo AGOSTO_2026
+2026-08-19 13:51:13  [etl.cif]           · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:51:13  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:51:13  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:51:13  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:51:13  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:51:13  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Cruzando Capturas por Categorías (AGOSTO_2026) ---
+2026-08-19 13:51:13  [etl.cif]           · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:51:13  [etl.nopresencia]   · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:51:13  [etl.exhib_pagadas]  · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:51:13  [etl.exhib_gratis]  · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:51:13  [etl.precios]       · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:51:13  [etl.sos]           · DEBUG     [stdout] 🚀 Iniciando auditoría exhibiciones pagadas (Agosto_2026)...
+2026-08-19 13:51:13  [etl.nopresencia]   ✓ INFO      Usando DataFrame de PT proporcionado por el orquestador (5,214 filas)
+2026-08-19 13:51:13  [etl.cif]           · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:51:13  [etl.nopresencia]   · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:51:13  [etl.exhib_pagadas]  · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:51:13  [etl.exhib_gratis]  · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:51:13  [etl.precios]       · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:51:13  [etl.sos]           · DEBUG     [stdout] --- INICIANDO: Bloque No Presencia (Encuestas Básicas) ---
+2026-08-19 13:51:13  [etl.cif]           ✓ INFO      Paso 1 — PT consolidado: 11,007 filas
+2026-08-19 13:51:13  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:51:13  [etl.nopresencia]   · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:51:13  [etl.exhib_pagadas]  · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:51:13  [etl.exhib_gratis]  · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:51:13  [etl.precios]       · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:51:13  [etl.sos]           · DEBUG     [stdout] INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  (Agosto_2026)
+2026-08-19 13:51:13  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:51:13  [etl.cif]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:51:13  [etl.nopresencia]   · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:51:13  [etl.exhib_pagadas]  · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:51:13  [etl.exhib_gratis]  · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:51:13  [etl.precios]       · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:51:13  [etl.sos]           · DEBUG     [stdout] --- PASO 2: Consolidando Encuestas SOS (Agosto_2026) ---
+2026-08-19 13:51:15  [etl.cif]           · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:51:15  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:51:15  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:51:15  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:51:15  [etl.precios]       · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:51:15  [etl.sos]           · DEBUG     [stdout] ℹ️  Planning seleccionado: PLANNING DE AGOSTO 2026.xlsx
+2026-08-19 13:51:15  [etl.cif]           · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.precios]       · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.sos]           · DEBUG     [stdout] ℹ️  Encuesta/Base seleccionada: Base Exhibiciones Informar Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.cif]           · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.nopresencia]   · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.exhib_pagadas]  · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.exhib_gratis]  · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.precios]       · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.sos]           · DEBUG     [stdout] 📂 Plan de trabajo DIRECTO: Plan de trabajo Directo Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.cif]           · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.nopresencia]   · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.exhib_pagadas]  · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.exhib_gratis]  · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.precios]       · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:15  [etl.sos]           · DEBUG     [stdout] 📂 Plan de trabajo ISM: Plan de trabajo ISM Agosto 2026.xlsx
+2026-08-19 13:51:19  [etl.cif]           · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:51:19  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:51:19  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:51:19  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:51:19  [etl.precios]       · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:51:19  [etl.sos]           · DEBUG     [stdout] ℹ️  Header detectado en fila 0 — col_cant='*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.'
+2026-08-19 13:51:19  [etl.cif]           · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:51:19  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:51:19  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:51:19  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:51:19  [etl.precios]       · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:51:19  [etl.sos]           · DEBUG     [stdout] ℹ️  '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.': 591/2768 valores numéricos válidos, 591 > 0
+2026-08-19 13:51:37  [etl.cif]           ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:51:38  [etl.nopresencia]   ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:51:38  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:51:38  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:51:38  [etl.precios]       ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:51:38  [etl.sos]           ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 1,420 filas
+2026-08-19 13:51:48  [etl.cif]           · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.
+2026-08-19 13:51:48  [etl.nopresencia]   · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.
+2026-08-19 13:51:48  [etl.exhib_pagadas]  · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.
+2026-08-19 13:51:48  [etl.exhib_gratis]  · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.
+2026-08-19 13:51:48  [etl.precios]       · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.
+2026-08-19 13:51:48  [etl.sos]           · DEBUG     [stdout] [DIRECTO] 8525 filas procesadas.
+2026-08-19 13:51:51  [etl.cif]           · DEBUG     [stdout] ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:51:51  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:51:51  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:51:51  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:51:51  [etl.precios]       · DEBUG     [stdout] ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:51:51  [etl.sos]           · DEBUG     [stdout] ℹ️  Marca de la encuesta tomada de la columna #61 ('MARCA.1'). Muestra de valores: ["Johnson's Baby", 'Listerine', 'Neutrogena', 'MULTIMARCA', 'OTROS']
+2026-08-19 13:51:51  [etl.cif]           · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:51:51  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:51:51  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:51:51  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:51:51  [etl.precios]       · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:51:51  [etl.sos]           · DEBUG     [stdout] ℹ️  col_pdv (Planning) = '*Punto de venta' | col_id_inv (Encuesta) = 'PDV' | col_tipo_inv (Encuesta) = 'Seleccionar el Tipo de la exhibicion (Pagadas)'
+2026-08-19 13:51:51  [etl.cif]           · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:51:51  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:51:51  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:51:51  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:51:51  [etl.precios]       · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:51:51  [etl.sos]           · DEBUG     [stdout] ℹ️  Columnas Planning (11): ['Exhibiciones adicionales - Planning E', '*Rótulo de la encuesta', '*Empleado', '*Punto de venta', '*Fecha de expiración', '*EXHIBICIONES:', '*Tipo - Pagadas', '*MARCA - Pagadas', '*Pagadas - *Digite el numero de exhibiciones adicionales para este tipo.', '*La exhibicion es PAC o ExtraPAC?', '_JOIN_']
+2026-08-19 13:51:51  [etl.cif]           · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:51:51  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:51:51  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:51:51  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:51:51  [etl.precios]       · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:51:51  [etl.sos]           · DEBUG     [stdout] ℹ️  Columnas Encuesta (165): ['ID de la encuesta', 'Rótulo de la encuesta', 'Red', 'Cadena', 'Canal del PDV', 'Perfil del PDV', 'Tipo de PDV', 'ID del PDV', 'PDV', 'Núm. del PDV', 'Código del PDV', 'División territorial', 'Ciudad', 'Macrorregional', 'Regional', 'Barrio', 'Núm. de Identificación Empresarial', 'Código postal', 'Centro comercial', 'Cod PDV (SGI)', 'CODIGO GERENCIA', 'GERENTE / KAM', 'CODIGO VENDEDOR SAP', 'VENDEDOR SAP', 'Golden Store', 'Tienda con OPL', 'Tienda Visitada por Operaciones', 'Tienda Perfecta', 'Código Interno D&P', 'Dirección', 'Latitud', 'Longitud', 'Fecha y hora de la encuesta', 'Fecha de la encuesta', 'Hora de la encuesta', 'Día de la semana', 'Semana del año', 'Semana del mes', 'Día del mes', 'Mes del año', 'Año', 'ID del empleado', 'ID del empleado.1', 'Empleado', 'Núm. de Identificación del Empleado', 'Superior del empleado', 'Perfil del empleado', 'Perfil de acceso', 'Cargo', 'Número de registro', 'Homologación', 'Empleado que digitó', 'EXHIBICIONES:', 'EXHIBICIONES: - Puntuación', 'Seleccionar el Tipo de la exhibicion:', 'Seleccionar el Tipo de la exhibicion: - Puntuación', 'MARCA', 'MARCA - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo', 'Seleccionar el Tipo de la exhibicion (Pagadas)', 'Seleccionar el Tipo de la exhibicion (Pagadas) - Puntuación', 'MARCA.1', 'MARCA - Puntuación.1', '*Digite el numero de exhibiciones adicionales para este tipo.', 'Indique la marca y el porcentaje en números', 'Listerine', 'Porcentaje', 'Lubriderm', 'Porcentaje.1', 'Johnson’s baby', 'Porcentaje.2', 'Neutrogena', 'Porcentaje.3', 'Stayfree', 'Porcentaje.4', 'Carefree', 'Porcentaje.5', 'OB', 'Porcentaje.6', 'OTROS', 'Porcentaje.7', 'La exhibicion es PAC o ExtraPAC?', 'La exhibicion es PAC o ExtraPAC? - Puntuación', '¿Tiene material de visibilidad?', '¿Tiene material de visibilidad? - Puntuación', 'Cual es el segmento de la exhibicion?', 'Shampoo', 'Cremas Baby', 'Baño Liquido', 'Otros', 'Indique las Adyacencias ( Máximo 2 Adyacencias):', 'Cepillo y cremas dentales', 'Jabones', 'Shampoo.1', 'Afeitada y depilacion', 'Desodorantes', 'Proteccion pies', 'Pañitos y toallitas humedas', 'Pañales', 'Leches o cereales infantiles', 'Cremas de manos y corporal', 'Cremas faciales', 'Aseo del bb', 'Proteccion solar', 'Otc', 'Maquillaje', 'Proteccion femenina', 'OTROS.1', 'La Exhibicion esta implementada de acuerdo con el planning?', 'La Exhibicion esta implementada de acuerdo con el planning? - Puntuación', 'Indique las causales:', 'Indique las causales: - Puntuación', 'Tome evidencia:', 'Tome evidencia:.1', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN', 'Seleccionar el Tipo de la exhibicion - CONTRAPRESTACIÓN - Puntuación', 'MARCA - CONTRAPRESTACIÓN', 'MARCA - CONTRAPRESTACIÓN - Puntuación', '*Digite el numero de exhibiciones adicionales para este tipo. - CONTRAPRESTACIÓN', 'Indique la marca y el porcentaje en números.1', 'Listerine.1', 'Porcentaje.8', 'Lubriderm.1', 'Porcentaje.9', 'Johnson’s baby.1', 'Porcentaje.10', 'Neutrogena.1', 'Porcentaje.11', 'Stayfree.1', 'Porcentaje.12', 'Carefree.1', 'Porcentaje.13', 'OB.1', 'Porcentaje.14', 'OTROS.2', 'Porcentaje.15', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN', 'La exhibicion es PAC o ExtraPAC? - CONTRAPESTRACIÓN - Puntuación', '- ¿En qué estado se encuentra el material POP?', '- ¿En qué estado se encuentra el material POP? - Puntuación', 'Cual es el segmento de la exhibicion?.1', 'Shampoo.2', 'Cremas Baby.1', 'Baño Liquido.1', 'Otros.1', 'Indique las Adyacencias ( Máximo 2 Adyacencias):.1', 'Cepillo y cremas dentales.1', 'Jabones.1', 'Shampoo.3', 'Afeitada y depilacion.1', 'Desodorantes.1', 'Proteccion pies.1', 'Pañitos y toallitas humedas.1', 'Pañales.1', 'Leches o cereales infantiles.1', 'Cremas de manos y corporal.1', 'Cremas faciales.1', 'Aseo del bb.1', 'Proteccion solar.1', 'Maquillaje.1', 'Otc.1', 'Proteccion femenina.1', 'OTROS.3', 'Tome evidencia:.2', 'Puntuación total']
+2026-08-19 13:51:52  [etl.cif]           · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:51:52  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:51:52  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:51:52  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:51:52  [etl.precios]       · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:51:52  [etl.sos]           · DEBUG     [stdout] ℹ️  Muestra _LL_ Planning: ["ACADEMIA SANDRA_PUNTA DE GONDOLA_JOHNSON'S BABY", 'ACADEMIA SANDRA_PUNTA DE GONDOLA_LISTERINE', "ALMACEN Y SUPERMERCADO BARBOSA_PUNTA DE GONDOLA_JOHNSON'S BABY"]
+2026-08-19 13:51:52  [etl.cif]           · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:51:53  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:51:53  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:51:53  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:51:53  [etl.precios]       · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:51:53  [etl.sos]           · DEBUG     [stdout] ℹ️  Muestra _LL_ Encuesta: ['JUMBO BUCARAMANGA__', 'D PASTEUR HOSPITAL P4856__', 'DINASTIA BELEN PARQUE__']
+2026-08-19 13:51:53  [etl.cif]           · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:51:53  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:51:53  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:51:53  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:51:53  [etl.precios]       · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:51:53  [etl.sos]           · DEBUG     [stdout] ℹ️  Filas de Encuesta con 'Seleccionar el Tipo de la exhibicion (Pagadas)' contestado (no vacío): 63/1420
+2026-08-19 13:51:53  [etl.cif]           · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:51:53  [etl.cif]           · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:51:53  [etl.cif]           ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:51:53  [etl.cif]           · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:51:54  [etl.cif]           · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:51:54  [etl.cif]           · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:51:54  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:51:54  [etl.nopresencia]   · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:51:54  [etl.nopresencia]   ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:51:54  [etl.nopresencia]   · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:51:54  [etl.nopresencia]   · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:51:54  [etl.nopresencia]   · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:51:54  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:51:54  [etl.exhib_pagadas]  · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:51:54  [etl.exhib_pagadas]  ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:51:54  [etl.exhib_pagadas]  · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:51:54  [etl.exhib_pagadas]  · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:51:54  [etl.exhib_pagadas]  · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:51:54  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:51:54  [etl.exhib_gratis]  · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:51:54  [etl.exhib_gratis]  ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:51:54  [etl.exhib_gratis]  · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:51:54  [etl.exhib_gratis]  · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:51:54  [etl.exhib_gratis]  · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:51:54  [etl.precios]       · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:51:54  [etl.precios]       · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:51:54  [etl.precios]       ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:51:54  [etl.precios]       · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:51:54  [etl.precios]       · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:51:54  [etl.precios]       · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:51:54  [etl.sos]           · DEBUG     [stdout] ℹ️  Muestra Encuesta (solo con 'Pagadas' contestado):
+2026-08-19 13:51:54  [etl.sos]           · DEBUG     [stdout] PDV Seleccionar el Tipo de la exhibicion (Pagadas)           MARCA
+2026-08-19 13:51:54  [etl.sos]           ✓ INFO      [stdout] 37     EXITO CIUDAD TUNAL                        Lateral o rejilla punta  Johnson's Baby
+2026-08-19 13:51:54  [etl.sos]           · DEBUG     [stdout] 40  BETEL PRADOS DEL ESTE                        Lateral o rejilla punta       Listerine
+2026-08-19 13:51:54  [etl.sos]           · DEBUG     [stdout] 67          MERCARAPIDO 1                               Punta de gondola       Listerine
+2026-08-19 13:51:54  [etl.sos]           · DEBUG     [stdout] 69          MERCARAPIDO 1                               Punta de gondola  Johnson's Baby
+2026-08-19 13:51:54  [etl.cif]           · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:51:54  [etl.nopresencia]   · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:51:54  [etl.exhib_pagadas]  · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:51:54  [etl.exhib_gratis]  · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:51:55  [etl.precios]       · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:51:55  [etl.sos]           · DEBUG     [stdout] 71       LOCATEL GALERIAS                                        Counter      Neutrogena
+2026-08-19 13:51:55  [etl.cif]           · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:51:55  [etl.cif]           · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:51:55  [etl.cif]           · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.cif]           · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.cif]           · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.cif]           · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:51:55  [etl.nopresencia]   · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:51:55  [etl.nopresencia]   · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.nopresencia]   · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.nopresencia]   · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.nopresencia]   · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:51:55  [etl.exhib_pagadas]  · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:51:55  [etl.exhib_pagadas]  · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.exhib_pagadas]  · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.exhib_pagadas]  · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.exhib_pagadas]  · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:51:55  [etl.exhib_gratis]  · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:51:55  [etl.exhib_gratis]  · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.exhib_gratis]  · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.exhib_gratis]  · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.exhib_gratis]  · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.precios]       · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:51:55  [etl.precios]       · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:51:55  [etl.precios]       · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.precios]       · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.precios]       · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.precios]       · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.sos]           · DEBUG     [stdout] ℹ️  Muestra Planning (PDV/Tipo/Marca crudos):
+2026-08-19 13:51:55  [etl.sos]           · DEBUG     [stdout] *Punto de venta   *Tipo - Pagadas *MARCA - Pagadas
+2026-08-19 13:51:55  [etl.sos]           · DEBUG     [stdout] 0                 ACADEMIA SANDRA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.sos]           · DEBUG     [stdout] 1                 ACADEMIA SANDRA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.sos]           · DEBUG     [stdout] 2  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.sos]           · DEBUG     [stdout] 3  ALMACEN Y SUPERMERCADO BARBOSA  Punta de gondola        Listerine
+2026-08-19 13:51:55  [etl.cif]           · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.nopresencia]   · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.exhib_pagadas]  · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.exhib_gratis]  · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.precios]       · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:55  [etl.sos]           · DEBUG     [stdout] 4            AUTO SERVICIO EL RIO  Punta de gondola   Johnson's Baby
+2026-08-19 13:51:56  [etl.cif]           · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:51:56  [etl.nopresencia]   · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:51:56  [etl.exhib_pagadas]  · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:51:56  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:51:56  [etl.precios]       · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:51:56  [etl.sos]           · DEBUG     [stdout] ℹ️  Merge Planning↔Encuesta: 8/2768 filas encontraron match (0.3%)
+2026-08-19 13:52:04  [etl.cif]           · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:52:04  [etl.nopresencia]   · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:52:04  [etl.exhib_pagadas]  · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:52:04  [etl.exhib_gratis]  · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:52:04  [etl.precios]       · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:52:04  [etl.sos]           · DEBUG     [stdout] [ISM] 2482 filas procesadas.
+2026-08-19 13:52:11  [etl.cif]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:11  [etl.nopresencia]   ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:11  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:11  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:11  [etl.precios]       ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:12  [etl.sos]           ✓ INFO      [stdout] ✅ SHAREPOINT: Archivo guardado con éxito -> Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:12  [etl.cif]           ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:12  [etl.nopresencia]   ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:12  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:12  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:12  [etl.precios]       ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:12  [etl.sos]           ✓ INFO      [stdout] ✅ ÉXITO: Consolidado guardado en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/2026/Consolidado_PT_08_2026.csv
+2026-08-19 13:52:12  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.cif]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:52:12  [etl.nopresencia]   · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:52:12  [etl.exhib_pagadas]  · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:52:12  [etl.exhib_gratis]  · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:52:12  [etl.precios]       · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:52:12  [etl.sos]           · DEBUG     [stdout] INICIANDO PASO 2: AGRUPACIÓN EN LA NUBE
+2026-08-19 13:52:12  [etl.cif]           · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.nopresencia]   · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.exhib_pagadas]  · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.exhib_gratis]  · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.precios]       · DEBUG     [stdout] ========================================
+2026-08-19 13:52:12  [etl.sos]           · DEBUG     [stdout] ========================================
+2026-08-19 13:52:15  [etl.cif]           ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:52:15  [etl.nopresencia]   ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:52:15  [etl.exhib_pagadas]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:52:15  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:52:15  [etl.precios]       ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas
+2026-08-19 13:52:16  [etl.sos]           ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 1,954 filas

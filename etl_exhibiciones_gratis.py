@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 import paths
 import periodo_resolver as pr
+import supabase_io
 
 # ==============================================================================
 # 0. CONFIGURACIÓN ENTORNO NUBE — SHAREPOINT (MICROSOFT GRAPH API)
@@ -51,6 +52,26 @@ RUTA_CARPETA_BASES_EXHIB = f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}".replace("
 RUTA_CARPETA_SALIDAS_EXHIB = f"{_SALIDAS_ROOT}/EXHIBICIONES".replace("\\", "/")
 
 paths.EXHIB_SALIDA = Path(f"{RUTA_CARPETA_BASES_EXHIB}".replace("\\", "/"))
+
+
+def _apuntar_rutas_al_periodo(spec: pr.PeriodoSpec) -> None:
+    """
+    Reapunta al año del periodo las rutas que dependen de una carpeta con año.
+
+    Estas dos se fijaban al importar el módulo, usando AÑO_ACTUAL (el año del
+    reloj). Al reprocesar un periodo de otro año se buscaban en la carpeta
+    equivocada y la lectura fallaba sin explicar por qué.
+    """
+    global RUTA_CARPETA_BASES_EXHIB
+    RUTA_CARPETA_BASES_EXHIB = f"{_BASES_ROOT}/EXHIBICIONES/{spec.anio}".replace("\\", "/")
+    paths.EXHIB_SALIDA        = Path(RUTA_CARPETA_BASES_EXHIB)
+    paths.EXHIB_NIVEL_IMPACTO = Path(
+        f"{_BASES_ROOT}/EXHIBICIONES/{spec.anio}/Nivel impacto x Exhibición.xlsx".replace("\\", "/"))
+    paths.DYP_BASE_CUPOS      = Path(
+        f"{_BASES_ROOT}/DYP/{spec.anio}/Base_cupos.xlsx".replace("\\", "/"))
+
+
+# Valores iniciales (año del reloj). `run()` los reapunta al periodo real.
 paths.EXHIB_NIVEL_IMPACTO = Path(f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}/Nivel impacto x Exhibición.xlsx".replace("\\", "/"))
 paths.DYP_BASE_CUPOS = Path(f"{_BASES_ROOT}/DYP/{AÑO_ACTUAL}/Base_cupos.xlsx".replace("\\", "/"))
 
@@ -172,47 +193,6 @@ def _upload_sharepoint_file(sharepoint_path: str, buffer_data: BytesIO):
     if response.status_code not in [200, 201]:
         raise Exception(f"❌ Error al subir archivo a SharePoint ({sharepoint_path}). Estado HTTP {response.status_code}: {response.text}")
 
-def _subir_kpis_supabase(resumen_df, nombre_tabla: str):
-    """Sube un DataFrame de resumen directamente a la tabla especificada de Supabase usando nombres de columna normalizados (snake_case)."""
-    if supabase is None:
-        print("  ⚠️ El cliente de Supabase no está inicializado. Se omite la carga.")
-        return
-
-    if resumen_df.empty:
-        print("  ℹ️ No hay registros para enviar a Supabase.")
-        return
-
-    df_clean = resumen_df.copy()
-    
-    # Normalización completa de columnas a snake_case exacto para evitar errores en Supabase
-    renombres = {
-        'Mes': 'mes',
-        'Año': 'anio',
-        'Empleado': 'empleado',
-        'ALTO IMPACTO': 'alto_impacto',
-        'MEDIO IMPACTO': 'medio_impacto',
-        'TARGET_ALTO': 'target_alto',
-        'TARGET_MEDIO': 'target_medio',
-        'CUMP_ALTO': 'cump_alto',
-        'CUMP_MEDIO': 'cump_medio',
-        'TOTAL': 'total'
-    }
-    df_clean = df_clean.rename(columns=renombres)
-    
-    # Seguridad adicional: pasar todo a minúsculas y reemplazar espacios por guiones bajos
-    df_clean.columns = df_clean.columns.str.strip().str.lower().str.replace(' ', '_')
-
-    df_clean = df_clean.replace([np.inf, -np.inf], 0)
-    df_limpio = df_clean.astype(object).where(pd.notnull(df_clean), None)
-    
-    registros = df_limpio.to_dict(orient="records")
-
-    try:
-        supabase.table(nombre_tabla).upsert(registros).execute()
-        print(f"  ✅ ÉXITO CLOUD: {len(registros)} registros cargados con éxito a la tabla '{nombre_tabla}' en Supabase.")
-    except Exception as ex:
-        raise Exception(f"❌ Error al cargar datos a la tabla '{nombre_tabla}' en Supabase: {ex}")
-
 def _semana_del_mes(fecha) -> int:
     if pd.isnull(fecha): return -1
     primer_dia = fecha.replace(day=1)
@@ -230,8 +210,11 @@ def resolve_files(spec: pr.PeriodoSpec) -> dict:
     p_planning = f"{carpeta_bases_cloud}/{nombre_planning}".replace("\\", "/")
 
     try:
-        nombre_visitas = f"informe-gerencial-visitas_{spec.anio}{str(spec.mes).zfill(2)}.xlsx"
-        p_visitas = f"{_BASES_ROOT}/VISITAS/{spec.anio}/{nombre_visitas}".replace("\\", "/")
+        # Carpeta transversal INVOLVES/INVOLVES: el informe de visitas se carga
+        # UNA sola vez y lo consumen CIF y este módulo. Antes se leía de
+        # BASES DE RESPUESTAS/VISITAS/<año>, lo que obligaba a duplicar el
+        # mismo archivo en dos carpetas cada mes.
+        p_visitas = paths.cloud_involves_visitas(spec.mes, spec.anio)
     except Exception:
         p_visitas = ""
 
@@ -286,7 +269,7 @@ def load_encuestas(files: dict) -> pd.DataFrame:
     df["_semana_mes"] = df[COL_FECHA].apply(_semana_del_mes)
     return df
 
-def load_plan(files: dict) -> pd.DataFrame:
+def load_plan(files: dict, spec: pr.PeriodoSpec) -> pd.DataFrame:
     dfs = []
     for path in files.get("plan_trabajo", []):
         try:
@@ -335,10 +318,13 @@ def load_plan(files: dict) -> pd.DataFrame:
                 df[COL_PLAN_ANIO] = df["_FECHA_TMP"].dt.year
             df.drop(columns=["_FECHA_TMP"], errors="ignore", inplace=True)
 
+    # Si el plan de trabajo no trae mes/año, se usan los del periodo que se
+    # está procesando. Antes había un 7/2026 fijo: cualquier periodo sin esas
+    # columnas quedaba marcado como julio de 2026, sin importar qué se corriera.
     if COL_PLAN_MES not in df.columns:
-        df[COL_PLAN_MES] = 7  
+        df[COL_PLAN_MES] = spec.mes
     if COL_PLAN_ANIO not in df.columns:
-        df[COL_PLAN_ANIO] = 2026 
+        df[COL_PLAN_ANIO] = spec.anio
 
     if "CANTIDAD_VISITAS" not in df.columns:
         v_cols = [c for c in df.columns if "VISITAS" in c]
@@ -540,11 +526,12 @@ def calcular_pagadas(df_enc) -> pd.DataFrame:
 # ==============================================================================
 
 def run(spec: pr.PeriodoSpec):
+    _apuntar_rutas_al_periodo(spec)
     print(f"── Resolviendo fuentes en SharePoint ({spec.etiqueta}) ─")
     files = resolve_files(spec)
     print("\n── Cargando fuentes desde SharePoint ────────────")
     df_enc = load_encuestas(files)
-    df_plan = load_plan(files)
+    df_plan = load_plan(files, spec)
     df_vis = load_visitas(files)
     df_nivel = load_nivel_impacto()
 
@@ -601,6 +588,10 @@ def run(spec: pr.PeriodoSpec):
     df_out.to_excel(output_buffer, index=False, sheet_name="Exhibiciones_implementadas", engine="openpyxl")
     _upload_sharepoint_file(OUTPUT_PATH, output_buffer)
     print(f"\n✓ Output escrito con éxito en SharePoint: {OUTPUT_PATH} ({len(df_out):,} filas)")
+
+    # El archivo acumula todos los meses; solo_periodo sube solo el procesado.
+    supabase_io.cargar_detalle_seguro(
+        "exhibiciones_gratis_detalle", df_out, spec.mes, spec.anio)
     
     m_gratis, m_pag = df_out["Categoría"].isin(["Gratis", "Concurso"]), df_out["Categoría"] == "Pagada"
     m_alto, m_medio = df_out["Nivel Impacto"] == "ALTO IMPACTO", df_out["Nivel Impacto"] == "MEDIO IMPACTO"
@@ -733,10 +724,9 @@ def generar_resumen_kpi_exhibiciones_gratis(spec: pr.PeriodoSpec):
     _upload_sharepoint_file(path_hist, buf_hist)
     print(f"  ✅ Histórico actualizado en SharePoint → {os.path.basename(str(path_hist))}")
 
-    try:
-        _subir_kpis_supabase(resumen, "exhibiciones_gratis_kpis")
-    except Exception as ex_cloud:
-        print(f"  ⚠ ADVERTENCIA EN CARGA SUPABASE: {ex_cloud}")
+    # El KPI agregado ya no va a Supabase: lo que se carga es el DETALLE
+    # (tabla exhibiciones_gratis_detalle). El KPI sigue publicándose como
+    # Excel en SharePoint.
 
 
 if __name__ == "__main__":

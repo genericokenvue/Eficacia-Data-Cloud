@@ -23,9 +23,8 @@ Cambios V2 respecto a V1
 
 Inputs requeridos (SharePoint, vía Microsoft Graph API)
 ────────────────────────────────────────────────────────
-  • {RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Ventas_<MES>_<AÑO>.csv (todos los
-    periodos disponibles, subidos por etl_ventas.py — se descargan y
-    concatenan para reconstruir el histórico completo)
+  • {RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Ventas.csv — archivo único que ya
+    trae todos los periodos (lo mantiene etl_ventas.py por upsert de mes)
   • {RUTA_CARPETA_BASES_DYP}/Listas/MSL & Listas Target Catman.xlsx
   • {RUTA_CARPETA_BASES_DYP}/Rutero/RUTERO <MES> <AÑO> D&P.xlsx (el más
     reciente por fecha de modificación), hoja "PLAN DE TRABAJO"
@@ -179,28 +178,25 @@ def _descargar_listas_cloud() -> bytes:
 
 def _descargar_ventas_historico_cloud() -> list[bytes]:
     """
-    Lista TODOS los `Consolidado_Ventas_<MES>_<AÑO>.csv` en SALIDAS/DYP y
-    descarga cada uno. etl_ventas.py sube un archivo POR PERIODO (no un
-    único CSV acumulado), así que para reconstruir el histórico completo
-    (necesario para la tendencia mensual del dashboard) hay que juntarlos
-    todos aquí.
+    Descarga `Consolidado_Ventas.csv`, que ya trae todos los meses.
+
+    Antes esta función listaba TODOS los `Consolidado_Ventas_<MES>_<AÑO>.csv`
+    y los concatenaba, porque etl_ventas.py subía uno por periodo. Pero el
+    contenido de cada uno ya era el histórico entero, así que se bajaban ~800 MB
+    para terminar con cada mes repetido seis veces — y con cifras distintas
+    entre copias, porque cada archivo era una foto de un momento diferente.
+    Ahora el consolidado es un archivo único y basta con leer ese.
+
+    Se devuelve una lista de un elemento para no cambiarle la forma al caller.
     """
-    carpeta = paths.RUTA_CARPETA_SALIDAS_DYP
-    hijos = _listar_hijos_cloud(carpeta)
-    candidatos = [
-        h for h in hijos
-        if h.get("file") and re.match(r"^Consolidado_Ventas_.*\.csv$", h.get("name", ""))
-    ]
-    if not candidatos:
+    ruta = paths.cloud_dyp_ventas()
+    print(f"      Leyendo consolidado: {ruta}")
+    try:
+        return [_descargar_bytes_cloud(ruta, "Consolidado de ventas")]
+    except Exception as e:
         raise FileNotFoundError(
-            f"No se encontró ningún Consolidado_Ventas_<MES>_<AÑO>.csv en SharePoint ({carpeta}). "
-            "Ejecuta primero etl_ventas.py."
-        )
-    bloques = []
-    for h in candidatos:
-        print(f"      Leyendo consolidado: {carpeta}/{h['name']}")
-        bloques.append(_descargar_bytes_cloud(f"{carpeta}/{h['name']}", f"Consolidado de ventas ({h['name']})"))
-    return bloques
+            f"No se pudo leer {ruta}. Ejecuta primero etl_ventas.py. Detalle: {e}"
+        ) from e
 
 
 # ─────────────────────────────────────────────────────────────────────────────

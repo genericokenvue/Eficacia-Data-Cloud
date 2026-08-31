@@ -1,0 +1,1023 @@
+2026-08-21 10:20:36  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202603_a_202607_20260821_102036.log
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      MULTI-PERIODO: 5 periodos a procesar — Marzo_2026, Abril_2026, Mayo_2026, Junio_2026, Julio_2026
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260821T102036_8a8881
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      ▶ PERIODO 1/5: Marzo_2026
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-21 10:20:36
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      Run ID: 20260821T102036_8a8881
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      Periodo: Marzo_2026 (03/2026)
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['ventas']
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-21 10:20:36  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 10:20:36  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 03/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 10:20:46  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Marzo 2026.xlsx
+2026-08-21 10:20:48  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Marzo 2026.xlsx
+2026-08-21 10:20:48  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Marzo 2026.xlsx
+2026-08-21 10:20:48  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Marzo 2026.xlsx
+2026-08-21 10:20:48  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 10:20:48  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-21 10:20:48  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 10:20:54  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,913 filas PT  |  3,319 filas módulos cargadas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [ISM] 2,685 filas PT  |  912 filas módulos cargadas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,598 filas totales
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 3 | Año 2026
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 132 PDVs DISCOUNTER excluidos
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 5,074 → 4,507 filas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,507 filas retenidas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 52 PDVs DISCOUNTER excluidos
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 978 → 854 filas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 854 filas retenidas
+2026-08-21 10:20:56  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 936 → 819 filas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 819 filas retenidas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 3,242 → 2,849 filas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 2,849 filas retenidas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 879 → 768 filas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 768 filas retenidas
+2026-08-21 10:20:56  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-21 10:20:56  [etl.orquestador]   ✓ INFO      shared_loader completado en 20.1s
+2026-08-21 10:20:56  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 10:20:56  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-08-21 10:20:56  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 10:20:56  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 10:20:56  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-08-21 10:20:56  [etl.ventas]        · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-21 10:20:59  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Marzo_2026 (Año: 2026)
+2026-08-21 10:20:59  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 10:21:10  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 10:22:11  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Marzo_2026: ['03. Marzo base ventas.xlsx', 'RUTERO MARZO 2026 D&P.xlsx']
+2026-08-21 10:22:25  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,522 filas previas de Marzo_2026 reemplazadas
+2026-08-21 10:22:30  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 03. Marzo base ventas.xlsx
+2026-08-21 10:23:16  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MARZO 2026 D&P.xlsx
+2026-08-21 10:24:56  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 10:24:57  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,522 del periodo 03/2026
+2026-08-21 10:24:58  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,522 filas × 50 col  →  29,344 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 10:25:03  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 0 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 10:25:04  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 29,344 filas en lotes de 1,000…
+2026-08-21 10:25:18  [etl.ventas]        · DEBUG     [stdout] 25,000/29,344 (85%)
+2026-08-21 10:25:20  [etl.ventas]        · DEBUG     [stdout] 29,344/29,344 (100%)
+2026-08-21 10:25:20  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 29,344 filas cargadas (03/2026)
+2026-08-21 10:25:20  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 10:25:24  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 10:25:26  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 10:25:28  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 10:25:32  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 10:25:34  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 10:25:41  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 10:25:41  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 10:25:41  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 03/2026
+2026-08-21 10:25:41  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 10:25:42  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (03/2026)
+2026-08-21 10:25:42  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Abril_2026 (Año: 2026)
+2026-08-21 10:25:42  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 10:25:57  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 10:29:18  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Abril_2026: ['04. Abril base ventas.xlsx', 'RUTERO ABRIL 2026 D&P.xlsx']
+2026-08-21 10:29:39  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 94,250 filas previas de Abril_2026 reemplazadas
+2026-08-21 10:29:44  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 04. Abril base ventas.xlsx
+2026-08-21 10:30:37  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO ABRIL 2026 D&P.xlsx
+2026-08-21 10:32:11  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 10:32:12  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 94,250 del periodo 04/2026
+2026-08-21 10:32:13  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 94,250 filas × 50 col  →  34,041 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 10:32:15  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 0 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 10:32:16  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 34,041 filas en lotes de 1,000…
+2026-08-21 10:32:27  [etl.ventas]        · DEBUG     [stdout] 25,000/34,041 (73%)
+2026-08-21 10:32:31  [etl.ventas]        · DEBUG     [stdout] 34,041/34,041 (100%)
+2026-08-21 10:32:31  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 34,041 filas cargadas (04/2026)
+2026-08-21 10:32:31  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 10:32:34  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 10:32:35  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 10:32:36  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 10:32:38  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 10:32:39  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 10:32:43  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 10:32:43  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 10:32:43  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 04/2026
+2026-08-21 10:32:43  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 10:32:44  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (04/2026)
+2026-08-21 10:32:44  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Mayo_2026 (Año: 2026)
+2026-08-21 10:32:44  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 10:32:54  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 10:33:42  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Mayo_2026: ['05. Mayo base ventas.xlsx', 'RUTERO MAYO 2026 D&P.xlsx']
+2026-08-21 10:33:57  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,165 filas previas de Mayo_2026 reemplazadas
+2026-08-21 10:34:01  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 05. Mayo base ventas.xlsx
+2026-08-21 10:34:47  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MAYO 2026 D&P.xlsx
+2026-08-21 10:36:44  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 10:36:44  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,165 del periodo 05/2026
+2026-08-21 10:36:46  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,165 filas × 50 col  →  28,117 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 10:36:48  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 0 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 10:36:49  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,117 filas en lotes de 1,000…
+2026-08-21 10:37:00  [etl.ventas]        · DEBUG     [stdout] 25,000/28,117 (88%)
+2026-08-21 10:37:01  [etl.ventas]        · DEBUG     [stdout] 28,117/28,117 (100%)
+2026-08-21 10:37:01  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,117 filas cargadas (05/2026)
+2026-08-21 10:37:02  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 10:37:04  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 10:37:06  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 10:37:07  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 10:37:09  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 10:37:10  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 10:37:14  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 10:37:14  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 10:37:14  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 05/2026
+2026-08-21 10:37:15  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 10:37:16  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (05/2026)
+2026-08-21 10:37:16  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Junio_2026 (Año: 2026)
+2026-08-21 10:37:16  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 10:37:26  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 10:38:15  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Junio_2026: ['06. Junio base ventas.xlsx', 'RUTERO JUNIO 2026 D&P.xlsx']
+2026-08-21 10:38:31  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 74,186 filas previas de Junio_2026 reemplazadas
+2026-08-21 10:38:35  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 06. Junio base ventas.xlsx
+2026-08-21 10:39:27  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JUNIO 2026 D&P.xlsx
+2026-08-21 10:41:00  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 10:41:01  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 74,186 del periodo 06/2026
+2026-08-21 10:41:02  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 74,186 filas × 50 col  →  27,708 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 10:41:03  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 0 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 10:41:03  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 27,708 filas en lotes de 1,000…
+2026-08-21 10:41:14  [etl.ventas]        · DEBUG     [stdout] 25,000/27,708 (90%)
+2026-08-21 10:41:15  [etl.ventas]        · DEBUG     [stdout] 27,708/27,708 (100%)
+2026-08-21 10:41:15  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 27,708 filas cargadas (06/2026)
+2026-08-21 10:41:15  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 10:41:18  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 10:41:19  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 10:41:20  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 10:41:22  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 10:41:23  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 10:41:26  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 10:41:26  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 10:41:26  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 06/2026
+2026-08-21 10:41:27  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 10:41:27  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (06/2026)
+2026-08-21 10:41:27  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Julio_2026 (Año: 2026)
+2026-08-21 10:41:27  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 10:41:40  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 10:42:40  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Julio_2026: ['07. Julio base ventas.xlsx', 'RUTERO JULIO 2026 D&P.xlsx']
+2026-08-21 10:42:52  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 78,455 filas previas de Julio_2026 reemplazadas
+2026-08-21 10:42:57  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 07. Julio base ventas.xlsx
+2026-08-21 10:43:42  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JULIO 2026 D&P.xlsx
+2026-08-21 10:45:27  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 10:45:28  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 78,455 del periodo 07/2026
+2026-08-21 10:45:29  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 78,455 filas × 50 col  →  28,931 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 10:45:31  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 0 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 10:45:32  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,931 filas en lotes de 1,000…
+2026-08-21 10:45:43  [etl.ventas]        · DEBUG     [stdout] 25,000/28,931 (86%)
+2026-08-21 10:45:44  [etl.ventas]        · DEBUG     [stdout] 28,931/28,931 (100%)
+2026-08-21 10:45:44  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,931 filas cargadas (07/2026)
+2026-08-21 10:45:45  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 10:45:46  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 10:45:47  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 10:45:49  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 10:45:50  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 10:45:52  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 10:45:55  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 10:45:55  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 10:45:55  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 07/2026
+2026-08-21 10:45:56  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 10:45:56  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (07/2026)
+2026-08-21 10:45:56  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (2,291,990 filas en consolidado)
+2026-08-21 10:46:05  [etl.ventas]        ✓ INFO      Duración total: 1500.3s
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 1500.3s
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK            1500.3s
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              20.1s
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                       1528.5s
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                 1520.5s
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -8.1s
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  2 WARNING
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        WARNING (2)
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        10:20:36  [shared_loader]     PT Directo y ISM no están en local para periodo 03/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO        10:20:56  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202603_a_202607_20260821_102036.log
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      Fin: 2026-08-21 10:46:05
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ▶ PERIODO 2/5: Abril_2026
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-21 10:46:05
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      Run ID: 20260821T102036_8a8881
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      Periodo: Abril_2026 (04/2026)
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['ventas']
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-21 10:46:05  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 10:46:05  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 04/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 10:46:12  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Abril 2026.xlsx
+2026-08-21 10:46:13  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Abril 2026.xlsx
+2026-08-21 10:46:13  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Abril 2026.xlsx
+2026-08-21 10:46:13  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Abril 2026.xlsx
+2026-08-21 10:46:13  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 10:46:13  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-21 10:46:13  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 10:46:19  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,764 filas PT  |  3,319 filas módulos cargadas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [ISM] 2,606 filas PT  |  872 filas módulos cargadas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,370 filas totales
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 4 | Año 2026
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 132 PDVs DISCOUNTER excluidos
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 5,060 → 4,488 filas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,488 filas retenidas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 78 PDVs DISCOUNTER excluidos
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 966 → 883 filas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 883 filas retenidas
+2026-08-21 10:46:21  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 810 → 733 filas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 733 filas retenidas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 3,175 → 2,782 filas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 2,782 filas retenidas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 750 → 680 filas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 680 filas retenidas
+2026-08-21 10:46:21  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-21 10:46:21  [etl.orquestador]   ✓ INFO      shared_loader completado en 16.4s
+2026-08-21 10:46:21  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 10:46:21  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-08-21 10:46:21  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 10:46:21  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 10:46:21  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-08-21 10:46:21  [etl.ventas]        · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-21 10:46:24  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Marzo_2026 (Año: 2026)
+2026-08-21 10:46:24  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 10:46:36  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 10:47:29  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Marzo_2026: ['03. Marzo base ventas.xlsx', 'RUTERO MARZO 2026 D&P.xlsx']
+2026-08-21 10:47:43  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,522 filas previas de Marzo_2026 reemplazadas
+2026-08-21 10:47:47  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 03. Marzo base ventas.xlsx
+2026-08-21 10:48:37  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MARZO 2026 D&P.xlsx
+2026-08-21 10:50:11  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 10:50:12  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,522 del periodo 03/2026
+2026-08-21 10:50:13  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,522 filas × 50 col  →  29,344 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 10:50:18  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 29,344 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 10:50:19  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 29,344 filas en lotes de 1,000…
+2026-08-21 10:50:30  [etl.ventas]        · DEBUG     [stdout] 25,000/29,344 (85%)
+2026-08-21 10:50:32  [etl.ventas]        · DEBUG     [stdout] 29,344/29,344 (100%)
+2026-08-21 10:50:32  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 29,344 filas cargadas (03/2026)
+2026-08-21 10:50:32  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 10:50:34  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 10:50:35  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 10:50:37  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 10:50:38  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 10:50:40  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 10:50:44  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 10:50:44  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 10:50:44  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 03/2026
+2026-08-21 10:50:45  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 10:50:46  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (03/2026)
+2026-08-21 10:50:46  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Abril_2026 (Año: 2026)
+2026-08-21 10:50:46  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 10:50:58  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 10:51:49  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Abril_2026: ['04. Abril base ventas.xlsx', 'RUTERO ABRIL 2026 D&P.xlsx']
+2026-08-21 10:52:02  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 94,250 filas previas de Abril_2026 reemplazadas
+2026-08-21 10:52:06  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 04. Abril base ventas.xlsx
+2026-08-21 10:53:05  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO ABRIL 2026 D&P.xlsx
+2026-08-21 10:54:59  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 10:55:00  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 94,250 del periodo 04/2026
+2026-08-21 10:55:01  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 94,250 filas × 50 col  →  34,041 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 10:55:05  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 34,041 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 10:55:06  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 34,041 filas en lotes de 1,000…
+2026-08-21 10:55:18  [etl.ventas]        · DEBUG     [stdout] 25,000/34,041 (73%)
+2026-08-21 10:55:22  [etl.ventas]        · DEBUG     [stdout] 34,041/34,041 (100%)
+2026-08-21 10:55:22  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 34,041 filas cargadas (04/2026)
+2026-08-21 10:55:22  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 10:55:24  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 10:55:25  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 10:55:27  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 10:55:28  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 10:55:29  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 10:55:33  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 10:55:33  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 10:55:33  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 04/2026
+2026-08-21 10:55:34  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 10:55:35  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (04/2026)
+2026-08-21 10:55:35  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Mayo_2026 (Año: 2026)
+2026-08-21 10:55:35  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 10:55:45  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 10:56:36  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Mayo_2026: ['05. Mayo base ventas.xlsx', 'RUTERO MAYO 2026 D&P.xlsx']
+2026-08-21 10:56:50  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,165 filas previas de Mayo_2026 reemplazadas
+2026-08-21 10:56:54  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 05. Mayo base ventas.xlsx
+2026-08-21 10:57:45  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MAYO 2026 D&P.xlsx
+2026-08-21 10:59:46  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 10:59:47  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,165 del periodo 05/2026
+2026-08-21 10:59:49  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,165 filas × 50 col  →  28,117 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 10:59:52  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 28,117 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 10:59:53  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,117 filas en lotes de 1,000…
+2026-08-21 11:00:06  [etl.ventas]        · DEBUG     [stdout] 25,000/28,117 (88%)
+2026-08-21 11:00:08  [etl.ventas]        · DEBUG     [stdout] 28,117/28,117 (100%)
+2026-08-21 11:00:08  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,117 filas cargadas (05/2026)
+2026-08-21 11:00:08  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:00:10  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:00:11  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:00:13  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:00:15  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:00:16  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:00:18  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:00:18  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:00:18  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 05/2026
+2026-08-21 11:00:19  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 11:00:20  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (05/2026)
+2026-08-21 11:00:20  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Junio_2026 (Año: 2026)
+2026-08-21 11:00:20  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:00:30  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:01:10  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Junio_2026: ['06. Junio base ventas.xlsx', 'RUTERO JUNIO 2026 D&P.xlsx']
+2026-08-21 11:01:24  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 74,186 filas previas de Junio_2026 reemplazadas
+2026-08-21 11:01:28  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 06. Junio base ventas.xlsx
+2026-08-21 11:02:16  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JUNIO 2026 D&P.xlsx
+2026-08-21 11:03:47  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:03:48  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 74,186 del periodo 06/2026
+2026-08-21 11:03:49  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 74,186 filas × 50 col  →  27,708 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:03:54  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 27,708 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 11:03:55  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 27,708 filas en lotes de 1,000…
+2026-08-21 11:04:10  [etl.ventas]        · DEBUG     [stdout] 25,000/27,708 (90%)
+2026-08-21 11:04:11  [etl.ventas]        · DEBUG     [stdout] 27,708/27,708 (100%)
+2026-08-21 11:04:11  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 27,708 filas cargadas (06/2026)
+2026-08-21 11:04:12  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:04:13  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:04:15  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:04:16  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:04:18  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:04:19  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:04:24  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:04:24  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:04:24  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 06/2026
+2026-08-21 11:04:25  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 11:04:25  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (06/2026)
+2026-08-21 11:04:25  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Julio_2026 (Año: 2026)
+2026-08-21 11:04:25  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:04:37  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:05:28  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Julio_2026: ['07. Julio base ventas.xlsx', 'RUTERO JULIO 2026 D&P.xlsx']
+2026-08-21 11:05:45  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 78,455 filas previas de Julio_2026 reemplazadas
+2026-08-21 11:05:51  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 07. Julio base ventas.xlsx
+2026-08-21 11:06:57  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JULIO 2026 D&P.xlsx
+2026-08-21 11:09:26  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:09:27  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 78,455 del periodo 07/2026
+2026-08-21 11:09:29  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 78,455 filas × 50 col  →  28,931 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:09:33  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 28,931 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 11:09:34  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,931 filas en lotes de 1,000…
+2026-08-21 11:09:45  [etl.ventas]        · DEBUG     [stdout] 25,000/28,931 (86%)
+2026-08-21 11:09:47  [etl.ventas]        · DEBUG     [stdout] 28,931/28,931 (100%)
+2026-08-21 11:09:47  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,931 filas cargadas (07/2026)
+2026-08-21 11:09:47  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:09:50  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:09:53  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:09:54  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:09:56  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:09:58  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:10:01  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:10:01  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:10:01  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 07/2026
+2026-08-21 11:10:03  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 11:10:04  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (07/2026)
+2026-08-21 11:10:04  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (2,291,990 filas en consolidado)
+2026-08-21 11:10:09  [etl.ventas]        ✓ INFO      Duración total: 1422.6s
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 1422.6s
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK            1422.6s
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              16.4s
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                       1444.0s
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                 1439.0s
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -5.0s
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  4 WARNING
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        WARNING (4)
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        10:20:36  [shared_loader]     PT Directo y ISM no están en local para periodo 03/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        10:20:56  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        10:46:05  [shared_loader]     PT Directo y ISM no están en local para periodo 04/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO        10:46:21  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202603_a_202607_20260821_102036.log
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      Fin: 2026-08-21 11:10:09
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ▶ PERIODO 3/5: Mayo_2026
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-21 11:10:09
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      Run ID: 20260821T102036_8a8881
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      Periodo: Mayo_2026 (05/2026)
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['ventas']
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-21 11:10:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:10:09  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 05/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:10:16  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Mayo 2026.xlsx
+2026-08-21 11:10:18  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Mayo 2026.xlsx
+2026-08-21 11:10:18  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Mayo 2026.xlsx
+2026-08-21 11:10:18  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Mayo 2026.xlsx
+2026-08-21 11:10:18  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 11:10:18  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-21 11:10:18  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 11:10:20  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,755 filas PT  |  3,319 filas módulos cargadas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [ISM] 2,445 filas PT  |  859 filas módulos cargadas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,200 filas totales
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 5 | Año 2026
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 132 PDVs DISCOUNTER excluidos
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 5,050 → 4,478 filas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,478 filas retenidas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 78 PDVs DISCOUNTER excluidos
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 903 → 827 filas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 827 filas retenidas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] precios: D9 — filtro OBSERVACIÓN/ROL 3,152 → 2,759 filas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 2,759 filas retenidas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 622 → 569 filas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 569 filas retenidas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 3,165 → 2,772 filas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 2,772 filas retenidas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 622 → 569 filas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 569 filas retenidas
+2026-08-21 11:10:21  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-21 11:10:21  [etl.orquestador]   ✓ INFO      shared_loader completado en 12.4s
+2026-08-21 11:10:21  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:10:21  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-08-21 11:10:21  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:10:21  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:10:21  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-08-21 11:10:21  [etl.ventas]        · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-21 11:10:23  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Marzo_2026 (Año: 2026)
+2026-08-21 11:10:23  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:10:29  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:11:24  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Marzo_2026: ['03. Marzo base ventas.xlsx', 'RUTERO MARZO 2026 D&P.xlsx']
+2026-08-21 11:11:39  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,522 filas previas de Marzo_2026 reemplazadas
+2026-08-21 11:11:44  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 03. Marzo base ventas.xlsx
+2026-08-21 11:12:34  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MARZO 2026 D&P.xlsx
+2026-08-21 11:14:04  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:14:05  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,522 del periodo 03/2026
+2026-08-21 11:14:06  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,522 filas × 50 col  →  29,344 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:14:12  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 29,344 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 11:14:13  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 29,344 filas en lotes de 1,000…
+2026-08-21 11:14:23  [etl.ventas]        · DEBUG     [stdout] 25,000/29,344 (85%)
+2026-08-21 11:14:25  [etl.ventas]        · DEBUG     [stdout] 29,344/29,344 (100%)
+2026-08-21 11:14:25  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 29,344 filas cargadas (03/2026)
+2026-08-21 11:14:26  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:14:28  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:14:29  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:14:31  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:14:32  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:14:34  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:14:39  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:14:39  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:14:39  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 03/2026
+2026-08-21 11:14:40  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 11:14:40  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (03/2026)
+2026-08-21 11:14:40  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Abril_2026 (Año: 2026)
+2026-08-21 11:14:40  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:14:51  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:15:46  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Abril_2026: ['04. Abril base ventas.xlsx', 'RUTERO ABRIL 2026 D&P.xlsx']
+2026-08-21 11:16:26  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 94,250 filas previas de Abril_2026 reemplazadas
+2026-08-21 11:16:31  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 04. Abril base ventas.xlsx
+2026-08-21 11:17:42  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO ABRIL 2026 D&P.xlsx
+2026-08-21 11:19:30  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:19:31  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 94,250 del periodo 04/2026
+2026-08-21 11:19:33  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 94,250 filas × 50 col  →  34,041 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:19:39  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 34,041 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 11:19:40  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 34,041 filas en lotes de 1,000…
+2026-08-21 11:19:52  [etl.ventas]        · DEBUG     [stdout] 25,000/34,041 (73%)
+2026-08-21 11:19:56  [etl.ventas]        · DEBUG     [stdout] 34,041/34,041 (100%)
+2026-08-21 11:19:56  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 34,041 filas cargadas (04/2026)
+2026-08-21 11:19:56  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:19:58  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:20:00  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:20:02  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:20:04  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:20:05  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:20:11  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:20:11  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:20:11  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 04/2026
+2026-08-21 11:20:12  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 11:20:12  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (04/2026)
+2026-08-21 11:20:12  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Mayo_2026 (Año: 2026)
+2026-08-21 11:20:12  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:20:23  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:21:31  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Mayo_2026: ['05. Mayo base ventas.xlsx', 'RUTERO MAYO 2026 D&P.xlsx']
+2026-08-21 11:21:47  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,165 filas previas de Mayo_2026 reemplazadas
+2026-08-21 11:21:50  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 05. Mayo base ventas.xlsx
+2026-08-21 11:22:35  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MAYO 2026 D&P.xlsx
+2026-08-21 11:24:15  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:24:16  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,165 del periodo 05/2026
+2026-08-21 11:24:17  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,165 filas × 50 col  →  28,117 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:24:22  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 28,117 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 11:24:23  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,117 filas en lotes de 1,000…
+2026-08-21 11:24:33  [etl.ventas]        · DEBUG     [stdout] 25,000/28,117 (88%)
+2026-08-21 11:24:35  [etl.ventas]        · DEBUG     [stdout] 28,117/28,117 (100%)
+2026-08-21 11:24:35  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,117 filas cargadas (05/2026)
+2026-08-21 11:24:35  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:24:37  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:24:38  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:24:40  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:24:41  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:24:43  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:24:47  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:24:47  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:24:47  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 05/2026
+2026-08-21 11:24:48  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 11:24:48  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (05/2026)
+2026-08-21 11:24:48  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Junio_2026 (Año: 2026)
+2026-08-21 11:24:48  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:24:58  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:25:47  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Junio_2026: ['06. Junio base ventas.xlsx', 'RUTERO JUNIO 2026 D&P.xlsx']
+2026-08-21 11:25:59  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 74,186 filas previas de Junio_2026 reemplazadas
+2026-08-21 11:26:03  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 06. Junio base ventas.xlsx
+2026-08-21 11:26:50  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JUNIO 2026 D&P.xlsx
+2026-08-21 11:28:52  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:28:53  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 74,186 del periodo 06/2026
+2026-08-21 11:28:55  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 74,186 filas × 50 col  →  27,708 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:28:58  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 27,708 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 11:28:59  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 27,708 filas en lotes de 1,000…
+2026-08-21 11:29:10  [etl.ventas]        · DEBUG     [stdout] 25,000/27,708 (90%)
+2026-08-21 11:29:12  [etl.ventas]        · DEBUG     [stdout] 27,708/27,708 (100%)
+2026-08-21 11:29:12  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 27,708 filas cargadas (06/2026)
+2026-08-21 11:29:12  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:29:14  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:29:16  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:29:17  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:29:19  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:29:20  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:29:27  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:29:27  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:29:27  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 06/2026
+2026-08-21 11:29:28  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 11:29:28  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (06/2026)
+2026-08-21 11:29:28  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Julio_2026 (Año: 2026)
+2026-08-21 11:29:28  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:29:38  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:30:28  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Julio_2026: ['07. Julio base ventas.xlsx', 'RUTERO JULIO 2026 D&P.xlsx']
+2026-08-21 11:30:40  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 78,455 filas previas de Julio_2026 reemplazadas
+2026-08-21 11:30:44  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 07. Julio base ventas.xlsx
+2026-08-21 11:31:32  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JULIO 2026 D&P.xlsx
+2026-08-21 11:33:09  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:33:09  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 78,455 del periodo 07/2026
+2026-08-21 11:33:11  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 78,455 filas × 50 col  →  28,931 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:33:15  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 28,931 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 11:33:15  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,931 filas en lotes de 1,000…
+2026-08-21 11:33:27  [etl.ventas]        · DEBUG     [stdout] 25,000/28,931 (86%)
+2026-08-21 11:33:28  [etl.ventas]        · DEBUG     [stdout] 28,931/28,931 (100%)
+2026-08-21 11:33:28  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,931 filas cargadas (07/2026)
+2026-08-21 11:33:29  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:33:30  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:33:32  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:33:34  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:33:35  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:33:37  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:33:41  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:33:41  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:33:41  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 07/2026
+2026-08-21 11:33:42  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 11:33:42  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (07/2026)
+2026-08-21 11:33:42  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (2,291,990 filas en consolidado)
+2026-08-21 11:33:47  [etl.ventas]        ✓ INFO      Duración total: 1401.1s
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 1401.1s
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK            1401.1s
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              12.4s
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                       1418.2s
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                 1413.4s
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -4.8s
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  5 WARNING
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        WARNING (5)
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        10:20:36  [shared_loader]     PT Directo y ISM no están en local para periodo 03/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        10:20:56  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        10:46:05  [shared_loader]     PT Directo y ISM no están en local para periodo 04/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        10:46:21  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO        11:10:09  [shared_loader]     PT Directo y ISM no están en local para periodo 05/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202603_a_202607_20260821_102036.log
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      Fin: 2026-08-21 11:33:47
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ▶ PERIODO 4/5: Junio_2026
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-21 11:33:47
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      Run ID: 20260821T102036_8a8881
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      Periodo: Junio_2026 (06/2026)
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['ventas']
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-21 11:33:47  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:33:47  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 06/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:33:57  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Junio 2026.xlsx
+2026-08-21 11:34:02  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Junio 2026.xlsx
+2026-08-21 11:34:02  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Junio 2026.xlsx
+2026-08-21 11:34:02  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Junio 2026.xlsx
+2026-08-21 11:34:02  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 11:34:02  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-21 11:34:02  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 11:34:08  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,647 filas PT  |  3,258 filas módulos cargadas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [ISM] 2,497 filas PT  |  893 filas módulos cargadas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,144 filas totales
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 6 | Año 2026
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 137 PDVs DISCOUNTER excluidos
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 5,051 → 4,474 filas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,474 filas retenidas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 78 PDVs DISCOUNTER excluidos
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 930 → 858 filas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 858 filas retenidas
+2026-08-21 11:34:10  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 772 → 711 filas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 711 filas retenidas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 4,035 → 3,548 filas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,548 filas retenidas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 740 → 681 filas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 681 filas retenidas
+2026-08-21 11:34:10  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-21 11:34:10  [etl.orquestador]   ✓ INFO      shared_loader completado en 22.8s
+2026-08-21 11:34:10  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:34:10  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-08-21 11:34:10  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:34:10  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:34:10  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-08-21 11:34:10  [etl.ventas]        · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-21 11:34:13  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Marzo_2026 (Año: 2026)
+2026-08-21 11:34:13  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:34:23  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:35:21  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Marzo_2026: ['03. Marzo base ventas.xlsx', 'RUTERO MARZO 2026 D&P.xlsx']
+2026-08-21 11:35:35  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,522 filas previas de Marzo_2026 reemplazadas
+2026-08-21 11:35:39  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 03. Marzo base ventas.xlsx
+2026-08-21 11:36:25  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MARZO 2026 D&P.xlsx
+2026-08-21 11:38:18  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:38:19  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,522 del periodo 03/2026
+2026-08-21 11:38:20  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,522 filas × 50 col  →  29,344 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:38:24  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 29,344 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 11:38:24  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 29,344 filas en lotes de 1,000…
+2026-08-21 11:38:36  [etl.ventas]        · DEBUG     [stdout] 25,000/29,344 (85%)
+2026-08-21 11:38:38  [etl.ventas]        · DEBUG     [stdout] 29,344/29,344 (100%)
+2026-08-21 11:38:38  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 29,344 filas cargadas (03/2026)
+2026-08-21 11:38:38  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:38:40  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:38:41  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:38:42  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:38:44  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:38:45  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:38:48  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:38:48  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:38:48  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 03/2026
+2026-08-21 11:38:49  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 11:38:49  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (03/2026)
+2026-08-21 11:38:49  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Abril_2026 (Año: 2026)
+2026-08-21 11:38:49  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:39:01  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:39:50  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Abril_2026: ['04. Abril base ventas.xlsx', 'RUTERO ABRIL 2026 D&P.xlsx']
+2026-08-21 11:40:03  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 94,250 filas previas de Abril_2026 reemplazadas
+2026-08-21 11:40:06  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 04. Abril base ventas.xlsx
+2026-08-21 11:41:04  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO ABRIL 2026 D&P.xlsx
+2026-08-21 11:42:46  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:42:47  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 94,250 del periodo 04/2026
+2026-08-21 11:42:49  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 94,250 filas × 50 col  →  34,041 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:42:54  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 34,041 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 11:42:55  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 34,041 filas en lotes de 1,000…
+2026-08-21 11:43:06  [etl.ventas]        · DEBUG     [stdout] 25,000/34,041 (73%)
+2026-08-21 11:43:10  [etl.ventas]        · DEBUG     [stdout] 34,041/34,041 (100%)
+2026-08-21 11:43:10  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 34,041 filas cargadas (04/2026)
+2026-08-21 11:43:11  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:43:13  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:43:15  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:43:16  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:43:19  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:43:20  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:43:24  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:43:24  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:43:24  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 04/2026
+2026-08-21 11:43:25  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 11:43:25  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (04/2026)
+2026-08-21 11:43:25  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Mayo_2026 (Año: 2026)
+2026-08-21 11:43:25  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:43:35  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:44:49  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Mayo_2026: ['05. Mayo base ventas.xlsx', 'RUTERO MAYO 2026 D&P.xlsx']
+2026-08-21 11:45:04  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,165 filas previas de Mayo_2026 reemplazadas
+2026-08-21 11:45:09  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 05. Mayo base ventas.xlsx
+2026-08-21 11:45:56  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MAYO 2026 D&P.xlsx
+2026-08-21 11:47:39  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:47:40  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,165 del periodo 05/2026
+2026-08-21 11:47:41  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,165 filas × 50 col  →  28,117 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:47:45  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 28,117 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 11:47:46  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,117 filas en lotes de 1,000…
+2026-08-21 11:48:03  [etl.ventas]        · DEBUG     [stdout] 25,000/28,117 (88%)
+2026-08-21 11:48:05  [etl.ventas]        · DEBUG     [stdout] 28,117/28,117 (100%)
+2026-08-21 11:48:05  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,117 filas cargadas (05/2026)
+2026-08-21 11:48:05  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:48:08  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:48:09  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:48:11  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:48:12  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:48:14  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:48:17  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:48:17  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:48:17  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 05/2026
+2026-08-21 11:48:18  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 11:48:19  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (05/2026)
+2026-08-21 11:48:19  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Junio_2026 (Año: 2026)
+2026-08-21 11:48:19  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:48:28  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:49:18  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Junio_2026: ['06. Junio base ventas.xlsx', 'RUTERO JUNIO 2026 D&P.xlsx']
+2026-08-21 11:49:32  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 74,186 filas previas de Junio_2026 reemplazadas
+2026-08-21 11:49:36  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 06. Junio base ventas.xlsx
+2026-08-21 11:50:16  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JUNIO 2026 D&P.xlsx
+2026-08-21 11:51:50  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:51:51  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 74,186 del periodo 06/2026
+2026-08-21 11:51:52  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 74,186 filas × 50 col  →  27,708 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:51:57  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 27,708 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 11:51:58  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 27,708 filas en lotes de 1,000…
+2026-08-21 11:52:09  [etl.ventas]        · DEBUG     [stdout] 25,000/27,708 (90%)
+2026-08-21 11:52:10  [etl.ventas]        · DEBUG     [stdout] 27,708/27,708 (100%)
+2026-08-21 11:52:10  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 27,708 filas cargadas (06/2026)
+2026-08-21 11:52:11  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:52:14  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:52:15  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:52:17  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:52:18  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:52:20  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:52:23  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:52:23  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:52:23  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 06/2026
+2026-08-21 11:52:25  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 11:52:25  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (06/2026)
+2026-08-21 11:52:25  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Julio_2026 (Año: 2026)
+2026-08-21 11:52:25  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:52:34  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:53:27  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Julio_2026: ['07. Julio base ventas.xlsx', 'RUTERO JULIO 2026 D&P.xlsx']
+2026-08-21 11:53:41  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 78,455 filas previas de Julio_2026 reemplazadas
+2026-08-21 11:53:47  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 07. Julio base ventas.xlsx
+2026-08-21 11:54:35  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JULIO 2026 D&P.xlsx
+2026-08-21 11:56:04  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 11:56:05  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 78,455 del periodo 07/2026
+2026-08-21 11:56:06  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 78,455 filas × 50 col  →  28,931 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 11:56:09  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 28,931 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 11:56:10  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,931 filas en lotes de 1,000…
+2026-08-21 11:56:21  [etl.ventas]        · DEBUG     [stdout] 25,000/28,931 (86%)
+2026-08-21 11:56:23  [etl.ventas]        · DEBUG     [stdout] 28,931/28,931 (100%)
+2026-08-21 11:56:23  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,931 filas cargadas (07/2026)
+2026-08-21 11:56:23  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 11:56:26  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 11:56:27  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 11:56:28  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 11:56:29  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 11:56:31  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 11:56:34  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 11:56:34  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 11:56:34  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 07/2026
+2026-08-21 11:56:35  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 11:56:35  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (07/2026)
+2026-08-21 11:56:35  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (2,291,990 filas en consolidado)
+2026-08-21 11:56:38  [etl.ventas]        ✓ INFO      Duración total: 1345.6s
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 1345.6s
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK            1345.6s
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              22.8s
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                       1370.9s
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                 1368.5s
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -2.4s
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  7 WARNING
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        WARNING (7)
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        10:20:36  [shared_loader]     PT Directo y ISM no están en local para periodo 03/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        10:20:56  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        10:46:05  [shared_loader]     PT Directo y ISM no están en local para periodo 04/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        10:46:21  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        11:10:09  [shared_loader]     PT Directo y ISM no están en local para periodo 05/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        11:33:47  [shared_loader]     PT Directo y ISM no están en local para periodo 06/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO        11:34:10  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202603_a_202607_20260821_102036.log
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      Fin: 2026-08-21 11:56:38
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ▶ PERIODO 5/5: Julio_2026
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-21 11:56:38
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      Run ID: 20260821T102036_8a8881
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      Periodo: Julio_2026 (07/2026)
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['ventas']
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-21 11:56:38  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 11:56:38  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 07/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 11:56:45  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Julio 2026.xlsx
+2026-08-21 11:56:48  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Julio 2026.xlsx
+2026-08-21 11:56:48  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Julio 2026.xlsx
+2026-08-21 11:56:48  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Julio 2026.xlsx
+2026-08-21 11:56:48  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 11:56:48  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-21 11:56:48  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-21 11:56:53  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,601 filas PT  |  3,262 filas módulos cargadas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [ISM] 2,530 filas PT  |  888 filas módulos cargadas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,131 filas totales
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 7 | Año 2026
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 132 PDVs DISCOUNTER excluidos
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 4,941 → 4,415 filas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,415 filas retenidas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 78 PDVs DISCOUNTER excluidos
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 902 → 826 filas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 826 filas retenidas
+2026-08-21 11:56:54  [etl.shared_loader]  ⚠ WARNING   [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 791 → 727 filas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 727 filas retenidas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 4,084 → 3,614 filas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,614 filas retenidas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 759 → 697 filas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 697 filas retenidas
+2026-08-21 11:56:54  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-08-21 11:56:54  [etl.orquestador]   ✓ INFO      shared_loader completado en 16.6s
+2026-08-21 11:56:54  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:56:54  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-08-21 11:56:54  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:56:54  [etl.ventas]        ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 11:56:54  [etl.ventas]        ✓ INFO      ETL Ventas D&P — iniciando
+2026-08-21 11:56:54  [etl.ventas]        · DEBUG     [stdout] 🔒 Autenticando con Microsoft Graph API...
+2026-08-21 11:56:58  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Marzo_2026 (Año: 2026)
+2026-08-21 11:56:58  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 11:57:08  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 11:58:00  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Marzo_2026: ['03. Marzo base ventas.xlsx', 'RUTERO MARZO 2026 D&P.xlsx']
+2026-08-21 11:58:13  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,522 filas previas de Marzo_2026 reemplazadas
+2026-08-21 11:58:19  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 03. Marzo base ventas.xlsx
+2026-08-21 11:59:04  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MARZO 2026 D&P.xlsx
+2026-08-21 12:00:36  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 12:00:36  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,522 del periodo 03/2026
+2026-08-21 12:00:38  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,522 filas × 50 col  →  29,344 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 12:00:42  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 29,344 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 12:00:43  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 29,344 filas en lotes de 1,000…
+2026-08-21 12:00:53  [etl.ventas]        · DEBUG     [stdout] 25,000/29,344 (85%)
+2026-08-21 12:00:55  [etl.ventas]        · DEBUG     [stdout] 29,344/29,344 (100%)
+2026-08-21 12:00:55  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 29,344 filas cargadas (03/2026)
+2026-08-21 12:00:55  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 12:00:57  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 12:00:58  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 12:01:00  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 12:01:01  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 12:01:03  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 12:01:07  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 12:01:07  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 12:01:07  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 03/2026
+2026-08-21 12:01:07  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 03/2026 eliminadas
+2026-08-21 12:01:08  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (03/2026)
+2026-08-21 12:01:08  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Abril_2026 (Año: 2026)
+2026-08-21 12:01:08  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 12:01:17  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 12:02:11  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Abril_2026: ['04. Abril base ventas.xlsx', 'RUTERO ABRIL 2026 D&P.xlsx']
+2026-08-21 12:02:25  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 94,250 filas previas de Abril_2026 reemplazadas
+2026-08-21 12:02:28  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 04. Abril base ventas.xlsx
+2026-08-21 12:03:25  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO ABRIL 2026 D&P.xlsx
+2026-08-21 12:05:11  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 12:05:11  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 94,250 del periodo 04/2026
+2026-08-21 12:05:13  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 94,250 filas × 50 col  →  34,041 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 12:05:17  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 34,041 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 12:05:18  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 34,041 filas en lotes de 1,000…
+2026-08-21 12:05:30  [etl.ventas]        · DEBUG     [stdout] 25,000/34,041 (73%)
+2026-08-21 12:05:34  [etl.ventas]        · DEBUG     [stdout] 34,041/34,041 (100%)
+2026-08-21 12:05:34  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 34,041 filas cargadas (04/2026)
+2026-08-21 12:05:34  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 12:05:36  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 12:05:38  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 12:05:40  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 12:05:41  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 12:05:43  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 12:05:47  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 12:05:47  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 12:05:47  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 04/2026
+2026-08-21 12:05:47  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 04/2026 eliminadas
+2026-08-21 12:05:48  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (04/2026)
+2026-08-21 12:05:48  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Mayo_2026 (Año: 2026)
+2026-08-21 12:05:48  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 12:05:58  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 12:07:02  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Mayo_2026: ['05. Mayo base ventas.xlsx', 'RUTERO MAYO 2026 D&P.xlsx']
+2026-08-21 12:07:19  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 76,165 filas previas de Mayo_2026 reemplazadas
+2026-08-21 12:07:22  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 05. Mayo base ventas.xlsx
+2026-08-21 12:08:06  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO MAYO 2026 D&P.xlsx
+2026-08-21 12:09:56  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 12:09:57  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 76,165 del periodo 05/2026
+2026-08-21 12:09:58  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 76,165 filas × 50 col  →  28,117 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 12:10:02  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 28,117 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 12:10:03  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,117 filas en lotes de 1,000…
+2026-08-21 12:10:15  [etl.ventas]        · DEBUG     [stdout] 25,000/28,117 (88%)
+2026-08-21 12:10:17  [etl.ventas]        · DEBUG     [stdout] 28,117/28,117 (100%)
+2026-08-21 12:10:17  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,117 filas cargadas (05/2026)
+2026-08-21 12:10:17  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 12:10:20  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 12:10:21  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 12:10:22  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 12:10:24  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 12:10:25  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 12:10:29  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 12:10:29  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 12:10:29  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 05/2026
+2026-08-21 12:10:30  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 05/2026 eliminadas
+2026-08-21 12:10:30  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (05/2026)
+2026-08-21 12:10:30  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Junio_2026 (Año: 2026)
+2026-08-21 12:10:30  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 12:10:42  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 12:11:46  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Junio_2026: ['06. Junio base ventas.xlsx', 'RUTERO JUNIO 2026 D&P.xlsx']
+2026-08-21 12:12:00  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 74,186 filas previas de Junio_2026 reemplazadas
+2026-08-21 12:12:04  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 06. Junio base ventas.xlsx
+2026-08-21 12:12:47  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JUNIO 2026 D&P.xlsx
+2026-08-21 12:14:47  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 12:14:48  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 74,186 del periodo 06/2026
+2026-08-21 12:14:49  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 74,186 filas × 50 col  →  27,708 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 12:14:53  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 27,708 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 12:14:54  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 27,708 filas en lotes de 1,000…
+2026-08-21 12:15:08  [etl.ventas]        · DEBUG     [stdout] 25,000/27,708 (90%)
+2026-08-21 12:15:09  [etl.ventas]        · DEBUG     [stdout] 27,708/27,708 (100%)
+2026-08-21 12:15:09  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 27,708 filas cargadas (06/2026)
+2026-08-21 12:15:10  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 12:15:11  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 12:15:12  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 12:15:14  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 12:15:16  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 12:15:17  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 12:15:22  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 12:15:22  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 12:15:22  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 06/2026
+2026-08-21 12:15:22  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 06/2026 eliminadas
+2026-08-21 12:15:23  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (06/2026)
+2026-08-21 12:15:23  [etl.ventas]        · DEBUG     [stdout] 🎯 Procesando periodo: Julio_2026 (Año: 2026)
+2026-08-21 12:15:23  [etl.ventas]        · DEBUG     [stdout] ☁️ Consultando ruta de origen en SharePoint: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/2026
+2026-08-21 12:15:33  [etl.ventas]        ✓ INFO      [stdout] ✅ Archivos encontrados en la nube para 2026: 24
+2026-08-21 12:16:36  [etl.ventas]        · DEBUG     [stdout] ℹ️  Reprocesando 2 archivo(s) de Julio_2026: ['07. Julio base ventas.xlsx', 'RUTERO JULIO 2026 D&P.xlsx']
+2026-08-21 12:16:49  [etl.ventas]        · DEBUG     [stdout] Modo upsert cloud (Ventas) — 78,455 filas previas de Julio_2026 reemplazadas
+2026-08-21 12:16:58  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: 07. Julio base ventas.xlsx
+2026-08-21 12:17:42  [etl.ventas]        · DEBUG     [stdout] → Procesando ventas desde nube: RUTERO JULIO 2026 D&P.xlsx
+2026-08-21 12:19:39  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Ventas guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Ventas.csv (458,398 filas)
+2026-08-21 12:19:40  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas: 458,398 filas en el consolidado → 78,455 del periodo 07/2026
+2026-08-21 12:19:41  [etl.ventas]        · DEBUG     [stdout] ℹ️  Ventas → Supabase: 78,455 filas × 50 col  →  28,931 × 8 (agrupado por marca). El CSV de SharePoint conserva el detalle por producto.
+2026-08-21 12:19:45  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_ventas_detalle: 28,931 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 12:19:46  [etl.ventas]        · DEBUG     [stdout] ⏳ dyp_ventas_detalle: subiendo 28,931 filas en lotes de 1,000…
+2026-08-21 12:19:57  [etl.ventas]        · DEBUG     [stdout] 25,000/28,931 (86%)
+2026-08-21 12:19:58  [etl.ventas]        · DEBUG     [stdout] 28,931/28,931 (100%)
+2026-08-21 12:19:58  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_ventas_detalle: 28,931 filas cargadas (07/2026)
+2026-08-21 12:19:59  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 03. Marzo base impactos - cuota.xlsx
+2026-08-21 12:20:00  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 04. Abril base impactos - cuota.xlsx
+2026-08-21 12:20:02  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 05. Mayo base impactos - cuota.xlsx
+2026-08-21 12:20:08  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 06. Junio base impactos - cuota.xlsx
+2026-08-21 12:20:14  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 07. Julio base impactos - cuota.xlsx
+2026-08-21 12:20:17  [etl.ventas]        · DEBUG     [stdout] → Procesando impactos desde nube: 08. Agosto base impactos - cuota.xlsx
+2026-08-21 12:20:24  [etl.ventas]        ✓ INFO      [stdout] ✅ Consolidado de Impactos guardado en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv (408 filas)
+2026-08-21 12:20:24  [etl.ventas]        · DEBUG     [stdout] ℹ️  Impactos → Supabase: separador de miles quitado en 7 columnas (Cuota, Venta, Total Clientes a Visitar, Clientes Visitados, Total Clientes a Impactar, Clientes Impactados, Clientes Georeferenciados)
+2026-08-21 12:20:24  [etl.ventas]        · DEBUG     [stdout] ℹ️  dyp_impactos_detalle: 408 filas en el archivo → 68 del periodo 07/2026
+2026-08-21 12:20:25  [etl.ventas]        · DEBUG     [stdout] 🗑️  dyp_impactos_detalle: 68 fila(s) del periodo 07/2026 eliminadas
+2026-08-21 12:20:26  [etl.ventas]        ✓ INFO      [stdout] ✅ dyp_impactos_detalle: 68 filas cargadas (07/2026)
+2026-08-21 12:20:26  [etl.ventas]        ✓ INFO      ETL Ventas D&P — completado (2,291,990 filas en consolidado)
+2026-08-21 12:20:28  [etl.ventas]        ✓ INFO      Duración total: 1411.5s
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      ETL 'ventas' terminó — ✓ OK en 1411.5s
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        ventas                 ✓ OK            1411.5s
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              16.6s
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                       1430.3s
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                 1428.0s
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -2.3s
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  9 WARNING
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        WARNING (9)
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      ························································
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        10:20:36  [shared_loader]     PT Directo y ISM no están en local para periodo 03/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        10:20:56  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        10:46:05  [shared_loader]     PT Directo y ISM no están en local para periodo 04/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        10:46:21  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        11:10:09  [shared_loader]     PT Directo y ISM no están en local para periodo 05/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        11:33:47  [shared_loader]     PT Directo y ISM no están en local para periodo 06/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        11:34:10  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        11:56:38  [shared_loader]     PT Directo y ISM no están en local para periodo 07/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO        11:56:54  [shared_loader]     [DIRECTO] Módulo 'precios': el filtro devolvió 0 filas (columna 'PRECIOS' sin valores = 1, o IDs sin coincidencia en el PT)
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202603_a_202607_20260821_102036.log
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      Fin: 2026-08-21 12:20:28
+2026-08-21 12:20:28  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

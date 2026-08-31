@@ -41,23 +41,134 @@ from typing import Callable, Iterable
 import paths
 import periodo_resolver as pr
 
-try:
-    from supabase import create_client
-    _SUPABASE_URL = os.environ.get("SUPABASE_URL")
-    _SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-    supabase = create_client(_SUPABASE_URL, _SUPABASE_KEY) if (_SUPABASE_URL and _SUPABASE_KEY) else None
-except Exception:
-    supabase = None
-
-TABLA_RUN_LOG = "etl_run_log"
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Localización del run_log
 # ─────────────────────────────────────────────────────────────────────────────
+# El historial de corridas vive en SharePoint, NO en Supabase: es un registro
+# operativo del pipeline (qué ETL corrió, cuándo, con qué hashes), no un dato
+# de negocio para BI. Mezclarlo con las tablas analíticas ensuciaba la base.
+#
+# Se guarda como JSONL — un evento por línea — porque solo se escribe
+# añadiendo al final y se lee de corrido.
+
+RUTA_CARPETA_LOGS_CLOUD = f"{paths._SALIDAS_ROOT}/LOGS"
+RUTA_RUN_LOG_CLOUD      = f"{RUTA_CARPETA_LOGS_CLOUD}/run_log.jsonl"
 
 LOGS_DIR     = Path(__file__).parent / "logs"
 RUN_LOG_PATH = LOGS_DIR / "run_log.jsonl"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Acceso a SharePoint (JSONL como archivo de texto plano)
+# ─────────────────────────────────────────────────────────────────────────────
+
+_cache_headers: dict | None = None
+_cache_site_id: str | None = None
+
+
+def _conexion_cloud() -> tuple[dict, str] | None:
+    """Devuelve (headers, site_id) o None si no hay credenciales/conexión."""
+    global _cache_headers, _cache_site_id
+    if _cache_headers is not None and _cache_site_id is not None:
+        return _cache_headers, _cache_site_id
+    try:
+        import msal
+        import requests
+
+        if not all([paths.AZURE_TENANT_ID, paths.AZURE_CLIENT_ID, paths.AZURE_CLIENT_SECRET]):
+            return None
+
+        app = msal.ConfidentialClientApplication(
+            paths.AZURE_CLIENT_ID,
+            authority=f"https://login.microsoftonline.com/{paths.AZURE_TENANT_ID}",
+            client_credential=paths.AZURE_CLIENT_SECRET,
+        )
+        res = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
+        if "access_token" not in res:
+            return None
+
+        headers = {"Authorization": f"Bearer {res['access_token']}"}
+        url = f"https://graph.microsoft.com/v1.0/sites/root:/sites/{paths.SHAREPOINT_SITE_NAME}"
+        r = requests.get(url, headers=headers).json()
+        if "id" not in r:
+            return None
+
+        _cache_headers, _cache_site_id = headers, r["id"]
+        return _cache_headers, _cache_site_id
+    except Exception:
+        return None
+
+
+def _leer_run_log_cloud() -> str:
+    """Contenido actual del run_log en SharePoint ('' si no existe)."""
+    conn = _conexion_cloud()
+    if not conn:
+        return ""
+    headers, site_id = conn
+    try:
+        import urllib.parse
+        import requests
+        url = (
+            f"https://graph.microsoft.com/v1.0/sites/{site_id}"
+            f"/drive/root:/{urllib.parse.quote(RUTA_RUN_LOG_CLOUD)}:/content"
+        )
+        r = requests.get(url, headers=headers)
+        return r.text if r.status_code == 200 else ""
+    except Exception:
+        return ""
+
+
+def _asegurar_carpeta_logs(headers: dict, site_id: str) -> None:
+    """
+    Crea SALIDAS/LOGS en SharePoint si no existe.
+
+    Graph no crea las carpetas intermedias al subir un archivo: si la carpeta
+    falta, el PUT devuelve 404. En un runner nuevo de GitHub Actions nadie la
+    ha creado a mano, así que hay que asegurarla antes del primer registro.
+    """
+    import urllib.parse
+    import requests
+
+    padre, _, nombre = RUTA_CARPETA_LOGS_CLOUD.rpartition("/")
+    url = (
+        f"https://graph.microsoft.com/v1.0/sites/{site_id}"
+        f"/drive/root:/{urllib.parse.quote(padre)}:/children"
+    )
+    requests.post(
+        url,
+        headers={**headers, "Content-Type": "application/json"},
+        json={
+            "name": nombre,
+            "folder": {},
+            # Si ya existe, no se toca ni se duplica.
+            "@microsoft.graph.conflictBehavior": "fail",
+        },
+    )
+
+
+def _escribir_run_log_cloud(contenido: str) -> bool:
+    conn = _conexion_cloud()
+    if not conn:
+        return False
+    headers, site_id = conn
+    try:
+        import urllib.parse
+        import requests
+        url = (
+            f"https://graph.microsoft.com/v1.0/sites/{site_id}"
+            f"/drive/root:/{urllib.parse.quote(RUTA_RUN_LOG_CLOUD)}:/content"
+        )
+        cabeceras = {**headers, "Content-Type": "text/plain; charset=utf-8"}
+        r = requests.put(url, headers=cabeceras, data=contenido.encode("utf-8"))
+
+        # 404 = la carpeta LOGS todavía no existe. Se crea y se reintenta una vez.
+        if r.status_code == 404:
+            _asegurar_carpeta_logs(headers, site_id)
+            r = requests.put(url, headers=cabeceras, data=contenido.encode("utf-8"))
+
+        return r.status_code in (200, 201)
+    except Exception:
+        return False
 
 
 def _ensure_logs_dir() -> None:
@@ -233,25 +344,31 @@ class RunEvent:
 
 def log_run(event: RunEvent) -> None:
     """
-    Registra el evento en Supabase (tabla etl_run_log) — así el historial
-    persiste entre corridas de GitHub Actions, donde el disco es efímero y
-    un .jsonl local se perdía en cada ejecución.
+    Añade el evento al run_log de SharePoint (SALIDAS/LOGS/run_log.jsonl).
 
-    Si Supabase no está configurado (sin SUPABASE_URL/KEY) o la carga
-    falla, cae a un respaldo local en SCRIPTS/logs/run_log.jsonl — no
-    bloquea el pipeline por esto.
+    Se guarda en la nube porque en GitHub Actions el disco es efímero: un
+    .jsonl local se perdería en cada corrida y `--skip-if-cached` nunca
+    encontraría el run anterior.
+
+    JSONL no admite "append" por API, así que se descarga, se agrega la línea
+    y se vuelve a subir. El archivo es pequeño (una línea por ETL y periodo),
+    así que el costo es despreciable.
+
+    Si SharePoint no está disponible, cae a un respaldo local — no bloquea
+    el pipeline por no poder registrar el evento.
     """
-    if supabase is not None:
-        try:
-            registro = asdict(event)
-            supabase.table(TABLA_RUN_LOG).insert(registro).execute()
-            return
-        except Exception as e:
-            print(f"  ⚠ No se pudo registrar el run en Supabase ({e}); guardo respaldo local")
+    linea = event.to_jsonl()
 
+    contenido = _leer_run_log_cloud()
+    if contenido and not contenido.endswith("\n"):
+        contenido += "\n"
+    if _escribir_run_log_cloud(contenido + linea):
+        return
+
+    print("  ⚠ No se pudo registrar el run en SharePoint; guardo respaldo local")
     _ensure_logs_dir()
     with open(RUN_LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(event.to_jsonl())
+        f.write(linea)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -259,40 +376,27 @@ def log_run(event: RunEvent) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _iter_eventos() -> Iterable[dict]:
-    if not RUN_LOG_PATH.is_file():
-        return
-    with open(RUN_LOG_PATH, "r", encoding="utf-8") as f:
-        for linea in f:
-            linea = linea.strip()
-            if not linea:
-                continue
-            try:
-                yield json.loads(linea)
-            except json.JSONDecodeError:
-                continue
+    """Recorre el run_log: primero el de SharePoint, si no el respaldo local."""
+    contenido = _leer_run_log_cloud()
+
+    if not contenido and RUN_LOG_PATH.is_file():
+        contenido = RUN_LOG_PATH.read_text(encoding="utf-8")
+
+    for linea in contenido.splitlines():
+        linea = linea.strip()
+        if not linea:
+            continue
+        try:
+            yield json.loads(linea)
+        except json.JSONDecodeError:
+            continue
 
 
 def last_successful_run(etl: str, mes: int, anio: int) -> dict | None:
     """
     Último evento OK para ese (etl, periodo). None si no existe.
-    Consulta Supabase primero (persiste entre corridas de GitHub Actions);
-    si no está disponible, cae al .jsonl local (útil para pruebas offline).
+    Lee el run_log de SharePoint; si no está disponible usa el respaldo local.
     """
-    if supabase is not None:
-        try:
-            resp = (
-                supabase.table(TABLA_RUN_LOG)
-                .select("*")
-                .eq("etl", etl).eq("mes", mes).eq("anio", anio).eq("status", "OK")
-                .order("ts_fin", desc=True)
-                .limit(1)
-                .execute()
-            )
-            filas = resp.data or []
-            return filas[0] if filas else None
-        except Exception as e:
-            print(f"  ⚠ No se pudo consultar Supabase ({e}); reviso el .jsonl local")
-
     candidato = None
     for ev in _iter_eventos():
         if ev.get("etl") == etl and ev.get("mes") == mes and ev.get("anio") == anio \
@@ -367,23 +471,6 @@ def calcular_output_hash(etl: str) -> tuple[str | None, list[str]]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _obtener_eventos_filtrados(periodo: str | None, etl: str | None, limit: int) -> list[dict]:
-    if supabase is not None:
-        try:
-            q = supabase.table(TABLA_RUN_LOG).select("*").order("ts_fin", desc=True)
-            if periodo:
-                spec = pr.parsear_periodo_str(periodo)
-                q = q.eq("mes", spec.mes).eq("anio", spec.anio)
-            if etl:
-                q = q.eq("etl", etl)
-            if limit > 0:
-                q = q.limit(limit)
-            resp = q.execute()
-            eventos = resp.data or []
-            eventos.reverse()  # para imprimir en orden cronológico ascendente, igual que antes
-            return eventos
-        except Exception as e:
-            print(f"  ⚠ No se pudo consultar Supabase ({e}); reviso el .jsonl local\n")
-
     eventos = list(_iter_eventos())
     if periodo:
         spec = pr.parsear_periodo_str(periodo)

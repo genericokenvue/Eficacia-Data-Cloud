@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 # --- LIBRERÍAS PROPIAS Y RESOLUCIÓN DE RUTAS ---
 import paths
 import periodo_resolver as pr
+import supabase_io
 
 # --- LIBRERÍAS REQUERIDAS PARA SUPABASE ---
 from supabase import create_client
@@ -298,12 +299,22 @@ def ejecutar_proceso(spec: pr.PeriodoSpec, headers, site_id):
     df_agrupado = df_final.groupby(dim_agrupar, dropna=False)[['CANTIDAD_PLANEADA', 'CANTIDAD_EJECUTADA']].sum().reset_index()
 
     df_final_clean = df_final.drop(columns=["_LL_", "_JOIN_"], errors='ignore')
-    
+
+    # MES/AÑO son obligatorias: sin ellas la carga a Supabase no puede
+    # reemplazar el periodo y cada corrida duplicaría las filas.
+    df_final_clean['MES'] = spec.mes
+    df_final_clean['AÑO'] = spec.anio
+    df_agrupado['MES'] = spec.mes
+    df_agrupado['AÑO'] = spec.anio
+
     nombre_detalle = f"{BASE_NAME_DETALLE} {periodo_str}.xlsx"
     nombre_agrupado = f"{BASE_NAME_AGRUPADO} {periodo_str}.xlsx"
 
     subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_EXHIB, nombre_detalle, df_final_clean)
     subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_EXHIB, nombre_agrupado, df_agrupado)
+
+    supabase_io.cargar_detalle_seguro(
+        "exhibiciones_pagadas_detalle", df_final_clean, spec.mes, spec.anio)
 
     print(f"✅ ¡Hecho! Archivos subidos a SharePoint en {paths.RUTA_CARPETA_SALIDAS_EXHIB}")
 
@@ -422,21 +433,19 @@ def generar_resumen_kpi_exhibiciones_pagadas(spec: pr.PeriodoSpec, headers, site
     nombre_kpi = paths.EXHIB_PAG_OUT_KPIS.name
     subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_EXHIB, nombre_kpi, resumen)
 
-    try:
-        print(f"  🚀 Preparando cargue del KPI de Exhibiciones Pagadas a Supabase...")
-        df_kpi = resumen.copy()
-        df_kpi.columns = df_kpi.columns.str.strip().str.lower()
-        if 'año' in df_kpi.columns:
-            df_kpi = df_kpi.rename(columns={'año': 'anio'})
-        
-        df_kpi = df_kpi.replace([np.inf, -np.inf], 0)
-        df_kpi_limpio = df_kpi.astype(object).where(pd.notnull(df_kpi), None)
-        
-        registros_json = df_kpi_limpio.to_dict(orient="records")
-        supabase.table("exhibiciones_pagadas_kpis").upsert(registros_json).execute()
-        print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} filas subidas de forma exitosa a Supabase.")
-    except Exception as ex_cloud:
-        print(f"  ⚠ ADVERTENCIA EN CARGA CLOUD: {ex_cloud}")
+    # Histórico acumulado. GOLD lo lee para armar fact_cumplimientos_gestor y
+    # antes daba 404 en cada corrida porque este ETL solo publicaba el mes.
+    from shared_loader import actualizar_kpi_historico
+    actualizar_kpi_historico(
+        headers, site_id, paths.RUTA_CARPETA_SALIDAS_EXHIB,
+        paths.EXHIB_PAG_OUT_KPIS_HISTORICO.name,
+        resumen,
+        cols_orden=["AÑO", "MES", "EMPLEADO"],
+    )
+
+    # El KPI agregado ya no va a Supabase: lo que se carga es el DETALLE
+    # (tabla exhibiciones_pagadas_detalle). El KPI sigue publicándose como
+    # Excel en SharePoint.
 
 # =============================================================================
 # 5. EJECUCIÓN PRINCIPAL
@@ -457,6 +466,10 @@ if __name__ == "__main__":
     site_id = obtener_site_id(headers)
 
     for i, spec in enumerate(specs, 1):
+        # Las carpetas de BASES llevan el año en la ruta; sin esto se
+        # buscarían los insumos en la carpeta del año del reloj.
+        paths.usar_anio(spec.anio)
+
         print(f"\n🎯 ETL Exh Pagadas — procesando periodo {spec.etiqueta}")
         try:
             if "full" in pasos:

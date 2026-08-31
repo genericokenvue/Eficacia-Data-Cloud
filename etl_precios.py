@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 # --- LIBRERÍAS PROPIAS Y RESOLUCIÓN DE RUTAS ---
 import paths
 import periodo_resolver as pr
+import supabase_io
 
 # --- LIBRERÍAS REQUERIDAS PARA SUPABASE ---
 from supabase import create_client
@@ -323,13 +324,22 @@ def generar_analisis_precios(periodo_nom, spec: pr.PeriodoSpec, headers, site_id
     df['PRECIO_PROMO'] = pd.to_numeric(df["Digite Precio Promoción:"], errors='coerce').fillna(0)
     df['TIPO_PROMO'] = df["Seleccione la promoción:"].fillna("SIN PROMOCION")
 
-    cols_finales = ["ID del PDV", "PDV", "Fecha de la encuesta", "Empleado", "Marca", 
-                    "CODIGO_SKU", "NOMBRE_PRODUCTO", "PRESENCIA", "PRECIO_REGULAR", 
-                    "LABEL_UBICADO", "HAY_PROMO", "PRECIO_PROMO", "TIPO_PROMO"]
-    
+    # MES/AÑO son obligatorias: sin ellas la carga a Supabase no puede
+    # reemplazar el periodo y cada corrida duplicaría las filas.
+    df['MES'] = spec.mes
+    df['AÑO'] = spec.anio
+
+    cols_finales = ["ID del PDV", "PDV", "Fecha de la encuesta", "Empleado", "Marca",
+                    "CODIGO_SKU", "NOMBRE_PRODUCTO", "PRESENCIA", "PRECIO_REGULAR",
+                    "LABEL_UBICADO", "HAY_PROMO", "PRECIO_PROMO", "TIPO_PROMO",
+                    "MES", "AÑO"]
+
+    df_analisis = df[cols_finales]
     nombre_analisis = f"ANALISIS_PRECIOS_{periodo_nom}.xlsx"
-    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_analisis, df[cols_finales])
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_analisis, df_analisis)
     print(f"✅ Análisis detallado guardado en SharePoint.")
+
+    supabase_io.cargar_detalle_seguro("precios_analisis_detalle", df_analisis, spec.mes, spec.anio)
 
 # =============================================================================
 # 3. EJECUCIÓN PRINCIPAL Y INTEGRACIÓN CON CLOUD
@@ -390,38 +400,8 @@ def generar_resumen_kpi_precios(spec: pr.PeriodoSpec, headers, site_id):
         subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_hist, df_hist_local)
         print(f"  ✅ Histórico actualizado subido a SharePoint: {nombre_hist}")
 
-    try:
-        if os.path.exists(str(paths.PR_OUT_KPIS)):
-            print(f"  🚀 Preparando cargue del KPI de Precios consolidado a Supabase...")
-            df_kpi = pd.read_excel(str(paths.PR_OUT_KPIS))
-            
-            df_kpi.columns = df_kpi.columns.str.strip().str.lower()
-            if 'año' in df_kpi.columns:
-                df_kpi = df_kpi.rename(columns={'año': 'anio'})
-
-
-
-            # 👇 AGREGAR ESTA LÍNEA PARA ELIMINAR DUPLICADOS EN EL LOTE
-            
-            df_kpi = df_kpi.drop_duplicates(subset=["mes", "anio", "nombre"], keep="last")
-            
-            df_kpi = df_kpi.replace([np.inf, -np.inf], 0)
-            df_kpi_limpio = df_kpi.astype(object).where(pd.notnull(df_kpi), None)
-            
-            registros_json = df_kpi_limpio.to_dict(orient="records")
-            
-            supabase.table("precios_kpis").upsert(registros_json).execute()
-            print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} filas subidas de forma exitosa a Supabase.")
-            
-    except Exception as ex_cloud:
-        print(f"  ⚠ ERROR REAL EN CARGA SUPABASE: {ex_cloud}")
-        if hasattr(ex_cloud, 'response') and ex_cloud.response is not None:
-            print(f"  🔍 Detalle del servidor: {ex_cloud.response.text}")
-        elif hasattr(ex_cloud, 'message'):
-            print(f"  🔍 Mensaje técnico: {ex_cloud.message}")
-        # Si deseas que la exception detenga el flujo por completo al fallar Supabase, descomenta la siguiente línea:
-        # raise ex_cloud
-
+    # El KPI agregado ya no va a Supabase: lo que se carga es el DETALLE
+    # (tabla precios_analisis_detalle). El KPI sigue publicándose como Excel en SharePoint.
 
 if __name__ == "__main__":
     import argparse
@@ -443,6 +423,10 @@ if __name__ == "__main__":
               f"{', '.join(s.etiqueta for s in specs)}")
 
     for i, spec in enumerate(specs, 1):
+        # Las carpetas de BASES llevan el año en la ruta; sin esto se
+        # buscarían los insumos en la carpeta del año del reloj.
+        paths.usar_anio(spec.anio)
+
         if len(specs) > 1:
             print(f"\n▶ Periodo {i}/{len(specs)}: {spec.etiqueta}")
         print(f"\n🎯 ETL PRECIOS — procesando periodo {spec.etiqueta} ({spec})")

@@ -19,6 +19,7 @@ from datetime import datetime, timedelta
 # ─────────────────────────────────────────────
 import paths
 import periodo_resolver as pr
+import supabase_io
 from dotenv import load_dotenv
 from supabase import create_client
 
@@ -102,6 +103,51 @@ def subir_archivo_a_sharepoint(headers, site_id, ruta_carpeta, nombre_archivo, d
     else:
         print(f"  ❌ Error al subir a SharePoint ({nombre_archivo}): {response.text}")
 
+
+_MESES_UP = {1: "ENERO", 2: "FEBRERO", 3: "MARZO", 4: "ABRIL", 5: "MAYO", 6: "JUNIO",
+             7: "JULIO", 8: "AGOSTO", 9: "SEPTIEMBRE", 10: "OCTUBRE",
+             11: "NOVIEMBRE", 12: "DICIEMBRE"}
+
+
+def buscar_insumo_transversal(headers, site_id, carpeta, palabra_clave, spec, contexto):
+    """
+    Localiza en `carpeta` el archivo de `palabra_clave` correspondiente al periodo.
+
+    Estas carpetas transversales (INVOLVES, PUNTOS DE VENTA, EMPLEADOS) NO tienen
+    subcarpeta por año: conviven todos los meses sueltos. Por eso aquí el periodo
+    es OBLIGATORIO — agarrar "el primero que aparezca" significaría calcular con
+    el mes equivocado sin que nadie se entere.
+
+    Tolera las distintas formas de escribir el periodo que usa el proyecto:
+    'AGOSTO 2026', 'AGOSTO_2026', '202608' y '08_2026'.
+    """
+    archivos = obtener_archivos_carpeta_sharepoint(headers, site_id, carpeta)
+    mes_up = _MESES_UP[int(spec.mes)]
+    variantes = [
+        f"{mes_up} {spec.anio}",
+        f"{mes_up}_{spec.anio}",
+        f"{spec.anio}{int(spec.mes):02d}",
+        f"{int(spec.mes):02d}_{spec.anio}",
+    ]
+    kw = palabra_clave.lower()
+
+    for a in archivos:
+        nombre = a["name"]
+        if kw not in nombre.lower() or nombre.startswith("~$"):
+            continue
+        nombre_up = nombre.upper()
+        if any(v in nombre_up for v in variantes):
+            print(f"  📂 {contexto}: {nombre}")
+            return a["@microsoft.graph.downloadUrl"]
+
+    con_kw = [a["name"] for a in archivos if kw in a["name"].lower()]
+    raise FileNotFoundError(
+        f"[{contexto}] No hay archivo de '{palabra_clave}' para {spec.etiqueta} en:\n"
+        f"    {carpeta}\n"
+        f"  Archivos con esa palabra clave: {con_kw or 'ninguno'}\n"
+        f"  El nombre debe incluir el periodo, por ejemplo '{mes_up} {spec.anio}'."
+    )
+
 # ─────────────────────────────────────────────
 # MAPEO COLUMNAS  ── importado desde shared_loader (fuente canónica)
 # ─────────────────────────────────────────────
@@ -152,25 +198,47 @@ def ejecutar_paso_1(spec: pr.PeriodoSpec, headers, site_id):
     ruta_pt_sharepoint = getattr(paths, 'RUTA_CARPETA_PT_CIF', getattr(paths, 'RUTA_CARPETA_PT', "Equipo Información/BI/INVOLVES/PLAN DE TRABAJO"))
     archivos_pt = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_pt_sharepoint)
     num_mes = f"{spec.mes:02d}"
-    nombre_mes = pr.MESES_ESPANOL[spec.mes].upper() if hasattr(pr, 'MESES_ESPANOL') else ""
+    # OJO: antes esto era `pr.MESES_ESPANOL[...] if hasattr(...) else ""`, y
+    # periodo_resolver no tiene MESES_ESPANOL (se llama MESES_ES). Quedaba en
+    # cadena vacía, y en Python `"" in texto` es SIEMPRE True: el filtro por mes
+    # no filtraba nada y se tomaba el último DIRECTO/ISM de la carpeta, del mes
+    # que fuera. `spec.mes_str_upper` ya da 'AGOSTO' sin depender de nada.
+    nombre_mes = spec.mes_str_upper
 
-    url_directo = None
-    url_ism = None
+    def _elegir_pt(clave: str, etiqueta: str):
+        """Elige el PT del periodo; si no hay, avisa y cae a cualquiera."""
+        del_periodo = [
+            a for a in archivos_pt
+            if clave in a["name"].upper()
+            and (num_mes in a["name"].upper() or nombre_mes in a["name"].upper())
+        ]
+        if del_periodo:
+            elegido = del_periodo[0]
+            if len(del_periodo) > 1:
+                print(f"  ⚠️  {etiqueta}: {len(del_periodo)} archivos coinciden con "
+                      f"{spec.etiqueta} — se usa el primero: {elegido['name']}")
+            else:
+                print(f"  📂 {etiqueta}: {elegido['name']}")
+            return elegido["@microsoft.graph.downloadUrl"]
 
-    for archivo in archivos_pt:
-        nombre_upper = archivo["name"].upper()
-        if "DIRECTO" in nombre_upper and (num_mes in nombre_upper or nombre_mes in nombre_upper):
-            url_directo = archivo["@microsoft.graph.downloadUrl"]
-        if "ISM" in nombre_upper and (num_mes in nombre_upper or nombre_mes in nombre_upper):
-            url_ism = archivo["@microsoft.graph.downloadUrl"]
+        # Sin coincidencia de periodo: se usa cualquiera, pero avisando fuerte.
+        # Este camino es el que puede hacer calcular con el mes equivocado.
+        cualquiera = next((a for a in archivos_pt if clave in a["name"].upper()), None)
+        if cualquiera:
+            print(f"  ⚠️  {etiqueta}: ningún archivo menciona {spec.etiqueta}. "
+                  f"Se usa '{cualquiera['name']}' — VERIFICA que sea el del periodo.")
+            return cualquiera["@microsoft.graph.downloadUrl"]
+        return None
 
-    if not url_directo:
-        url_directo = next((a["@microsoft.graph.downloadUrl"] for a in archivos_pt if "DIRECTO" in a["name"].upper()), None)
-    if not url_ism:
-        url_ism = next((a["@microsoft.graph.downloadUrl"] for a in archivos_pt if "ISM" in a["name"].upper()), None)
+    url_directo = _elegir_pt("DIRECTO", "Plan de trabajo DIRECTO")
+    url_ism     = _elegir_pt("ISM",     "Plan de trabajo ISM")
 
     if not url_directo or not url_ism:
-        raise FileNotFoundError(f"Paso 1 ({spec.etiqueta}): faltan PT del periodo en la nube.")
+        disponibles = [a["name"] for a in archivos_pt]
+        raise FileNotFoundError(
+            f"Paso 1 ({spec.etiqueta}): faltan PT en {ruta_pt_sharepoint}.\n"
+            f"  Archivos en la carpeta: {disponibles}"
+        )
 
     df_dir = leer_y_normalizar_cloud(url_directo, "Plan de trabajo", "DIRECTO")
     df_ism = leer_y_normalizar_cloud(url_ism, "Plan de trabajo CIF", "ISM")
@@ -265,20 +333,21 @@ def ejecutar_paso_3(spec: pr.PeriodoSpec, headers, site_id):
     archivos_bases = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_bases_sharepoint)
     
     url_plan = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if nombre_consolidado in a["name"]), None)
-    url_colab = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if "colaboradores" in a["name"].lower()), None)
-    url_ventas = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if "ventas" in a["name"].lower()), None)
-    
-    # Búsqueda en la nube adaptada para evitar rutas locales (pr.cif_involves)
-    url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if "informe-gerencial-visitas" in a["name"].lower() and (str(spec.mes) in a["name"] or str(spec.anio) in a["name"])), None)
-    
-    if not url_inv:
-        # Buscar en la carpeta específica de bases de respuestas del periodo en SharePoint
-        ruta_bases_respuestas_cif = f"Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/{spec.anio}"
-        archivos_gen = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_bases_respuestas_cif)
-        url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_gen if "informe-gerencial-visitas" in a["name"].lower() or periodo_nom.lower() in a["name"].lower()), None)
 
-    if not all([url_plan, url_colab, url_ventas, url_inv]):
-        print("❌ ERROR: Faltan archivos requeridos en SharePoint para el Paso 3.")
+    # Insumos transversales: se leen de su carpeta propia, no de BASES/CIF.
+    # Antes había que copiarlos a BASES/CIF cada mes para que el ETL los viera.
+    url_colab = buscar_insumo_transversal(
+        headers, site_id, paths.RUTA_CARPETA_EMPLEADOS,
+        "colaboradores", spec, "Informe de colaboradores")
+    url_ventas = buscar_insumo_transversal(
+        headers, site_id, paths.RUTA_CARPETA_PUNTOS_VTA,
+        "puntos de venta", spec, "Base puntos de venta")
+    url_inv = buscar_insumo_transversal(
+        headers, site_id, paths.RUTA_CARPETA_INVOLVES,
+        "informe-gerencial-visitas", spec, "Informe gerencial de visitas")
+
+    if not url_plan:
+        print(f"❌ ERROR: Falta el consolidado del PT ({nombre_consolidado}) en SharePoint.")
         return
 
     df_maestro_plan = pd.read_csv(io.BytesIO(descargar_archivo_bytes(url_plan)), sep=";", decimal=",", encoding="utf-8-sig")
@@ -373,20 +442,18 @@ def ejecutar_paso_4(spec: pr.PeriodoSpec, headers, site_id):
     archivos_bases = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_bases_sharepoint)
     
     url_plan = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if nombre_consolidado in a["name"]), None)
-    url_ventas = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if "ventas" in a["name"].lower()), None)
     url_causales = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if "causales" in a["name"].lower()), None)
     url_proc_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if nombre_output_involves in a["name"]), None)
-    
-    # Búsqueda en la nube adaptada para evitar rutas locales (pr.cif_involves)
-    url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_bases if "informe-gerencial-visitas" in a["name"].lower() and (str(spec.mes) in a["name"] or str(spec.anio) in a["name"])), None)
 
-    if not url_inv:
-        # Buscar en la carpeta específica de bases de respuestas del periodo en SharePoint
-        ruta_bases_respuestas_cif = f"Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/CIF/{spec.anio}"
-        archivos_gen = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_bases_respuestas_cif)
-        url_inv = next((a["@microsoft.graph.downloadUrl"] for a in archivos_gen if "informe-gerencial-visitas" in a["name"].lower() or periodo_nom.lower() in a["name"].lower()), None)
+    # Insumos transversales: carpeta propia, no BASES/CIF (ver Paso 3).
+    url_ventas = buscar_insumo_transversal(
+        headers, site_id, paths.RUTA_CARPETA_PUNTOS_VTA,
+        "puntos de venta", spec, "Base puntos de venta")
+    url_inv = buscar_insumo_transversal(
+        headers, site_id, paths.RUTA_CARPETA_INVOLVES,
+        "informe-gerencial-visitas", spec, "Informe gerencial de visitas")
 
-    if not all([url_plan, url_ventas, url_causales, url_inv, url_proc_inv]):
+    if not all([url_plan, url_causales, url_proc_inv]):
         print("❌ ERROR: Faltan archivos requeridos en SharePoint para el Paso 4.")
         return
 
@@ -780,6 +847,11 @@ def ejecutar_paso_7(spec: pr.PeriodoSpec, headers, site_id):
             print(f"⚠️ No se pudo leer archivo previo en SharePoint ({e}); se sobrescribe.")
 
     subir_archivo_a_sharepoint(headers, site_id, ruta_salidas_sharepoint, nombre_cif_out, df_resultado, es_excel=True)
+
+    # CIF.xlsx acumula todos los meses; solo_periodo deja subir únicamente las
+    # filas del periodo procesado, para no reescribir los meses anteriores.
+    supabase_io.cargar_detalle_seguro("cif_detalle", df_resultado, val_mes, val_anio)
+
     print(f"✅ ¡LISTO! Excel generado y subido a SharePoint para el periodo {val_mes}/{val_anio}.")
     print("="*40)
 
@@ -896,33 +968,19 @@ def generar_resumen_kpis_8(spec: pr.PeriodoSpec, headers, site_id):
     nombre_kpi_out = os.path.basename(str(paths.CIF_OUT_KPIS))
     subir_archivo_a_sharepoint(headers, site_id, ruta_salidas_sharepoint, nombre_kpi_out, resumen_activo, es_excel=True)
 
-    # ── CARGA A SUPABASE (Con normalización automática de columnas) ──
-    try:
-        if not resumen_activo.empty:
-            print(f" 🚀 Preparando cargue de KPIs CIF a Supabase...")
-            df_kpi_sup = resumen_activo.copy()
-            
-            # Normalización estricta de columnas respetando la estructura original de Supabase
-            df_kpi_sup.columns = (
-                df_kpi_sup.columns.str.strip()
-                .str.lower()
-                .str.replace(' ', '_')
-            )
-            
-            # Aseguramos que se mantenga como 'año' si la tabla de Supabase lo requiere con eñe
-            if 'anio' in df_kpi_sup.columns:
-                df_kpi_sup = df_kpi_sup.rename(columns={'anio': 'año'})
-            
-            df_kpi_sup = df_kpi_sup.replace([np.inf, -np.inf], 0)
-            df_kpi_limpio = df_kpi_sup.astype(object).where(pd.notnull(df_kpi_sup), None)
-            
-            registros_json = df_kpi_limpio.to_dict(orient="records")
-            
-            # Nombre de tabla Supabase adaptado para CIF KPIs (ej. 'cif_kpis')
-            supabase.table("cif_kpis").upsert(registros_json).execute()
-            print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} filas subidas exitosamente a Supabase.")
-    except Exception as ex_cloud:
-        print(f"  ⚠ ADVERTENCIA EN CARGA CLOUD (Supabase): {ex_cloud}")
+    # Histórico acumulado. GOLD lo lee para armar fact_cumplimientos_gestor y
+    # antes daba 404 en cada corrida porque este ETL solo publicaba el mes.
+    from shared_loader import actualizar_kpi_historico
+    actualizar_kpi_historico(
+        headers, site_id, ruta_salidas_sharepoint,
+        os.path.basename(str(paths.CIF_OUT_KPIS_HISTORICO)),
+        resumen_activo,
+        cols_orden=["AÑO", "MES", "NOMBRE"],
+    )
+
+    # El KPI agregado ya no va a Supabase: lo que se carga es el DETALLE
+    # (tabla cif_detalle, desde CIF.xlsx). El KPI sigue publicándose como
+    # Excel en SharePoint para quien lo consuma desde ahí.
 
     print("=" * 40)
 
@@ -969,6 +1027,10 @@ if __name__ == "__main__":
     site_id = obtener_site_id(headers)
 
     for i, spec in enumerate(specs, 1):
+        # Las carpetas de BASES llevan el año en la ruta; sin esto se
+        # buscarían los insumos en la carpeta del año del reloj.
+        paths.usar_anio(spec.anio)
+
         if len(specs) > 1:
             print(f"\n▶ Periodo {i}/{len(specs)}: {spec.etiqueta}")
         print(f"\n🎯 ETL CIF NUBE — procesando periodo {spec.etiqueta} ({spec})")

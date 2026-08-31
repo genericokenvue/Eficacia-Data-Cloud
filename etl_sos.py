@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 # --- LIBRERÍAS PROPIAS Y RESOLUCIÓN DE RUTAS ---
 import paths
 import periodo_resolver as pr
+import supabase_io
 
 # --- LIBRERÍAS REQUERIDAS PARA SUPABASE ---
 from supabase import create_client
@@ -216,22 +217,61 @@ def ejecutar_paso_2_consolidar_encuestas(spec: pr.PeriodoSpec, headers, site_id)
     archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES_SOS)
     
     periodo_nom = f"{MESES_ESPANOL[spec.mes]}_{spec.anio}"
-    urls_encuestas = [
-        a["@microsoft.graph.downloadUrl"] for a in archivos_origen 
-        if CLAVE_ARCHIVO_ENCUESTA in a["name"] and periodo_nom in a["name"].upper()
-    ]
-    if not urls_encuestas:
-        urls_encuestas = [
-            a["@microsoft.graph.downloadUrl"] for a in archivos_origen 
-            if CLAVE_ARCHIVO_ENCUESTA in a["name"] or "EJECUCION PARTICIPACIONES" in a["name"].upper()
-        ]
+    mes_up = MESES_ESPANOL[spec.mes]
 
-    lista_dfs = [pd.read_excel(io.BytesIO(requests.get(u).content)) for u in urls_encuestas]
+    def _es_encuesta_del_periodo(nombre: str) -> bool:
+        """
+        ¿Este archivo es una encuesta SOS del periodo que se está procesando?
+
+        Los archivos reales se llaman 'EJECUCION PARTICIPACIONES S_agosto.xlsx'
+        o 'EJECUCION PARTICIPACIONES ASEO DEL BEBE S_julio_2026.xlsx': el mes va
+        en minúscula y el año a veces está y a veces no.
+
+        Antes se buscaba 'Respuestas' + 'AGOSTO_2026', que no coincide con
+        ninguno, y al no encontrar nada un fallback tomaba TODOS los de
+        'EJECUCION PARTICIPACIONES'. Por eso una corrida de agosto consolidaba
+        también los 4 archivos de julio.
+        """
+        n = eliminar_tildes(nombre)          # mayúsculas y sin tildes
+
+        if not (CLAVE_ARCHIVO_ENCUESTA.upper() in n or "EJECUCION PARTICIPACIONES" in n):
+            return False
+        if mes_up not in n:
+            return False
+        # Si el nombre trae año explícito, debe ser el del periodo. Si no lo
+        # trae, basta el mes: la carpeta ya está separada por año.
+        anios = re.findall(r"20\d{2}", n)
+        if anios and str(spec.anio) not in anios:
+            return False
+        return True
+
+    encuestas = [a for a in archivos_origen if _es_encuesta_del_periodo(a["name"])]
+
+    if not encuestas:
+        candidatos = [
+            a["name"] for a in archivos_origen
+            if CLAVE_ARCHIVO_ENCUESTA.upper() in eliminar_tildes(a["name"])
+            or "EJECUCION PARTICIPACIONES" in eliminar_tildes(a["name"])
+        ]
+        raise FileNotFoundError(
+            f"No hay encuestas SOS de {spec.etiqueta} en {paths.RUTA_CARPETA_BASES_SOS}.\n"
+            f"  Archivos de encuesta en la carpeta: {candidatos or 'ninguno'}\n"
+            f"  El nombre debe mencionar el mes (ej. '..._{mes_up.lower()}.xlsx')."
+        )
+
+    print(f"  📂 Encuestas de {spec.etiqueta} ({len(encuestas)}):")
+    for a in encuestas:
+        print(f"       · {a['name']}")
+
+    lista_dfs = [
+        pd.read_excel(io.BytesIO(requests.get(a["@microsoft.graph.downloadUrl"]).content))
+        for a in encuestas
+    ]
     df_enc_total = pd.concat(lista_dfs, ignore_index=True) if lista_dfs else pd.DataFrame()
-    
+
     nombre_encuesta_salida = f"Encuesta_Sos_Consolidada_{periodo_nom}.xlsx"
     subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES_SOS, nombre_encuesta_salida, df_enc_total)
-    print(f"✅ EXITO: Encuestas unidas en SharePoint ({len(urls_encuestas)} archivo(s)).")
+    print(f"✅ EXITO: {len(encuestas)} encuesta(s) unidas — {len(df_enc_total):,} filas.")
     return df_enc_total, nombre_encuesta_salida
 
 def ejecutar_paso_3_cumplimiento_captura(df_pt, df_enc, spec: pr.PeriodoSpec, headers, site_id):
@@ -329,13 +369,24 @@ def ejecutar_paso_4_normalizar_target_dinamico(spec: pr.PeriodoSpec, headers, si
     print(f"✅ EXITO: Target normalizado subido a SharePoint.")
     return df_target
 
-def ejecutar_paso_5_cruce_triple_y_calculo(spec: pr.PeriodoSpec, headers, site_id):
+def ejecutar_paso_5_cruce_triple_y_calculo(spec: pr.PeriodoSpec, headers, site_id, df_pt=None):
+    """
+    Calcula PARTICIPACION_SOS cruzando Target × Encuesta.
+
+    `df_pt` es el Plan de Trabajo ya filtrado por D9/D10. Si se pasa, se usa
+    directamente; si no, se busca el archivo del paso 1 en SharePoint.
+
+    El parámetro existe porque run_all.py no ejecuta el paso 1 —arma el PT con
+    shared_loader— y entonces ese archivo no está. Sin él, el filtro se saltaba
+    y el reporte salía con PDVs discounter y responsables que no correspondían.
+    """
     print(f"\n--- PASO 5: Generando Reporte Final (Cruce Triple y Cálculos) ({spec.etiqueta}) ---")
     periodo_nom = f"{MESES_ESPANOL[spec.mes]}_{spec.anio}"
     
     archivos_origen = obtener_archivos_carpeta_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES_SOS)
     url_target = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if f"Colombia_sos_target_Normalizado_{periodo_nom}" in a["name"]), None)
     url_enc = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if f"Encuesta_Sos_Consolidada_{periodo_nom}" in a["name"]), None)
+    url_pt = next((a["@microsoft.graph.downloadUrl"] for a in archivos_origen if f"Plan_Trabajo_SOS_Completo_{periodo_nom}" in a["name"]), None)
 
     if not url_target or not url_enc:
         nombres_disponibles = [a["name"] for a in archivos_origen]
@@ -347,6 +398,28 @@ def ejecutar_paso_5_cruce_triple_y_calculo(spec: pr.PeriodoSpec, headers, site_i
     df_target = pd.read_excel(io.BytesIO(requests.get(url_target).content))
     df_enc = pd.read_excel(io.BytesIO(requests.get(url_enc).content))
 
+    # D9/D10: el Target y la Encuesta consolidada no traen OBSERVACIÓN ni SUB CANAL,
+    # así que los filtros de responsable (D9) y exclusión DISCOUNTER (D10) solo se
+    # pueden aplicar cruzando contra el universo de PDVs que ya pasó esos filtros
+    # en el Paso 1 (Plan_Trabajo_SOS_Completo_<periodo>.xlsx).
+    from shared_loader import id_a_str
+    pdvs_validos_d9_d10 = None
+
+    # 1) El PT que pasa el orquestador (ya filtrado por shared_loader).
+    if df_pt is not None and not df_pt.empty and "ID_PDV_INVOLVES" in df_pt.columns:
+        pdvs_validos_d9_d10 = set(id_a_str(df_pt["ID_PDV_INVOLVES"]).dropna().unique())
+        print(f"  🔎 Filtros D9/D10 desde el PT del orquestador ({len(pdvs_validos_d9_d10):,} PDVs válidos)")
+
+    # 2) Si no vino, el archivo que deja el paso 1 en SharePoint.
+    elif url_pt:
+        df_pt_valido = pd.read_excel(io.BytesIO(requests.get(url_pt).content))
+        if "ID_PDV_INVOLVES" in df_pt_valido.columns:
+            pdvs_validos_d9_d10 = set(id_a_str(df_pt_valido["ID_PDV_INVOLVES"]).dropna().unique())
+
+    if pdvs_validos_d9_d10 is None:
+        print(f"  ⚠ Sin Plan de Trabajo SOS ({periodo_nom}) ni PT del orquestador — "
+              f"PARTICIPACION_SOS se calculará SIN los filtros D9 (OBSERVACIÓN) / D10 (DISCOUNTER)")
+
     def extraer_cat_cruce(texto):
         t = eliminar_tildes(texto)
         if "SHAMPOO BEBE EN ADULTOS" in t: return "SHAMPOO BEBE EN ADULTOS"
@@ -355,7 +428,6 @@ def ejecutar_paso_5_cruce_triple_y_calculo(spec: pr.PeriodoSpec, headers, site_i
             if c in t: return c
         return t
 
-    from shared_loader import id_a_str
     df_enc['CAT_CRUCE'] = df_enc['Rótulo de la encuesta'].apply(extraer_cat_cruce)
     df_enc['ID_CRUCE'] = id_a_str(df_enc['ID del PDV'])
     df_enc['MARCA_CRUCE'] = df_enc['Marca'].apply(eliminar_tildes)
@@ -395,6 +467,13 @@ def ejecutar_paso_5_cruce_triple_y_calculo(spec: pr.PeriodoSpec, headers, site_i
         lambda x: x[col_marca_cms] / x[col_universo] if x[col_universo] > 0 else 0, axis=1
     )
 
+    if pdvs_validos_d9_d10 is not None:
+        n_antes = len(df_final)
+        df_final = df_final[df_final['ID INVOLVES'].isin(pdvs_validos_d9_d10)].copy()
+        n_excl = n_antes - len(df_final)
+        if n_excl > 0:
+            print(f"  🔎 Filtros D9/D10 aplicados a PARTICIPACION_SOS → {n_excl} filas excluidas (PDV no responsable / DISCOUNTER)")
+
     df_final = df_final.rename(columns={
         'PDV': 'PUNTO DE VENTA',
         col_cat_t: 'CATEGORÍA DE PRODUCTO'
@@ -405,6 +484,8 @@ def ejecutar_paso_5_cruce_triple_y_calculo(spec: pr.PeriodoSpec, headers, site_i
 
     nombre_reporte_final = f"Reporte_SOS_Final_Calculado_{periodo_nom}.xlsx"
     subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_SOS, nombre_reporte_final, df_final)
+
+    supabase_io.cargar_detalle_seguro("sos_detalle", df_final, spec.mes, spec.anio)
     print(f"✅ EXITO: Reporte Final SOS subido a SharePoint.")
     return df_final
 
@@ -455,30 +536,8 @@ def generar_resumen_kpi_sos(spec: pr.PeriodoSpec, headers, site_id):
         subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS_SOS, nombre_hist, df_hist_local)
         print(f"  ✅ Histórico actualizado subido a SharePoint: {nombre_hist}")
 
-    try:
-        if os.path.exists(str(paths.SOS_OUT_KPIS)):
-            print(f"  🚀 Preparando cargue del KPI de SOS consolidado a Supabase...")
-            df_kpi = pd.read_excel(str(paths.SOS_OUT_KPIS))
-            df_kpi.columns = df_kpi.columns.str.strip().str.lower()
-            
-            # Forzamos el nombre exacto que espera la tabla de Supabase ('anio')
-            if 'año' in df_kpi.columns:
-                df_kpi = df_kpi.rename(columns={'año': 'anio'})
-            elif 'ano' in df_kpi.columns:
-                df_kpi = df_kpi.rename(columns={'ano': 'anio'})
-            
-            df_kpi = df_kpi.replace([np.inf, -np.inf], 0)
-            df_kpi_limpio = df_kpi.astype(object).where(pd.notnull(df_kpi), None)
-            
-            registros_json = df_kpi_limpio.to_dict(orient="records")
-            supabase.table("sos_kpis").upsert(registros_json).execute()
-            print(f"  ✅ ÉXITO CLOUD: {len(registros_json)} filas subidas a Supabase.")
-    except Exception as ex_cloud:
-        print(f"  ⚠ ADVERTENCIA EN CARGA SUPABASE: {ex_cloud}")
-
-# =============================================================================
-# 4. EJECUCIÓN PRINCIPAL
-# =============================================================================
+    # El KPI agregado ya no va a Supabase: lo que se carga es el DETALLE
+    # (tabla sos_detalle). El KPI sigue publicándose como Excel en SharePoint.
 
 if __name__ == "__main__":
     import argparse
@@ -515,6 +574,10 @@ if __name__ == "__main__":
     site_id = obtener_site_id(headers)
 
     for i, spec in enumerate(specs, 1):
+        # Las carpetas de BASES llevan el año en la ruta; sin esto se
+        # buscarían los insumos en la carpeta del año del reloj.
+        paths.usar_anio(spec.anio)
+
         print(f"\n🎯 ETL SOS — procesando periodo {spec.etiqueta} ({spec})")
         try:
             df_pt = pd.DataFrame()

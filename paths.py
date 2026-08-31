@@ -123,6 +123,72 @@ RUTA_CARPETA_SALIDAS_DYP  = f"{_SALIDAS_ROOT}/DYP"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# AÑO DEL PERIODO vs AÑO DEL RELOJ
+# ─────────────────────────────────────────────────────────────────────────────
+# Las constantes de arriba se construyen con AÑO_ACTUAL, o sea el año en que
+# se ejecuta el proceso. Eso funciona mientras se procese el mes en curso, pero
+# falla en dos casos reales y SIN dar error:
+#
+#   • Cerrar diciembre durante enero → busca en .../2027 cuando el dato está
+#     en .../2026. La lectura devuelve 404, el DataFrame sale vacío y las
+#     hojas del reporte quedan en blanco.
+#   • Reprocesar un periodo de un año anterior → lo mismo.
+#
+# `usar_anio()` reapunta las constantes al año del periodo que se va a
+# procesar. Cada ETL la llama una vez, al empezar con un periodo.
+#
+# Es seguro con la ejecución en paralelo de run_all.py: los ETLs corren en
+# paralelo DENTRO de un periodo (todos quieren el mismo año) y los periodos
+# se procesan de forma secuencial.
+
+def carpeta_periodo(raiz: str, anio: int | None) -> str:
+    """
+    Devuelve `raiz` apuntando al año indicado.
+
+    Si la ruta ya termina en un año lo REEMPLAZA (no lo anida, que produciría
+    .../2026/2026); si no lo trae, lo agrega. Con anio=None no toca nada.
+    """
+    raiz = str(raiz).rstrip("/")
+    if not anio:
+        return raiz
+    anio_str = str(int(anio))
+    if raiz.endswith(f"/{anio_str}"):
+        return raiz
+    if re.search(r"/(19|20)\d{2}$", raiz):
+        return re.sub(r"/(19|20)\d{2}$", f"/{anio_str}", raiz)
+    return f"{raiz}/{anio_str}"
+
+
+def usar_anio(anio: int) -> None:
+    """
+    Reapunta las carpetas de BASES al año del periodo que se está procesando.
+
+    Llamar al inicio de cada periodo, antes de leer nada:
+
+        paths.usar_anio(spec.anio)
+    """
+    global RUTA_CARPETA_BASES_CIF, RUTA_CARPETA_BASES_PRECIOS
+    global RUTA_CARPETA_BASES_NP, RUTA_CARPETA_BASES_SOS
+    global RUTA_CARPETA_BASES_EXHIB, RUTA_CARPETA_BASES_DYP
+    global RUTA_CARPETA_BASES, RUTA_CARPETA_SALIDAS
+
+    RUTA_CARPETA_BASES_CIF     = bases_cif(anio)
+    RUTA_CARPETA_BASES_PRECIOS = bases_precios(anio)
+    RUTA_CARPETA_BASES_NP      = bases_np(anio)
+    RUTA_CARPETA_BASES_SOS     = bases_sos(anio)
+    RUTA_CARPETA_BASES_EXHIB   = bases_exhib(anio)
+    RUTA_CARPETA_BASES_DYP     = bases_dyp(anio)
+
+    # Alias que usa el ETL de Precios (RUTA_CARPETA_BASES/SALIDAS sin sufijo).
+    RUTA_CARPETA_BASES   = RUTA_CARPETA_BASES_PRECIOS
+    RUTA_CARPETA_SALIDAS = RUTA_CARPETA_SALIDAS_PRECIOS
+
+    if int(anio) != AÑO_ACTUAL:
+        print(f"  ℹ️  Carpetas de BASES apuntando al año del periodo ({anio}), "
+              f"no al del reloj ({AÑO_ACTUAL}).")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # INSUMOS EN LA NUBE CON MES Y AÑO EN EL NOMBRE
 # ─────────────────────────────────────────────────────────────────────────────
 # Punto único de verdad para los archivos cuyo nombre depende del periodo.
@@ -158,14 +224,26 @@ def cloud_exhib_base_planning(mes: int, anio: int) -> str:
 # --- D&P ---------------------------------------------------------------------
 # Nota: el "&" de "MSL & Listas Target Catman.xlsx" NO necesita escaparse
 # aparte; urllib.parse.quote() lo codifica como %26 al armar la URL de Graph.
-def cloud_dyp_impactos(mes: int, anio: int) -> str:
-    """SALIDAS/DYP/Consolidado_Impactos_<MES>_<AÑO>.csv"""
-    return f"{RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Impactos_{mes_es(mes)}_{anio}.csv"
+# Los dos consolidados de D&P son archivos ÚNICOS que acumulan todos los meses:
+# cada corrida quita las filas de su periodo y vuelve a escribirlas (upsert).
+#
+# Antes el nombre llevaba el periodo (`Consolidado_Ventas_AGOSTO_2026.csv`) pero
+# el CONTENIDO era igual de acumulado, así que cada mes dejaba una copia entera
+# del histórico bajo su propio nombre: seis archivos de ~130 MB con los mismos
+# datos y, peor, contradiciéndose entre sí (el de MARZO decía 76.522 filas de
+# marzo y el de AGOSTO decía 64.735, porque cada uno era una foto de un momento
+# distinto). Con un solo archivo hay una sola verdad.
+#
+# `mes` y `anio` se siguen recibiendo para no romper a quien ya llama estas
+# funciones con el periodo; simplemente no se usan en el nombre.
+def cloud_dyp_impactos(mes: int | None = None, anio: int | None = None) -> str:
+    """SALIDAS/DYP/Consolidado_Impactos.csv (único, acumula todos los meses)"""
+    return f"{RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Impactos.csv"
 
 
-def cloud_dyp_ventas(mes: int, anio: int) -> str:
-    """SALIDAS/DYP/Consolidado_Ventas_<MES>_<AÑO>.csv"""
-    return f"{RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Ventas_{mes_es(mes)}_{anio}.csv"
+def cloud_dyp_ventas(mes: int | None = None, anio: int | None = None) -> str:
+    """SALIDAS/DYP/Consolidado_Ventas.csv (único, acumula todos los meses)"""
+    return f"{RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Ventas.csv"
 
 
 def cloud_dyp_rutero(mes: int, anio: int) -> str:
@@ -186,6 +264,41 @@ def cloud_dyp_listas(anio: int | None = None) -> str:
 def cloud_dyp_base_cupos(anio: int | None = None) -> str:
     """BASES DE RESPUESTAS/DYP/<año>/Base_cupos.xlsx"""
     return f"{bases_dyp(anio)}/Base_cupos.xlsx"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INSUMOS TRANSVERSALES (carpetas propias, fuera de BASES DE RESPUESTAS)
+# ─────────────────────────────────────────────────────────────────────────────
+# Estos 3 insumos son ÚNICOS para todo el proyecto: los publica Involves una
+# sola vez al mes y los consumen varios módulos. Viven en carpetas propias al
+# mismo nivel que BASES DE RESPUESTAS / SALIDAS / PLAN DE TRABAJO.
+#
+# Antes cada módulo los buscaba dentro de BASES DE RESPUESTAS/CIF/<año> (y el
+# de visitas también en BASES DE RESPUESTAS/VISITAS/<año>), lo que obligaba a
+# duplicar el mismo archivo en 2 o 3 carpetas cada mes. Estas rutas apuntan al
+# original, para que se cargue una sola vez.
+#
+# OJO: estas carpetas NO tienen subcarpeta por año — todos los meses conviven
+# sueltos. Por eso el periodo va SIEMPRE en el nombre del archivo, y quien lo
+# busque debe exigirlo (no vale agarrar "el primero que aparezca").
+RUTA_CARPETA_INVOLVES   = f"{SHAREPOINT_BASE_DIR}/INVOLVES/INVOLVES"
+RUTA_CARPETA_PUNTOS_VTA = f"{SHAREPOINT_BASE_DIR}/INVOLVES/PUNTOS DE VENTA"
+RUTA_CARPETA_EMPLEADOS  = f"{SHAREPOINT_BASE_DIR}/INVOLVES/EMPLEADOS"
+
+
+def cloud_involves_visitas(mes: int, anio: int) -> str:
+    """INVOLVES/INVOLVES/informe-gerencial-visitas_<AAAAMM>.xlsx"""
+    return f"{RUTA_CARPETA_INVOLVES}/informe-gerencial-visitas_{int(anio)}{int(mes):02d}.xlsx"
+
+
+def cloud_puntos_venta(mes: int, anio: int) -> str:
+    """PUNTOS DE VENTA/BASE PUNTOS DE VENTA <MES> <AÑO>.xlsx"""
+    return f"{RUTA_CARPETA_PUNTOS_VTA}/BASE PUNTOS DE VENTA {mes_es(mes)} {int(anio)}.xlsx"
+
+
+def cloud_empleados(mes: int, anio: int) -> str:
+    """EMPLEADOS/Informe_Colaboradores_<MES>_<AÑO>.xlsx"""
+    return f"{RUTA_CARPETA_EMPLEADOS}/Informe_Colaboradores_{mes_es(mes)}_{int(anio)}.xlsx"
 
 RUTA_CARPETA_BASES   = RUTA_CARPETA_BASES_PRECIOS
 RUTA_CARPETA_SALIDAS = RUTA_CARPETA_SALIDAS_PRECIOS

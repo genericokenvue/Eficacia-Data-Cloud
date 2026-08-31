@@ -361,13 +361,47 @@ def _buscar_archivo_cloud(ruta_carpeta: str, patron_regex: str, contexto: str) -
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN DE RUTAS USANDO EXCLUSIVAMENTE `paths.py`
 # ─────────────────────────────────────────────────────────────────────────────
-RUTA_CIF = f"{paths.RUTA_CARPETA_SALIDAS_CIF}/Plan de trabajo.xlsx"
-RUTA_SOS = f"{paths.RUTA_CARPETA_SALIDAS_SOS}/Cumplimiento_Captura_SOS.xlsx"
-
 DIR_NP_OUT      = paths.RUTA_CARPETA_SALIDAS_NP
 DIR_PRECIOS_OUT = paths.RUTA_CARPETA_SALIDAS_PRECIOS
 DIR_ALERTAS     = getattr(paths, 'ALERTAS_DIR', f"{paths._SALIDAS_ROOT}/ALERTAS")
 RUTA_MAESTRA    = getattr(paths, 'ALERTAS_MAESTRO', f"{DIR_ALERTAS}/maestra_supervisores.xlsx")
+
+
+# ── Archivos de DETALLE (los que alimentan las hojas de los adjuntos) ────────
+#
+# FIX: antes estos cuatro se leían con un nombre SIN periodo
+# ("Plan de trabajo.xlsx", "Cumplimiento_Captura_SOS.xlsx",
+# "REPORTE_NO_PRESENCIA.xlsx", "REPORTE_CAPTURA_PRECIOS.xlsx"). Ningún ETL
+# escribe esos nombres: eran copias que alguien mantenía a mano y que dejaron
+# de actualizarse el 31/07/2026. Como los KPIs sí salían del periodo correcto,
+# el síntoma era silencioso — al filtrar el detalle a (08, 2026) quedaba vacío
+# y los supervisores recibían "N/D" en todo el bloque operativo.
+#
+# Los ETLs publican SOS/NP/Precios con el periodo en el nombre
+# (`..._AGOSTO_2026.xlsx`). CIF es la excepción: `CIF.xlsx` acumula todos los
+# meses en un solo archivo y se filtra por MES/AÑO más abajo.
+def _periodo_nom(mes: int, anio: int) -> str:
+    """'AGOSTO_2026' — la convención de nombre que usan los ETLs."""
+    import periodo_resolver as _pr
+    spec = _pr.resolver(int(mes), int(anio))
+    return f"{spec.mes_str_upper}_{spec.anio}"
+
+
+def ruta_cif_detalle() -> str:
+    return f"{paths.RUTA_CARPETA_SALIDAS_CIF}/{paths.CIF_OUT_CIF.name}"
+
+
+def ruta_sos_detalle(mes: int, anio: int) -> str:
+    return (f"{paths.RUTA_CARPETA_SALIDAS_SOS}/"
+            f"Cumplimiento_Captura_SOS_{_periodo_nom(mes, anio)}.xlsx")
+
+
+def ruta_np_detalle(mes: int, anio: int) -> str:
+    return f"{DIR_NP_OUT}/REPORTE_NO_PRESENCIA_{_periodo_nom(mes, anio)}.xlsx"
+
+
+def ruta_pr_detalle(mes: int, anio: int) -> str:
+    return f"{DIR_PRECIOS_OUT}/REPORTE_CAPTURA_PRECIOS_{_periodo_nom(mes, anio)}.xlsx"
 
 # paths.py sólo define el directorio local de ALERTAS (ALERTAS_DIR, usado para
 # cachear adjuntos antes de enviarlos por correo). No existe un
@@ -399,8 +433,8 @@ def _rutas_insumos(mes: int, anio: int) -> list[tuple[str, str, bool]]:
                                                   Base Exhibiciones Planning <Mes> <Año>.xlsx
       BASES DE RESPUESTAS/DYP/<año>/Rutero/     → RUTERO_<MES>_<AÑO>_D_P.xlsx
       BASES DE RESPUESTAS/DYP/<año>/Listas/     → listas_referencia.xlsx
-      SALIDAS/DYP/                              → Consolidado_Impactos_<MES>_<AÑO>.csv
-                                                  Consolidado_Ventas_<MES>_<AÑO>.csv
+      SALIDAS/DYP/                              → Consolidado_Impactos.csv
+                                                  Consolidado_Ventas.csv
     """
     import periodo_resolver as _pr
     spec = _pr.resolver(mes, anio)
@@ -417,10 +451,10 @@ def _rutas_insumos(mes: int, anio: int) -> list[tuple[str, str, bool]]:
     salidas_dyp = getattr(paths, "RUTA_CARPETA_SALIDAS_DYP", f"{paths._SALIDAS_ROOT}/DYP")
 
     return [
-        ("CIF — Plan de trabajo",   RUTA_CIF, True, []),
-        ("SOS — detalle",           RUTA_SOS, True, []),
-        ("NP — detalle",            f"{DIR_NP_OUT}/REPORTE_NO_PRESENCIA.xlsx", True, []),
-        ("Precios — detalle",       f"{DIR_PRECIOS_OUT}/REPORTE_CAPTURA_PRECIOS.xlsx", True, []),
+        ("CIF — detalle",           ruta_cif_detalle(), True, []),
+        ("SOS — detalle",           ruta_sos_detalle(mes, anio), True, []),
+        ("NP — detalle",            ruta_np_detalle(mes, anio), True, []),
+        ("Precios — detalle",       ruta_pr_detalle(mes, anio), True, []),
         ("KPIs CIF",                f"{paths.RUTA_CARPETA_SALIDAS_CIF}/{paths.CIF_OUT_KPIS.name}", True,
                                      ["KPIS_CIF.xlsx", "CIF_KPIS.xlsx"]),
         ("KPIs SOS",                f"{paths.RUTA_CARPETA_SALIDAS_SOS}/{paths.SOS_OUT_KPIS.name}", True,
@@ -449,10 +483,12 @@ def _rutas_insumos(mes: int, anio: int) -> list[tuple[str, str, bool]]:
         ("Exh — Base Planning",     _p("cloud_exhib_base_planning", mes, anio,
                                        fallback=f"{bases_exh}/Base Exhibiciones Planning {spec.mes_str} {anio}.xlsx"), False, []),
         ("Exh — Fuera de regla",    f"{paths.RUTA_CARPETA_SALIDAS_EXHIB}/Exh_Gratis_Fuera_de_Regla.xlsx", False, []),
+        # Archivos ÚNICOS acumulados: el periodo se filtra por MES/AÑO, no va
+        # en el nombre. El fallback ya no lleva el mes por lo mismo.
         ("D&P — Consolidado Impactos", _p("cloud_dyp_impactos", mes, anio,
-                                       fallback=f"{salidas_dyp}/Consolidado_Impactos_{spec.mes_str_upper}_{anio}.csv"), False, []),
+                                       fallback=f"{salidas_dyp}/Consolidado_Impactos.csv"), False, []),
         ("D&P — Consolidado Ventas",   _p("cloud_dyp_ventas", mes, anio,
-                                       fallback=f"{salidas_dyp}/Consolidado_Ventas_{spec.mes_str_upper}_{anio}.csv"), False, []),
+                                       fallback=f"{salidas_dyp}/Consolidado_Ventas.csv"), False, []),
         # FIX: el nombre con mes/año casi nunca existe — en producción el
         # archivo real es genérico (Rutero_Droguerias.xlsx, sin mes ni año).
         # Se agrega como alterno para que el verificador no marque ausente
@@ -561,21 +597,10 @@ def main() -> dict:
     print("═" * 55)
     _log.info("Iniciando cálculo de cumplimientos en la nube con paths.py")
 
-    # ── Cargar archivos de detalle desde la Nube usando paths ─────────────
-    print("\nCargando archivos de detalle:")
-    df_cif = _leer_excel_cloud(RUTA_CIF, "CIF (Plan de trabajo.xlsx)")
-    df_sos = _leer_excel_cloud(RUTA_SOS, "SOS")
-    
-    ruta_np_cloud = f"{DIR_NP_OUT}/REPORTE_NO_PRESENCIA.xlsx"
-    ruta_pr_cloud = f"{DIR_PRECIOS_OUT}/REPORTE_CAPTURA_PRECIOS.xlsx"
-    
-    df_np = _leer_excel_cloud(ruta_np_cloud, "No Presencia")
-    df_pr = _leer_excel_cloud(ruta_pr_cloud, "Precios")
-
-    # NOTA: el filtro por periodo de estos 4 archivos se aplica más abajo,
-    # una vez detectado (mes, anio) a partir de los KPIs. Antes se asignaba
-    # df_cif_pdv = df_cif aquí, sin filtrar, y Plan de trabajo trae varios
-    # meses acumulados → las hojas de detalle salían multiplicadas.
+    # NOTA DE ORDEN: los archivos de DETALLE se leen DESPUÉS de los KPIs,
+    # porque su nombre lleva el periodo (`..._AGOSTO_2026.xlsx`) y el periodo
+    # sale de los KPIs. Antes se leían aquí, de primeras, con un nombre fijo
+    # sin periodo — ver el comentario de `ruta_*_detalle()`.
 
     # ── Cargar Base cupos (tabla maestra de personas, llave ACRONIMO) ────
     print("\nCargando tabla maestra de personas (Base cupos):")
@@ -595,10 +620,6 @@ def main() -> dict:
     idx_bc = bcm.construir_indices(df_bc)
     print(f"  ✓ Universo: {len(universo)} personas activas | {len(sups_bc)} supervisores")
 
-    # ── Maestra de supervisores ──────────────────────────────────────────
-    print("\nVerificando maestra de supervisores:")
-    generar_maestra(df_np, df_pr, df_sos)
-
     # ── KPIs V3 ──────────────────────────────────────────────────────────
     print("\nLeyendo KPIs V3 pre-calculados por los ETLs:")
     kpis_v3 = cargar_kpis_v3(idx_bc, nombres_sups_bc)
@@ -608,6 +629,20 @@ def main() -> dict:
     df_sos_gest = kpis_v3["sos_gest"]
     df_exp_gest = kpis_v3.get("exp_gest", pd.DataFrame())
     df_egr_gest = kpis_v3.get("egr_gest", pd.DataFrame())
+
+    # ── Periodo activo ────────────────────────────────────────────────────
+    # Se resuelve aquí, apenas se tienen los KPIs, porque de él dependen
+    # tanto los nombres de los archivos de detalle como las rutas por año.
+    ahora = datetime.now()
+    if not df_cif_gest.empty and "MES" in df_cif_gest.columns:
+        mes  = int(pd.to_numeric(df_cif_gest["MES"], errors="coerce").dropna().mode().iloc[0])
+        anio = int(pd.to_numeric(df_cif_gest["AÑO"], errors="coerce").dropna().mode().iloc[0])
+    else:
+        mes, anio = ahora.month, ahora.year
+    print(f"  Periodo activo: {mes:02d}/{anio}")
+
+    global _ANIO_ACTIVO
+    _ANIO_ACTIVO = int(anio)
 
     # ── Candidatos sin cruzar: opcionalmente agregarlos a Base cupos ──────
     # Solo se ejecuta si se corre con --agregar-faltantes (nunca por
@@ -635,28 +670,29 @@ def main() -> dict:
     print(f"  ✓ Exh PAG    — {len(df_exp_gest)} empleados")
     print(f"  ✓ Exh GRATIS — {len(df_egr_gest)} empleados")
 
-    # ── Periodo activo ────────────────────────────────────────────────────
-    ahora = datetime.now()
-    if not df_cif_gest.empty and "MES" in df_cif_gest.columns:
-        mes  = int(pd.to_numeric(df_cif_gest["MES"], errors="coerce").dropna().mode().iloc[0])
-        anio = int(pd.to_numeric(df_cif_gest["AÑO"], errors="coerce").dropna().mode().iloc[0])
-    else:
-        mes, anio = ahora.month, ahora.year
-    print(f"  Periodo activo: {mes:02d}/{anio}")
-
-    global _ANIO_ACTIVO
-    _ANIO_ACTIVO = int(anio)
-
     # Verificación temprana de rutas: se hace aquí (y no al inicio) porque
     # varias rutas dependen del periodo, que sale de los KPIs.
     if "--sin-verificar" not in sys.argv:
         verificar_insumos(mes, anio)
 
+    # ── Cargar archivos de DETALLE del periodo desde la nube ─────────────
+    print(f"\nCargando archivos de detalle del periodo {mes:02d}/{anio}:")
+    df_cif = _leer_excel_cloud(ruta_cif_detalle(),          "CIF (CIF.xlsx)")
+    df_sos = _leer_excel_cloud(ruta_sos_detalle(mes, anio), "SOS")
+    df_np  = _leer_excel_cloud(ruta_np_detalle(mes, anio),  "No Presencia")
+    df_pr  = _leer_excel_cloud(ruta_pr_detalle(mes, anio),  "Precios")
+
+    # ── Maestra de supervisores ──────────────────────────────────────────
+    print("\nVerificando maestra de supervisores:")
+    generar_maestra(df_np, df_pr, df_sos)
+
     # ── Filtrar los archivos de DETALLE al periodo activo ────────────────
-    # FIX: `Plan de trabajo.xlsx` acumula histórico (varios meses en el mismo
-    # archivo). Los KPIs sí venían filtrados por cargar_kpis_v3(), pero las
-    # hojas de detalle de los adjuntos leían el archivo completo, así que
-    # mostraban N meses de PDVs y nunca cuadraban con el resumen.
+    # `CIF.xlsx` acumula histórico (varios meses en el mismo archivo), así que
+    # este filtro sigue siendo indispensable para él. Los KPIs sí venían
+    # filtrados por cargar_kpis_v3(), pero las hojas de detalle de los adjuntos
+    # leían el archivo completo y mostraban N meses de PDVs, sin cuadrar con el
+    # resumen. SOS/NP/Precios ya llegan del periodo (su archivo lo lleva en el
+    # nombre); para ellos el filtro solo confirma que así sea.
     print("\nFiltrando bases de detalle al periodo activo:")
 
     def _filtrar_periodo_pdv(df: pd.DataFrame, nombre: str) -> pd.DataFrame:
@@ -1857,7 +1893,20 @@ def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFra
     """
     df_bc   = bcm.cargar()
     sups_bc = bcm.supervisores(df_bc)
-    nombres_bc = sorted(sups_bc["NOMBRE"].dropna().unique())
+    # Destinatarios de la maestra = supervisores + GDD + líderes de ejecución
+    # (los 37 destinatarios reales de Telegram/Email, no solo supervisores —
+    # antes un GDD/Líder nuevo en Base cupos nunca recibía fila aquí y quedaba
+    # sin CORREO/TELEGRAM_CHAT_ID resoluble, en silencio).
+    nombres_destinatarios = set(sups_bc["NOMBRE"].dropna().astype(str).str.upper())
+    if "ES_GDD" in df_bc.columns:
+        nombres_destinatarios.update(
+            df_bc[df_bc["ES_GDD"] == True]["NOMBRE"].dropna().astype(str).str.upper()
+        )
+    if "ES_LIDER" in df_bc.columns:
+        nombres_destinatarios.update(
+            df_bc[df_bc["ES_LIDER"] == True]["NOMBRE"].dropna().astype(str).str.upper()
+        )
+    nombres_bc = sorted(nombres_destinatarios)
 
     existente = pd.DataFrame(columns=["NOMBRE_SUPERVISOR", "CORREO", "TELEGRAM_CHAT_ID"])
 
@@ -1910,13 +1959,13 @@ def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFra
     if not nombres_nuevos and not hay_basura and not existente.empty:
         if nombres_obsoletos:
             print(
-                f"  ⚠️  {len(nombres_obsoletos)} supervisor(es) en la maestra ya no "
+                f"  ⚠️  {len(nombres_obsoletos)} destinatario(s) en la maestra ya no "
                 f"figuran como activos en Base cupos:"
             )
             for n in nombres_obsoletos[:5]:
                 print(f"     · {n}")
             print(f"     (Se conservan en la maestra; revisa si fueron desactivados.)")
-        print(f"  ✓ Maestra al día: {len(existente)} supervisores")
+        print(f"  ✓ Maestra al día: {len(existente)} destinatarios (supervisores + GDD + líderes)")
         return
 
     if not existente.empty:
@@ -1938,7 +1987,7 @@ def generar_maestra(df_np: pd.DataFrame, df_pr: pd.DataFrame, df_sos: pd.DataFra
             "CORREO":            [""] * len(nombres_bc),
             "TELEGRAM_CHAT_ID":  [""] * len(nombres_bc),
         })
-        accion = f"📋 Maestra creada con {len(nombres_bc)} supervisores"
+        accion = f"📋 Maestra creada con {len(nombres_bc)} destinatarios (supervisores + GDD + líderes)"
 
     print(f"\n  {accion}")
     if nombres_nuevos:
@@ -3078,14 +3127,11 @@ def _hoja_impactos_detalle(
     else:
         ruta_imp = None
         _salidas_dyp = getattr(paths, "RUTA_CARPETA_SALIDAS_DYP", f"{paths._SALIDAS_ROOT}/DYP")
-        _cands_imp = []
-        if hasattr(paths, "cloud_dyp_impactos"):
-            _cands_imp.append(paths.cloud_dyp_impactos(mes, anio))
-        _cands_imp += [
-            f"{_salidas_dyp}/Consolidado_Impactos_{mes_str.upper()}_{anio}.csv",
-            f"{_salidas_dyp}/Consolidado_Impactos_{mes_str}_{anio}.csv",
-            f"{_salidas_dyp}/Consolidado_Impactos.csv",
-        ]
+        # El consolidado es un archivo único acumulado. Antes había además
+        # candidatos con el periodo en el nombre; se quitaron porque esos
+        # archivos ya no se generan y, si quedara alguno viejo dando vueltas,
+        # el reporte saldría con datos de otro mes sin avisar.
+        _cands_imp = [paths.cloud_dyp_impactos(mes, anio)]
         for _ruta in dict.fromkeys(_cands_imp):
             ruta_imp = _descargar_a_temp(_ruta, f"Impactos {mes_str} {anio}")
             if ruta_imp is not None:
@@ -3373,11 +3419,11 @@ def _precargar_segmentos_nuevos(
         (f"{_bases_dyp}/Listas/MSL & Listas Target Catman.xlsx",    "Listas D&P"),
         (f"{_bases_dyp}/Listas/listas_referencia.xlsx",             "Listas D&P (nombre alterno)"),
     ])
-    _r_ventas = [(paths.cloud_dyp_ventas(mes, anio), "Consolidado Ventas D&P")] if hasattr(paths, "cloud_dyp_ventas") else []
-    ruta_ventas = _primer_disponible(_r_ventas + [
-        (f"{_salidas_dyp}/Consolidado_Ventas_{_spec.mes_str_upper}_{anio}.csv", "Consolidado Ventas D&P"),
-        (f"{_salidas_dyp}/Consolidado_Ventas_{_spec.mes_str}_{anio}.csv",       "Consolidado Ventas D&P"),
-        (f"{_salidas_dyp}/Consolidado_Ventas.csv",                              "Consolidado Ventas D&P"),
+    # Archivo único acumulado. Se quitaron los candidatos con el periodo en el
+    # nombre: ya no se generan, y un archivo viejo que quedara suelto haría que
+    # el reporte saliera con otro mes sin que nada lo advirtiera.
+    ruta_ventas = _primer_disponible([
+        (paths.cloud_dyp_ventas(mes, anio), "Consolidado Ventas D&P"),
     ])
 
     # Sin respaldo local: estos insumos viven solo en SharePoint. Si no están

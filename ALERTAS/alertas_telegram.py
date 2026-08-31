@@ -167,6 +167,44 @@ def _leer_excel_cloud(ruta_sharepoint: str, descripcion: str, **kwargs) -> pd.Da
     raise FileNotFoundError(f"No se pudo leer {descripcion} desde SharePoint ({ruta_sharepoint}).")
 
 
+_PREFIJO_HOJA_PDV = "informe_punto_de_venda"
+
+
+def _hoja_puntos_de_venta(ruta_sharepoint: str) -> str:
+    """
+    Nombre real de la hoja de PDVs dentro de BASE PUNTOS DE VENTA.
+
+    El export de Involves no siempre la deja como "Informe_Punto_de_Venda":
+    puede venir con sufijo ("Informe_Punto_de_Venda (1)"). Se busca por
+    prefijo y, si el libro trae una sola hoja, se usa esa. Si nada coincide se
+    lanza la excepción con los nombres reales, para que el log diga qué hay en
+    el archivo en vez de solo "no encontrada".
+    """
+    token = paths.obtener_token_azure()
+    headers = {"Authorization": f"Bearer {token}"}
+    drive_id = _obtener_default_drive_id(token)
+    ruta_limpia = _limpiar_ruta_graph(ruta_sharepoint)
+    for r in (ruta_limpia, f"Documentos compartidos/{ruta_limpia}"):
+        url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{urllib.parse.quote(r)}:/content"
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            continue
+        hojas = pd.ExcelFile(io.BytesIO(response.content)).sheet_names
+        for h in hojas:
+            if str(h).strip().lower().startswith(_PREFIJO_HOJA_PDV):
+                if str(h) != "Informe_Punto_de_Venda":
+                    _log.info(f"Base puntos de venta: se usó la hoja '{h}'.")
+                return h
+        if len(hojas) == 1:
+            _log.warning(
+                f"Base puntos de venta: ninguna hoja empieza por 'Informe_Punto_de_Venda'; "
+                f"se usó la única hoja del libro ('{hojas[0]}')."
+            )
+            return hojas[0]
+        raise ValueError(f"Ninguna hoja empieza por 'Informe_Punto_de_Venda'. Hojas: {hojas}")
+    raise FileNotFoundError(f"No se pudo abrir Base puntos de venta ({ruta_sharepoint}).")
+
+
 def _ultimo_archivo_cloud(ruta_carpeta: str, patron_regex: str) -> str | None:
     """Devuelve la ruta SharePoint del último archivo (orden alfabético/nombre,
     igual que sorted(...)[-1] con glob local) que matchee patron_regex, o None."""
@@ -264,7 +302,7 @@ def _pct(valor) -> str:
 # PERFILES DE PDV — Directo+Droguerías vs Proximity
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _cargar_perfiles_pdv() -> dict[str, str]:
+def _cargar_perfiles_pdv(mes: int | None = None, anio: int | None = None) -> dict[str, str]:
     """
     Lee BASE PUNTOS DE VENTA y devuelve:
         { id_pdv (str) -> 'DIR' | 'PROX' }
@@ -277,17 +315,30 @@ def _cargar_perfiles_pdv() -> dict[str, str]:
 
     Si el archivo no existe, devuelve dict vacío y avisa por log.
     """
-    ruta_cloud = f"{paths.RUTA_CARPETA_BASES_CIF}/Base_Ventas.xlsx"
+    # Carpeta transversal PUNTOS DE VENTA (antes se leía de BASES/CIF/<año>,
+    # lo que obligaba a duplicar el archivo ahí cada mes).
+    if mes and anio:
+        ruta_cloud = paths.cloud_puntos_venta(mes, anio)
+    else:
+        ruta_cloud = f"{paths.RUTA_CARPETA_PUNTOS_VTA}/BASE PUNTOS DE VENTA.xlsx"
+    # La hoja se pedía por nombre EXACTO ("Informe_Punto_de_Venda"), pero el
+    # export de Involves a veces le agrega un sufijo — el archivo de agosto
+    # trae "Informe_Punto_de_Venda (1)". Con el nombre exacto, openpyxl lanza
+    # "Worksheet not found", el except de abajo devolvía {} y el mensaje se
+    # armaba SIN las secciones Directo/Proximity: los supervisores quedaban
+    # solo con D&P, y quien no tuviera D&P recibía "N/D" en todo. Ahora se
+    # busca por prefijo, que es lo estable del nombre.
     try:
+        hoja = _hoja_puntos_de_venta(ruta_cloud)
         df = _leer_excel_cloud(
-            ruta_cloud, "Base_Ventas",
-            sheet_name="Informe_Punto_de_Venda",
+            ruta_cloud, "Base puntos de venta",
+            sheet_name=hoja,
             usecols=["ID", "Perfil del PDV"],
             dtype={"ID": str},
         )
     except Exception as e:
         _log.warning(
-            f"Base_Ventas no se pudo leer desde SharePoint ({ruta_cloud}): {e} — "
+            f"Base puntos de venta no se pudo leer desde SharePoint ({ruta_cloud}): {e} — "
             "el desglose por perfil no se podrá hacer."
         )
         return {}
@@ -1254,7 +1305,7 @@ def enviar_resumen_telegram(
         token = "MODO_PRUEBA"
 
     # ── Mapa de perfiles de PDV (para desglose Directo/Proximity) ────────
-    perfiles = _cargar_perfiles_pdv()
+    perfiles = _cargar_perfiles_pdv(mes, anio)
     if perfiles:
         print(f"  Perfiles PDV cargados: {len(perfiles):,} IDs mapeados")
     else:

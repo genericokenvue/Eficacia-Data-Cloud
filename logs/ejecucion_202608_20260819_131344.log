@@ -1,0 +1,62 @@
+2026-08-19 13:13:44  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260819_131344.log
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260819T131344_a2ab1b
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Inicio: 2026-08-19 13:13:44
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Run ID: 20260819T131344_a2ab1b
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Periodo: Agosto_2026 (08/2026)
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['cif', 'nopresencia', 'precios', 'sos', 'exhib_pagadas', 'exhib_gratis', 'ventas', 'impactos', 'impactos_segmentos']
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:13:44  [etl.shared_loader]  ⚠ WARNING   No se encontró archivo *Directo*.xlsx para periodo 08/2026 en C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO
+2026-08-19 13:13:44  [etl.shared_loader]  ⚠ WARNING   No se encontró archivo *ISM*.xlsx para periodo 08/2026 en C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO
+2026-08-19 13:13:44  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-19 13:13:44  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-08-19 13:13:44  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-08-19 13:13:44  [etl.shared_loader]  ☠ CRITICAL  Archivo Plan de Trabajo no encontrado:  — fuente 'DIRECTO' excluida del pipeline
+2026-08-19 13:13:44  [etl.shared_loader]  ☠ CRITICAL  Archivo Plan de Trabajo no encontrado:  — fuente 'ISM' excluida del pipeline
+2026-08-19 13:13:44  [etl.shared_loader]  ☠ CRITICAL  No se pudo cargar ninguna fuente del Plan de Trabajo (ni DIRECTO ni ISM) — el pipeline no puede continuar
+2026-08-19 13:13:44  [etl.orquestador]   ☠ CRITICAL  shared_loader falló con error crítico: shared_loader: ambas fuentes del PT fallaron. Revisa las rutas y el acceso a los archivos. — el pipeline no puede continuar
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        cif                    ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        nopresencia            ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        precios                ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        sos                    ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        exhib_pagadas          ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        exhib_gratis           ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        ventas                 ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        impactos               ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        impactos_segmentos     ⚠ OMITIDO             —
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK               0.0s
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                          0.0s
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                    0.0s
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        Ahorro estimado                           0.0s
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Eventos: 4 CRITICAL  |  0 ERROR  |  2 WARNING
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ························································
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        CRITICAL (4)
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ························································
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        13:13:44  [shared_loader]     Archivo Plan de Trabajo no encontrado:  — fuente 'DIRECTO' excluida del pipeline
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        13:13:44  [shared_loader]     Archivo Plan de Trabajo no encontrado:  — fuente 'ISM' excluida del pipeline
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        13:13:44  [shared_loader]     No se pudo cargar ninguna fuente del Plan de Trabajo (ni DIRECTO ni ISM) — el pipeline no puede continuar
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        13:13:44  [orquestador]       shared_loader falló con error crítico: shared_loader: ambas fuentes del PT fallaron. Revisa las rutas y el acceso a los archivos. — el pipeline no puede continuar
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ························································
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        WARNING (2)
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ························································
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        13:13:44  [shared_loader]     No se encontró archivo *Directo*.xlsx para periodo 08/2026 en C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO        13:13:44  [shared_loader]     No se encontró archivo *ISM*.xlsx para periodo 08/2026 en C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260819_131344.log
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      Fin: 2026-08-19 13:13:44
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      FASE FINAL — Regenerando capa GOLD
+2026-08-19 13:13:44  [etl.orquestador]   ✓ INFO      ══════════════════════════════════════════════════════════════════════
+2026-08-19 13:16:26  [etl.orquestador]   ✓ INFO      GOLD regenerado OK

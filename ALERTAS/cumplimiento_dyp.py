@@ -94,18 +94,16 @@ SOBRECUMPLIMIENTO_PLACEHOLDER = 2.0
 # paths.DYP_OUT_VENTAS, paths.DYP_LISTAS_FILE) — se leen directamente de
 # SharePoint, con la misma convención Graph API que el resto del pipeline.
 #
-# IMPORTANTE: etl_ventas.py sube los consolidados de Ventas/Impactos con el
-# periodo en el nombre del archivo (ej. "Consolidado_Ventas_JULIO_2026.csv"),
-# no como un único archivo acumulado — por eso estas rutas son funciones de
-# (mes, año), no constantes fijas.
+# Los consolidados de Ventas/Impactos son archivos ÚNICOS que acumulan todos
+# los meses; el filtro por periodo se aplica sobre las columnas MES/AÑO, más
+# abajo. Antes el nombre llevaba el periodo y estas rutas se armaban acá a
+# mano; ahora se piden a paths.py, que es el punto único de verdad.
 def _ruta_impactos_cloud(mes: int, anio: int) -> str:
-    mes_up = MESES_INT_A_STR.get(int(mes), "").upper()
-    return f"{paths.RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Impactos_{mes_up}_{int(anio)}.csv"
+    return paths.cloud_dyp_impactos(mes, anio)
 
 
 def _ruta_ventas_cloud(mes: int, anio: int) -> str:
-    mes_up = MESES_INT_A_STR.get(int(mes), "").upper()
-    return f"{paths.RUTA_CARPETA_SALIDAS_DYP}/Consolidado_Ventas_{mes_up}_{int(anio)}.csv"
+    return paths.cloud_dyp_ventas(mes, anio)
 
 
 RUTA_LISTAS_CLOUD = f"{paths.RUTA_CARPETA_BASES_DYP}/Listas/MSL & Listas Target Catman.xlsx"

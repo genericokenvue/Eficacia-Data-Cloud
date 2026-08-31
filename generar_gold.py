@@ -385,13 +385,35 @@ def fact_cumplimientos_gestor(filtro):
     epg = _leer_historico_normalizado_cloud(_RUTA_EPG_HIST, "Exh. Pagadas histórico", "CUMPLIMIENTO", "CUMP_EXH_PAG")
     egr = _leer_historico_normalizado_cloud(_RUTA_EGR_HIST, "Exh. Gratis histórico", "TOTAL", "CUMP_EXH_GRA")
 
-    base = cif
-    for parte in (np_, pre, sos, epg, egr):
+    keys = ["MES", "AÑO", "NOMBRE_N"]
+
+    def _una_fila_por_persona(df, etiqueta):
+        """
+        Deja una sola fila por (mes, año, persona).
+
+        Sin esto, un histórico con la persona repetida en el mismo periodo
+        (p. ej. si cambió de supervisor a mitad de mes) hace que el merge
+        multiplique filas: 2 duplicados en dos fuentes distintas producen 4
+        filas en la salida. No falla, solo infla el CSV en silencio, y los
+        promedios de Power BI salen mal.
+        """
+        if df.empty or not all(k in df.columns for k in keys):
+            return df
+        n_antes = len(df)
+        df = df.drop_duplicates(subset=keys, keep="last")
+        if len(df) != n_antes:
+            print(f"    ⚠ {etiqueta}: {n_antes - len(df)} fila(s) duplicada(s) "
+                  f"por persona/periodo — se conserva la última")
+        return df
+
+    base = _una_fila_por_persona(cif, "CIF histórico")
+    for parte, etiqueta in ((np_, "NP"), (pre, "Precios"), (sos, "SOS"),
+                            (epg, "Exh. Pagadas"), (egr, "Exh. Gratis")):
         if parte.empty:
             continue
-        keys = ["MES", "AÑO", "NOMBRE_N"]
         sup_cols = [c for c in parte.columns if c == "SUPERVISOR_LIDER"]
-        parte_solo_kpi = parte.drop(columns=sup_cols)
+        parte_solo_kpi = _una_fila_por_persona(
+            parte.drop(columns=sup_cols), f"{etiqueta} histórico")
         base = base.merge(parte_solo_kpi, on=keys, how="outer")
 
     return _filtrar_por_periodos(base, filtro).sort_values(

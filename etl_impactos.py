@@ -20,7 +20,7 @@ Origen (SharePoint)
 
 Salida (SharePoint)
 ────────────────────
-    Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos_<MES>_<AÑO>.csv
+    Equipo Información/BI/INVOLVES/SALIDAS/DYP/Consolidado_Impactos.csv  (único, acumula todos los meses)
 
 Esquema esperado en el Excel origen
 ───────────────────────────────────
@@ -38,6 +38,7 @@ Esquema esperado en el Excel origen
 from __future__ import annotations
 
 import io
+import re
 import os
 import urllib.parse
 import warnings
@@ -137,7 +138,9 @@ def obtener_site_id(headers):
     return res["id"]
 
 
-def obtener_archivos_carpeta_sharepoint_recursivo(headers, site_id, anio_proceso=2026):
+def obtener_archivos_carpeta_sharepoint_recursivo(headers, site_id, anio_proceso: int):
+    # Sin valor por defecto a propósito: un default de 2026 hacía que una
+    # llamada sin año leyera de esa carpeta en silencio, para siempre.
     """Igual que en etl_ventas.py: recorre recursivamente BASES DE RESPUESTAS/DYP/<año>,
     excluyendo cualquier ruta con 'MES ACTUAL'."""
     ruta_relativa = f"Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/DYP/{anio_proceso}"
@@ -183,6 +186,45 @@ def obtener_archivos_carpeta_sharepoint_recursivo(headers, site_id, anio_proceso
 # CONSOLIDACIÓN EN LA NUBE (IMPACTOS)
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _detectar_mes_anio_cloud(download_url: str, nombre_archivo: str, mapping: dict) -> tuple[str | None, str | None]:
+    """
+    Averigua a qué periodo pertenece un Excel de origen.
+
+    Primero mira las columnas MES/AÑO dentro del archivo; si no las trae, cae
+    al nombre ('... Julio 2026 ...'). Hace falta para elegir qué archivo
+    reprocesar cuando en la carpeta del año conviven cortes de varios meses.
+    """
+    mes_val: str | None = None
+    anio_val: str | None = None
+
+    try:
+        content = requests.get(download_url).content
+        try:
+            df_head = pd.read_excel(io.BytesIO(content), nrows=10)
+        except Exception:
+            df_head = pd.read_html(io.BytesIO(content), encoding="latin-1")[0].head(10)
+        df_head.rename(columns=mapping, inplace=True)
+        if "MES" in df_head.columns and not df_head["MES"].dropna().empty:
+            mes_val = str(df_head["MES"].dropna().iloc[0]).strip().capitalize()
+        if "AÑO" in df_head.columns and not df_head["AÑO"].dropna().empty:
+            try:
+                anio_val = str(int(df_head["AÑO"].dropna().iloc[0]))
+            except Exception:
+                anio_val = None
+    except Exception:
+        pass
+
+    if not mes_val or not anio_val:
+        m = re.search(r"([A-Za-z]+)\s(\d{4})", nombre_archivo)
+        if m:
+            if not mes_val:
+                mes_val = m.group(1).capitalize()
+            if not anio_val:
+                anio_val = m.group(2)
+
+    return mes_val, anio_val
+
+
 def consolidar_impactos(
     archivos_cloud: list[dict],
     spec: pr.PeriodoSpec,
@@ -202,7 +244,8 @@ def consolidar_impactos(
         return 0
 
     periodo_nom = f"{MESES_ESPANOL[spec.mes]}_{spec.anio}"
-    nombre_consolidado_cloud = f"Consolidado_Impactos_{periodo_nom}.csv"
+    # Archivo ÚNICO acumulado — ver la nota en paths.cloud_dyp_impactos.
+    nombre_consolidado_cloud = os.path.basename(paths.cloud_dyp_impactos())
 
     # Modo upsert: si ya existe el consolidado de este periodo, solo se
     # reprocesa el último archivo (corte más reciente) y se reemplazan sus
@@ -220,7 +263,31 @@ def consolidar_impactos(
                 url_consolidado_previo = item.get("@microsoft.graph.downloadUrl")
                 break
 
-    archivos_a_procesar = [archivos_impactos[-1]] if consolidado_existe else archivos_impactos
+    # Elegir qué archivos reprocesar.
+    #
+    # Antes era `[archivos_impactos[-1]]`: el ÚLTIMO archivo de la carpeta del
+    # año, ordenado por ruta. Con cortes de varios meses conviviendo (lo
+    # normal), un reproceso de marzo terminaba procesando el de mayo sin avisar.
+    if consolidado_existe:
+        mes_pedido = MESES_ESPANOL[spec.mes].capitalize()
+        del_periodo = []
+        for archivo in archivos_impactos:
+            mes_det, anio_det = _detectar_mes_anio_cloud(
+                archivo["@microsoft.graph.downloadUrl"], archivo["name"], mapping)
+            if (mes_det or "").capitalize() == mes_pedido and str(anio_det) == str(spec.anio):
+                del_periodo.append(archivo)
+
+        if del_periodo:
+            archivos_a_procesar = del_periodo
+            print(f"  ℹ️  Reprocesando {len(del_periodo)} archivo(s) de {spec.etiqueta}: "
+                  f"{[a['name'] for a in del_periodo]}")
+        else:
+            raise FileNotFoundError(
+                f"No se encontró ningún archivo de impactos de {spec.etiqueta} en la carpeta del año.\n"
+                f"  Archivos disponibles: {[a['name'] for a in archivos_impactos]}"
+            )
+    else:
+        archivos_a_procesar = archivos_impactos
 
     bloques: list[pd.DataFrame] = []
     orden_columnas: list[str] | None = None
@@ -233,12 +300,17 @@ def consolidar_impactos(
                 encoding="utf-8", dtype={"MES": str, "AÑO": str}, low_memory=False,
             )
             orden_columnas = list(df_existente.columns)
+            # Comparación en MAYÚSCULAS en ambos lados: no depende de si el
+            # archivo trae 'Agosto', 'AGOSTO' o 'agosto'.
+            mes_up = MESES_ESPANOL[spec.mes].upper()
+            n_antes = len(df_existente)
             df_filtrado = df_existente[
-                (df_existente["MES"].astype(str).str.strip().str.capitalize() != MESES_ESPANOL[spec.mes].capitalize())
+                (df_existente["MES"].astype(str).str.strip().str.upper() != mes_up)
                 | (df_existente["AÑO"].astype(str).str.strip() != str(spec.anio))
             ]
             bloques.append(df_filtrado)
-            print(f"  Modo upsert cloud (Impactos) — reprocesando periodo activo: {spec.etiqueta}")
+            print(f"  Modo upsert cloud (Impactos) — {n_antes - len(df_filtrado):,} filas "
+                  f"previas de {spec.etiqueta} reemplazadas")
         except Exception as e:
             print(f"  ⚠️ No pude leer el consolidado previo de impactos ({e}); reconstruyo desde cero")
             archivos_a_procesar = archivos_impactos
@@ -352,6 +424,10 @@ def run() -> int:
 
     total_filas = 0
     for spec in specs:
+        # Las carpetas de BASES llevan el año en la ruta; sin esto se
+        # buscarían los insumos en la carpeta del año del reloj.
+        paths.usar_anio(spec.anio)
+
         print(f"\n🎯 Procesando periodo: {spec.etiqueta} (Año: {spec.anio})")
         rutas_cloud = obtener_archivos_carpeta_sharepoint_recursivo(headers, site_id, anio_proceso=spec.anio)
         print(f"✅ Archivos encontrados en la nube para {spec.anio}: {len(rutas_cloud)}")

@@ -399,16 +399,32 @@ def descubrir_archivos_pt(directorio_pt: str, periodo=None) -> tuple[str, str]:
         ruta_dir = max(candidatos_dir, key=os.path.getmtime) if candidatos_dir else ""
         ruta_ism = max(candidatos_ism, key=os.path.getmtime) if candidatos_ism else ""
 
-    if not ruta_dir:
+    # Si falta alguno de los dos, se baja de SharePoint.
+    #
+    # Antes esto solo pasaba cuando el DIRECTORIO no existía. Pero basta con que
+    # exista vacío —por ejemplo si otro proceso lo creó— para que la búsqueda
+    # devuelva rutas vacías y el pipeline aborte con "Archivo Plan de Trabajo no
+    # encontrado: " (sin nombre, porque la ruta venía en blanco), teniendo el
+    # archivo disponible en la nube. Lo que importa es si el archivo está, no si
+    # la carpeta existe.
+    if not ruta_dir or not ruta_ism:
+        faltantes = []
+        if not ruta_dir:
+            faltantes.append("Directo")
+        if not ruta_ism:
+            faltantes.append("ISM")
         suf = f" para periodo {periodo}" if periodo is not None else ""
-        log.warning(f"No se encontró archivo *Directo*.xlsx{suf} en {directorio_pt}")
-    else:
-        log.info(f"PT Directo detectado: {os.path.basename(ruta_dir)}")
+        log.warning(
+            f"PT {' y '.join(faltantes)} no está{'n' if len(faltantes) > 1 else ''} "
+            f"en local{suf} ({directorio_pt}) — descargando desde SharePoint..."
+        )
+        remoto_dir, remoto_ism = _descargar_pt_desde_sharepoint(periodo)
+        ruta_dir = ruta_dir or remoto_dir
+        ruta_ism = ruta_ism or remoto_ism
 
-    if not ruta_ism:
-        suf = f" para periodo {periodo}" if periodo is not None else ""
-        log.warning(f"No se encontró archivo *ISM*.xlsx{suf} en {directorio_pt}")
-    else:
+    if ruta_dir:
+        log.info(f"PT Directo detectado: {os.path.basename(ruta_dir)}")
+    if ruta_ism:
         log.info(f"PT ISM detectado: {os.path.basename(ruta_ism)}")
 
     return ruta_dir, ruta_ism
@@ -492,12 +508,38 @@ def _leer_archivo_pt(ruta: str, hoja_pt: str, fuente: str) -> tuple[pd.DataFrame
     return df_pt, df_mod
 
 
+# Reglas de negocio D9 y D10 (ver DOCUMENTACION_PROYECTO.md, sección 11).
+# Aplican a No Presencia, Precios y SOS. CIF y exhibiciones SÍ miden los PDVs
+# DISCOUNTER, así que quedan fuera.
+_MODULOS_CON_D9_D10 = {"no_presencia", "precios", "sos"}
+
+# D9: la OBSERVACIÓN del PDV debe coincidir con el ROL de quien lo atiende.
+_OBS_A_ROL = {
+    "REPORTA GESTOR":               "GESTOR",
+    "REPORTA SUPERVISOR":           "SUPERVISOR",
+    "REPORTA GENERADOR DE DEMANDA": "GENERADOR DE DEMANDA",
+}
+
+
 def _filtrar_por_modulo(
     df_pt: pd.DataFrame,
     df_mod: pd.DataFrame,
     fuente: str,
     modulo: str,
 ) -> pd.DataFrame:
+    """
+    Deja del PT solo las filas que le corresponden al módulo.
+
+    Además del filtro por columna del módulo, aplica D10 (excluir DISCOUNTER) y
+    D9 (la OBSERVACIÓN del PDV debe coincidir con el ROL) para No Presencia,
+    Precios y SOS.
+
+    Esos dos filtros vivían únicamente en el `ejecutar_paso_1_consolidar_pt` de
+    cada ETL. Pero run_all.py no llama a ese paso: arma el PT aquí y salta
+    directo a los pasos siguientes. Resultado: corriendo por el orquestador
+    —o sea, en producción— D9 y D10 no se aplicaban nunca, y los PDVs
+    discounter entraban al cálculo.
+    """
     col = MODULOS[modulo][fuente]
 
     if col not in df_mod.columns:
@@ -507,8 +549,58 @@ def _filtrar_por_modulo(
         )
         return pd.DataFrame(columns=df_pt.columns)
 
-    ids_validos = df_mod.loc[df_mod[col] == 1, "ID PDV INVOLVES"].unique()
+    df_val = df_mod[df_mod[col] == 1].copy()
+
+    if modulo in _MODULOS_CON_D9_D10:
+        # ── D10: excluir PDVs de canal DISCOUNTER ────────────────────────
+        if "SUB CANAL" in df_val.columns:
+            n_antes = len(df_val)
+            df_val = df_val[
+                df_val["SUB CANAL"].astype(str).str.strip().str.upper() != "DISCOUNTER"
+            ]
+            n_dc = n_antes - len(df_val)
+            if n_dc > 0:
+                log.info(f"[{fuente}] {modulo}: D10 — {n_dc} PDVs DISCOUNTER excluidos")
+        else:
+            log.warning(
+                f"[{fuente}] {modulo}: sin columna 'SUB CANAL' — no se pudo aplicar D10 "
+                f"(los PDVs DISCOUNTER van a entrar al cálculo)"
+            )
+
+    ids_validos = df_val["ID PDV INVOLVES"].unique()
     df_filtrado = df_pt[df_pt["ID_PDV_INVOLVES"].isin(ids_validos)].copy()
+
+    # ── D9: la OBSERVACIÓN del PDV debe coincidir con el ROL ─────────────
+    if modulo in _MODULOS_CON_D9_D10 and not df_filtrado.empty:
+        col_obs = next((c for c in df_val.columns if c.startswith("OBSERVAC")), None)
+        if col_obs and "ROL" in df_filtrado.columns:
+            obs = (
+                df_val[["ID PDV INVOLVES", col_obs]]
+                .rename(columns={col_obs: "_OBSERVACION"})
+                .drop_duplicates(subset=["ID PDV INVOLVES"])
+            )
+            obs["_OBSERVACION"] = obs["_OBSERVACION"].astype(str).str.strip().str.upper()
+            obs["_ROL_ESPERADO"] = obs["_OBSERVACION"].map(_OBS_A_ROL).fillna("")
+
+            n_antes = len(df_filtrado)
+            df_filtrado = df_filtrado.merge(
+                obs, left_on="ID_PDV_INVOLVES", right_on="ID PDV INVOLVES", how="left"
+            )
+            df_filtrado = df_filtrado[
+                df_filtrado["ROL"].astype(str).str.strip().str.upper()
+                == df_filtrado["_ROL_ESPERADO"]
+            ]
+            df_filtrado = df_filtrado.drop(
+                columns=["ID PDV INVOLVES", "_OBSERVACION", "_ROL_ESPERADO"], errors="ignore")
+            log.info(
+                f"[{fuente}] {modulo}: D9 — filtro OBSERVACIÓN/ROL "
+                f"{n_antes:,} → {len(df_filtrado):,} filas"
+            )
+        else:
+            log.warning(
+                f"[{fuente}] {modulo}: sin columna OBSERVACIÓN o sin ROL — no se pudo "
+                f"aplicar D9 (entran responsables que no corresponden)"
+            )
 
     if df_filtrado.empty:
         log.warning(
@@ -627,3 +719,93 @@ def cargar_plan_de_trabajo(
 
     log.info("Carga compartida completada")
     return resultado
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HISTÓRICO DE KPIs EN SHAREPOINT
+# ─────────────────────────────────────────────────────────────────────────────
+
+def actualizar_kpi_historico(
+    headers: dict,
+    site_id: str,
+    carpeta: str,
+    nombre_archivo: str,
+    df_periodo: "pd.DataFrame",
+    col_mes: str = "MES",
+    col_anio: str = "AÑO",
+    cols_orden: list | None = None,
+) -> int:
+    """
+    Acumula el KPI de un periodo en su archivo histórico de SharePoint.
+
+    Descarga el histórico previo, quita las filas de los periodos que trae
+    `df_periodo` y las reemplaza por las nuevas. Así reejecutar un mes lo
+    actualiza en vez de duplicarlo, igual que el resto del pipeline.
+
+    Existe porque CIF y Exhibiciones Pagadas publicaban el KPI del mes pero no
+    su histórico: GOLD lo pedía y recibía 404 en cada corrida.
+
+    Devuelve el número de filas del histórico resultante.
+    """
+    import io
+    import urllib.parse
+
+    import pandas as pd
+
+    if df_periodo is None or df_periodo.empty:
+        log.warning(f"{nombre_archivo}: KPI del periodo vacío — histórico sin cambios")
+        return 0
+
+    ruta = f"{carpeta}/{nombre_archivo}"
+    url_base = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/{urllib.parse.quote(ruta)}"
+
+    # ── Histórico previo (si existe) ──────────────────────────────────────
+    hist_prev = pd.DataFrame()
+    try:
+        r = requests.get(f"{url_base}:/content", headers=headers)
+        if r.status_code == 200:
+            hist_prev = pd.read_excel(io.BytesIO(r.content), engine="openpyxl")
+    except Exception as e:
+        log.warning(f"{nombre_archivo}: no se pudo leer el histórico previo ({e}) — se crea uno nuevo")
+
+    # ── Quitar los periodos que se están reemplazando ─────────────────────
+    if not hist_prev.empty and col_mes in hist_prev.columns and col_anio in hist_prev.columns:
+        periodos = {
+            (int(m), int(a))
+            for m, a in zip(df_periodo[col_mes], df_periodo[col_anio])
+            if pd.notna(m) and pd.notna(a)
+        }
+        mes_prev  = pd.to_numeric(hist_prev[col_mes],  errors="coerce")
+        anio_prev = pd.to_numeric(hist_prev[col_anio], errors="coerce")
+        mask_quitar = [
+            (int(m), int(a)) in periodos if pd.notna(m) and pd.notna(a) else False
+            for m, a in zip(mes_prev, anio_prev)
+        ]
+        n_reemplazadas = sum(mask_quitar)
+        hist_prev = hist_prev[[not x for x in mask_quitar]]
+        if n_reemplazadas:
+            log.info(f"{nombre_archivo}: {n_reemplazadas:,} filas previas del periodo reemplazadas")
+
+    hist_final = pd.concat([hist_prev, df_periodo], ignore_index=True, sort=False)
+    if cols_orden:
+        presentes = [c for c in cols_orden if c in hist_final.columns]
+        if presentes:
+            hist_final = hist_final.sort_values(presentes).reset_index(drop=True)
+
+    # ── Subir ─────────────────────────────────────────────────────────────
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as w:
+        hist_final.to_excel(w, index=False)
+    buffer.seek(0)
+
+    r = requests.put(
+        f"{url_base}:/content",
+        headers={**headers,
+                 "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+        data=buffer.getvalue(),
+    )
+    if r.status_code in (200, 201):
+        print(f"  ✅ Histórico actualizado: {nombre_archivo} ({len(hist_final):,} filas)")
+    else:
+        log.warning(f"{nombre_archivo}: no se pudo subir el histórico ({r.status_code}): {r.text[:200]}")
+
+    return len(hist_final)
