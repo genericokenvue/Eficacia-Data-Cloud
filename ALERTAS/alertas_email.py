@@ -558,11 +558,20 @@ def construir_cola_envios(
         if not nombre_sup:
             continue
 
+        # TODOS los correos del supervisor, no solo el primero.
+        #
+        # La maestra admite varias filas con el mismo NOMBRE_SUPERVISOR para
+        # mandarle el reporte a más de una persona (el supervisor y quien lo
+        # acompañe). Telegram ya recorría todas esas filas; acá se tomaba
+        # `.iloc[0]` y las demás quedaban fuera en silencio: figuraban como
+        # destinatarios en la maestra y nunca recibían nada.
         correo_row = df_m[df_m["NOMBRE_SUPERVISOR"] == nombre_sup]
-        if correo_row.empty or correo_row["CORREO"].iloc[0] in ("", "nan", "NAN"):
+        correos = [c for c in correo_row["CORREO"].tolist()
+                   if c not in ("", "nan", "NAN")]
+        correos = list(dict.fromkeys(correos))   # sin repetidos, en orden
+        if not correos:
             sin_correo.append(nombre_sup)
             continue
-        correo = correo_row["CORREO"].iloc[0]
 
         propio = df_detalle[df_detalle["ACRONIMO"] == acr_sup]
         es_gdd   = bool(propio["ES_GDD"].iloc[0])   if not propio.empty and "ES_GDD"   in propio.columns else False
@@ -585,14 +594,20 @@ def construir_cola_envios(
         ruta_adjunto   = rutas_adjuntos.get(nombre_sup, "")
         nombre_adjunto = f"Detalle_{nombre_sup.replace(' ', '_')}_{mes:02d}_{anio}.xlsx"
 
-        filas.append({
-            "CORREO"        : correo,
-            "ASUNTO"        : asunto_base,
-            "CUERPO_HTML"   : cuerpo,
-            "NOMBRE_SUP"    : nombre_sup,
-            "RUTA_ADJUNTO"  : ruta_adjunto,
-            "NOMBRE_ADJUNTO": nombre_adjunto,
-        })
+        # Un envío por dirección. El cuerpo y el adjunto son los mismos: lo
+        # único que cambia es a quién le llega.
+        for correo in correos:
+            filas.append({
+                "CORREO"        : correo,
+                "ASUNTO"        : asunto_base,
+                "CUERPO_HTML"   : cuerpo,
+                "NOMBRE_SUP"    : nombre_sup,
+                "RUTA_ADJUNTO"  : ruta_adjunto,
+                "NOMBRE_ADJUNTO": nombre_adjunto,
+            })
+        if len(correos) > 1:
+            print(f"  ℹ️  {nombre_sup}: {len(correos)} destinatarios "
+                  f"({', '.join(correos)})")
 
     if sin_correo:
         print(f"  ⚠️  {len(sin_correo)} supervisor(es) sin correo en la maestra:")
