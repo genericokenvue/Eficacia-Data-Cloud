@@ -1,0 +1,110 @@
+2026-09-02 16:08:24  [etl.sistema]       ✓ INFO      Logging inicializado — archivo: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260902_160824.log
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      Run ID compartido para esta corrida: 20260902T160824_e550f5
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      ORQUESTADOR ETLs — Eficacia
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      Inicio: 2026-09-02 16:08:24
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      Run ID: 20260902T160824_e550f5
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      Periodo: Agosto_2026 (08/2026)
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      ETLs seleccionados: ['exhib_gratis']
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      Workers paralelos: 6
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      Skip si cached: False
+2026-09-02 16:08:24  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-09-02 16:08:24  [etl.shared_loader]  ⚠ WARNING   PT Directo y ISM no están en local para periodo 08/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-09-02 16:08:32  [etl.shared_loader]  ✓ INFO      PT Directo descargado desde SharePoint: Plan de trabajo Directo Agosto 2026.xlsx
+2026-09-02 16:08:34  [etl.shared_loader]  ✓ INFO      PT ISM descargado desde SharePoint: Plan de trabajo ISM Agosto 2026.xlsx
+2026-09-02 16:08:34  [etl.shared_loader]  ✓ INFO      PT Directo detectado: Plan de trabajo Directo Agosto 2026.xlsx
+2026-09-02 16:08:34  [etl.shared_loader]  ✓ INFO      PT ISM detectado: Plan de trabajo ISM Agosto 2026.xlsx
+2026-09-02 16:08:34  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-09-02 16:08:34  [etl.shared_loader]  ✓ INFO      Iniciando carga compartida del Plan de Trabajo
+2026-09-02 16:08:34  [etl.shared_loader]  ✓ INFO      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2026-09-02 16:08:38  [etl.shared_loader]  ✓ INFO      [DIRECTO] 8,525 filas PT  |  3,251 filas módulos cargadas
+2026-09-02 16:08:39  [etl.shared_loader]  ✓ INFO      [ISM] 2,482 filas PT  |  883 filas módulos cargadas
+2026-09-02 16:08:39  [etl.shared_loader]  ✓ INFO      PT consolidado: 11,007 filas totales
+2026-09-02 16:08:39  [etl.shared_loader]  ✓ INFO      Periodo forzado por el caller: Mes 8 | Año 2026
+2026-09-02 16:08:39  [etl.shared_loader]  ✓ INFO      Aplicando filtros por módulo
+2026-09-02 16:08:39  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D10 — 128 PDVs DISCOUNTER excluidos
+2026-09-02 16:08:39  [etl.shared_loader]  ✓ INFO      [DIRECTO] no_presencia: D9 — filtro OBSERVACIÓN/ROL 4,878 → 4,352 filas
+2026-09-02 16:08:39  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'no_presencia': 4,352 filas retenidas
+2026-09-02 16:08:39  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D10 — 78 PDVs DISCOUNTER excluidos
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [ISM] no_presencia: D9 — filtro OBSERVACIÓN/ROL 941 → 862 filas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'no_presencia': 862 filas retenidas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [DIRECTO] precios: D9 — filtro OBSERVACIÓN/ROL 4,124 → 3,643 filas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'precios': 3,643 filas retenidas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [ISM] precios: D9 — filtro OBSERVACIÓN/ROL 759 → 691 filas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'precios': 691 filas retenidas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [DIRECTO] sos: D9 — filtro OBSERVACIÓN/ROL 4,036 → 3,566 filas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [DIRECTO] Módulo 'sos': 3,566 filas retenidas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [ISM] sos: D9 — filtro OBSERVACIÓN/ROL 733 → 667 filas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      [ISM] Módulo 'sos': 667 filas retenidas
+2026-09-02 16:08:40  [etl.shared_loader]  ✓ INFO      Carga compartida completada
+2026-09-02 16:08:40  [etl.orquestador]   ✓ INFO      shared_loader completado en 15.3s
+2026-09-02 16:08:40  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-09-02 16:08:40  [etl.orquestador]   ✓ INFO      FASE 1 — Lanzando 1 ETLs en paralelo (0 skipped)
+2026-09-02 16:08:40  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-09-02 16:08:40  [etl.exhib_gratis]  ✓ INFO      ────────────────────────────────────────────────────────
+2026-09-02 16:08:40  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — iniciando
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resolviendo fuentes en SharePoint (Agosto_2026) ─
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] ☁️ [SHAREPOINT GRAPH API] Rutas aplicadas para el periodo Agosto_2026:
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] [informar] 1 archivo(s):
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Informar Agosto 2026.xlsx
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] [planning] 1 archivo(s):
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/EXHIBICIONES/2026/Base Exhibiciones Planning Agosto 2026.xlsx
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] [visitas] 1 archivo(s):
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/INVOLVES/informe-gerencial-visitas_202608.xlsx
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] [plan_trabajo] 2 archivo(s):
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo Directo Agosto 2026.xlsx
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] - Ruta: Equipo Información/BI/INVOLVES/PLAN DE TRABAJO/Plan de trabajo ISM Agosto 2026.xlsx
+2026-09-02 16:08:40  [etl.exhib_gratis]  · DEBUG     [stdout] ── Cargando fuentes desde SharePoint ────────────
+2026-09-02 16:08:50  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Informar Agosto 2026.xlsx — 2,061 filas
+2026-09-02 16:09:05  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Base Exhibiciones Planning Agosto 2026.xlsx — 4,414 filas
+2026-09-02 16:09:14  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo Directo Agosto 2026.xlsx — 7,716 gestores cargados
+2026-09-02 16:09:20  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] Plan de trabajo ISM Agosto 2026.xlsx — 1,982 gestores cargados
+2026-09-02 16:10:43  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ [SharePoint] informe-gerencial-visitas_202608.xlsx — 63,984 filas
+2026-09-02 16:10:43  [etl.exhib_gratis]  · DEBUG     [stdout] 🔎 Filtro Tipo de check-in: descartadas 57,106 filas 'Sin check-in' (89.3%); quedan 6,878 visitas efectivas.
+2026-09-02 16:10:47  [etl.exhib_gratis]  · DEBUG     [stdout] Encuestas consolidadas: 6,475 filas
+2026-09-02 16:10:47  [etl.exhib_gratis]  · DEBUG     [stdout] Plan de trabajo:        9,680 filas
+2026-09-02 16:10:47  [etl.exhib_gratis]  · DEBUG     [stdout] Visitas realizadas:     6,878 filas
+2026-09-02 16:10:47  [etl.exhib_gratis]  · DEBUG     [stdout] ── Módulo 1: Exhibiciones Pagadas ───────────────
+2026-09-02 16:10:47  [etl.exhib_gratis]  · DEBUG     [stdout] Implementadas pagadas:          1,806 filas
+2026-09-02 16:10:47  [etl.exhib_gratis]  · DEBUG     [stdout] ── Módulo 2: Exhibiciones Gratis y Concurso ─────
+2026-09-02 16:10:59  [etl.exhib_gratis]  · DEBUG     [stdout] Implementadas gratis/concurso: 1,015 filas
+2026-09-02 16:10:59  [etl.exhib_gratis]  · DEBUG     [stdout] ── Consolidando y escribiendo en SharePoint ─────
+2026-09-02 16:11:19  [etl.exhib_gratis]  ✓ INFO      [stdout] ✓ Output escrito con éxito en SharePoint: Equipo Información/BI/INVOLVES/SALIDAS/EXHIBICIONES/Resultado exhibiciones gratis.xlsx (15,995 filas)
+2026-09-02 16:11:19  [etl.exhib_gratis]  · DEBUG     [stdout] ℹ️  exhibiciones_gratis_detalle: 15995 filas en el archivo → 2821 del periodo 08/2026
+2026-09-02 16:11:23  [etl.exhib_gratis]  · DEBUG     [stdout] 🗑️  exhibiciones_gratis_detalle: 2,821 fila(s) del periodo 08/2026 eliminadas
+2026-09-02 16:11:26  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ exhibiciones_gratis_detalle: 2,821 filas cargadas (08/2026)
+2026-09-02 16:11:26  [etl.exhib_gratis]  · DEBUG     [stdout] ── Resumen de Exhibiciones ──────────────────────
+2026-09-02 16:11:26  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones:                                       35,669
+2026-09-02 16:11:26  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Gratis:                                  23,852
+2026-09-02 16:11:26  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Pagadas:                                11,817
+2026-09-02 16:11:26  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Alto Impacto:                           14,149
+2026-09-02 16:11:26  [etl.exhib_gratis]  · DEBUG     [stdout] Total Exhibiciones Medio Impacto:                          21,517
+2026-09-02 16:11:26  [etl.exhib_gratis]  · DEBUG     [stdout] ─────────────────────────────────────────────────
+2026-09-02 16:11:26  [etl.exhib_gratis]  · DEBUG     [stdout] --- KPI (V3): RESUMEN EXHIBICIONES GRATIS por empleado (Agosto_2026) ---
+2026-09-02 16:11:36  [etl.exhib_gratis]  · DEBUG     [stdout] Leyendo archivo desde SharePoint (15995 filas)
+2026-09-02 16:11:48  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Mes activo guardado en SharePoint: 106 empleados → KPI_Exhibiciones_Gratis.xlsx
+2026-09-02 16:12:01  [etl.exhib_gratis]  ✓ INFO      [stdout] ✅ Histórico actualizado en SharePoint → KPI_Exhibiciones_Gratis_Historico.xlsx
+2026-09-02 16:12:01  [etl.exhib_gratis]  ✓ INFO      ETL Exhibiciones Gratis — completado
+2026-09-02 16:12:09  [etl.exhib_gratis]  ✓ INFO      Duración total: 201.0s
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      ETL 'exhib_gratis' terminó — ✓ OK en 201.0s
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      REPORTE DE EJECUCIÓN
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        ETL                    Estado           Tiempo
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        exhib_gratis           ✓ OK             201.0s
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        ────────────────────── ────────────── ────────
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        shared_loader          ✓ OK              15.3s
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        TOTAL (paralelo)                        224.4s
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        Sin paralelismo (est.)                  216.3s
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        Ahorro estimado                          -8.0s
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      ────────────────────────────────────────────────────────
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      Eventos: 0 CRITICAL  |  0 ERROR  |  1 WARNING
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      ························································
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        WARNING (1)
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      ························································
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO        16:08:24  [shared_loader]     PT Directo y ISM no están en local para periodo 08/2026 (C:\1\OneDrive - Eficacia\Escritorio\ETLS\CIF\BASES\PLAN DE TRABAJO) — descargando desde SharePoint...
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      Log completo guardado en: C:\1\OneDrive - Eficacia\Escritorio\ETLS\SCRIPTS\logs\ejecucion_202608_20260902_160824.log
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      Fin: 2026-09-02 16:12:09
+2026-09-02 16:12:09  [etl.orquestador]   ✓ INFO      ════════════════════════════════════════════════════════

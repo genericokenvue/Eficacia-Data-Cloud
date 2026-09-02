@@ -259,6 +259,49 @@ def asignar_supervisor(df: pd.DataFrame, mapa: dict, silencioso: bool = False) -
     return df
 
 
+def asignar_ids(nuevo: pd.DataFrame, previo: pd.DataFrame | None,
+                prefijo: str, spec: pr.PeriodoSpec, llave_fn) -> pd.Series:
+    """
+    ID legible y ESTABLE entre corridas: PRE-202608-001.
+
+    Funciona como un sistema de tickets. Al regenerar el archivo se leen los
+    IDs ya asignados y solo los casos NUEVOS toman el siguiente número libre.
+    Sin esto, un correlativo simple se correría en cada corrida: al aparecer
+    un error nuevo cambiaría el orden y "el caso 12" pasaría a ser otro, que
+    es justo lo que rompe cualquier conversación con el supervisor.
+
+    Si un error se corrige y desaparece, su número queda retirado y no se
+    reutiliza — así el histórico no termina apuntando a otra cosa.
+
+    El ID es para hablar y hacer seguimiento; el cruce contra el archivo
+    original se hace igual con las columnas llave, que siguen visibles.
+    """
+    base = f"{prefijo}-{spec.anio}{spec.mes:02d}-"
+    ya: dict[str, str] = {}
+    maximo = 0
+    if previo is not None and not previo.empty and "ID_ERROR" in previo.columns:
+        for k, i in zip(llave_fn(previo), previo["ID_ERROR"].astype(str)):
+            if not i or i == "nan":
+                continue
+            ya[k] = i
+            try:
+                maximo = max(maximo, int(i.rsplit("-", 1)[-1]))
+            except ValueError:
+                pass  # un ID con otro formato no debe romper la numeración
+
+    ids, nuevos = [], 0
+    for k in llave_fn(nuevo):
+        if k in ya:
+            ids.append(ya[k])
+        else:
+            maximo += 1
+            nuevos += 1
+            ids.append(f"{base}{maximo:03d}")
+    if ya:
+        print(f"  🔖 IDs: {len(ids) - nuevos} conservados, {nuevos} nuevos")
+    return pd.Series(ids, index=nuevo.index)
+
+
 def conservar_correcciones(nuevo: pd.DataFrame, previo: pd.DataFrame | None) -> pd.DataFrame:
     """Arrastra lo que el supervisor ya escribió en la corrida anterior."""
     for c in COLS_RESPUESTA:
@@ -290,10 +333,14 @@ def conservar_correcciones(nuevo: pd.DataFrame, previo: pd.DataFrame | None) -> 
 # y filtrar. Juntas identifican la exhibición de forma única, que es lo que
 # permite reencontrar la fila entre corridas y conservar lo ya escrito.
 COLS_SALIDA = [
+    "ID_ERROR",
     "ID PDV", "Tipo Exhibición", "Marca", "Empleado",
     "SUPERVISOR_LIDER", "Nivel Impacto",
     "CANTIDAD", "DIAGNOSTICO",
     "CANTIDAD_CORREGIDA", "OBSERVACION_SUPERVISOR",
+    # Va ÚLTIMA a propósito: es fea de leer, pero evita armar la fórmula
+    # concatenada a mano para cruzar contra el archivo original.
+    "LLAVE",
 ]
 
 COLS_TODOS = [
@@ -337,6 +384,8 @@ def run(spec: pr.PeriodoSpec) -> int:
 
     err = asignar_supervisor(err, mapa)
     err = err.rename(columns={"Cantidad": "CANTIDAD"})
+    err["ID_ERROR"] = asignar_ids(err, previo, "EXH", spec, _llave)
+    err["LLAVE"] = _llave(err)
     err = conservar_correcciones(err, previo)
     # Se ordena ANTES de recortar columnas: SEVERIDAD deja arriba los casos
     # más graves, pero no se muestra.

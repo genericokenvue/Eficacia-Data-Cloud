@@ -584,12 +584,25 @@ def run(spec: pr.PeriodoSpec):
     except Exception as e:
         print(f"  ⚠️ No se pudo leer resultado previo de SharePoint ({e}); se sobrescribe.")
 
+    # LLAVE: misma forma que arma etl_exhibiciones_errores, para poder cruzar
+    # los dos archivos con un BUSCARV directo en vez de concatenar a mano en
+    # Excel. Va al final para no mover las columnas que ya lee todo el mundo,
+    # y solo en el Excel — a Supabase se sube df_out sin ella.
+    df_excel = df_out.copy()
+    df_excel["LLAVE"] = (
+        df_excel["ID PDV"].astype(str).str.strip()
+        .str.cat([df_excel["Tipo Exhibición"].astype(str).str.strip(),
+                  df_excel["Marca"].astype(str).str.strip(),
+                  df_excel["Empleado"].astype(str).str.strip()], sep="|"))
+
     output_buffer = BytesIO()
-    df_out.to_excel(output_buffer, index=False, sheet_name="Exhibiciones_implementadas", engine="openpyxl")
+    df_excel.to_excel(output_buffer, index=False, sheet_name="Exhibiciones_implementadas", engine="openpyxl")
     _upload_sharepoint_file(OUTPUT_PATH, output_buffer)
     print(f"\n✓ Output escrito con éxito en SharePoint: {OUTPUT_PATH} ({len(df_out):,} filas)")
 
     # El archivo acumula todos los meses; solo_periodo sube solo el procesado.
+    # Va SIN la columna LLAVE que sí lleva el Excel: allá el cruce se hace con
+    # las columnas reales y agregarla obligaría a tocar el esquema de la tabla.
     supabase_io.cargar_detalle_seguro(
         "exhibiciones_gratis_detalle", df_out, spec.mes, spec.anio)
     
