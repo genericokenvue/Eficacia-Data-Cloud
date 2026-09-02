@@ -39,10 +39,6 @@ on:
         description: 'Año (ej. 2026). Vacío = año actual.'
         required: false
         default: ''
-      umbral:
-        description: 'Solo precios: ratio contra la mediana del SKU. 2 marca ~46 filas, 3 marca ~30. Vacío = 2.'
-        required: false
-        default: ''
 
 jobs:
   calculo-errores:
@@ -82,10 +78,12 @@ jobs:
 
           # ── Precios ────────────────────────────────────────────────────
           if [ "$TIPO" = "todas" ] || [ "$TIPO" = "precios" ]; then
+            # El umbral NO se pasa desde acá: es un criterio fijo del negocio,
+            # definido en UMBRAL_MEDIO dentro de etl_precios_errores.py. Si
+            # cada corrida pudiera elegirlo, dos quincenas dejarían de ser
+            # comparables: no se sabría si bajaron los errores o si solo se
+            # movió el criterio.
             ARGS="--mes $MES --anio $ANIO"
-            if [ -n "${{ inputs.umbral }}" ]; then
-              ARGS="$ARGS --umbral ${{ inputs.umbral }}"
-            fi
             echo "───────────────────────────────────────────────"
             echo "  PRECIOS — etl_precios_errores.py $ARGS"
             echo "───────────────────────────────────────────────"
