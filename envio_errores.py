@@ -55,7 +55,11 @@ load_dotenv()
 TENANT_ID = os.environ.get("AZURE_TENANT_ID")
 CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET")
-CORREO_REMITENTE = os.environ.get("CORREO_REMITENTE", "")
+# .strip() no es opcional: el valor va dentro de la URL de Graph, y un espacio
+# o salto de línea al final del secret se codifica como %0A y deja la URL
+# inválida. El servidor responde con un HTML de IIS ("Bad Request - Invalid
+# URL") en vez de un error de Graph, así que el mensaje no dice qué pasó.
+CORREO_REMITENTE = os.environ.get("CORREO_REMITENTE", "").strip()
 
 RUTA_MAESTRA = f"{paths._BASES_ROOT}/ALERTAS/MAESTRO_SUPERVISORES.xlsx"
 
@@ -140,12 +144,28 @@ def link_archivo(headers: dict, site_id: str, carpeta: str, nombre: str) -> str:
     return r.json().get("webUrl", "") if r.status_code == 200 else ""
 
 
-def enviar_correo(destinatario: str, asunto: str, cuerpo: str) -> None:
+def validar_remitente() -> None:
+    """
+    Revisa CORREO_REMITENTE ANTES de intentar el primer envío.
+
+    Sin esto, un valor mal formado hace fallar cada destinatario por separado
+    con el mismo error repetido, y el mensaje que devuelve Graph en ese caso
+    ("Bad Request - Invalid URL", en HTML) no dice cuál es el problema real.
+    """
     if not CORREO_REMITENTE:
         raise RuntimeError(
             "Falta la variable de entorno CORREO_REMITENTE (la casilla desde la "
             "que salen los correos vía Graph — requiere el permiso Mail.Send)."
         )
+    if "@" not in CORREO_REMITENTE or any(c.isspace() for c in CORREO_REMITENTE):
+        raise RuntimeError(
+            f"CORREO_REMITENTE no parece una dirección válida: {CORREO_REMITENTE!r}. "
+            f"Revisá el secret en GitHub — un espacio o salto de línea al final "
+            f"alcanza para invalidar la URL de Graph."
+        )
+
+
+def enviar_correo(destinatario: str, asunto: str, cuerpo: str) -> None:
     token = paths.obtener_token_azure()
     url = (f"https://graph.microsoft.com/v1.0/users/"
            f"{urllib.parse.quote(CORREO_REMITENTE)}/sendMail")
@@ -324,6 +344,12 @@ def main() -> int:
     if args.prueba:
         print("  MODO PRUEBA — no se envía ningún correo")
     print("=" * 60)
+
+    # Se valida el remitente ANTES de leer nada: si está mal, mejor enterarse
+    # ahora que después de armar 18 correos y ver el mismo error 18 veces.
+    if not args.prueba:
+        validar_remitente()
+        print(f"  Remitente: {CORREO_REMITENTE}")
 
     headers = {"Authorization": f"Bearer {obtener_token_azure()}"}
     site_id = obtener_site_id(headers)
