@@ -1,0 +1,101 @@
+name: Envío de Errores
+
+# Le manda a cada supervisor el link al archivo con SUS errores para que los
+# corrija en Excel Online.
+#
+# Va SEPARADO de "Cálculo de Errores" a propósito: el cálculo puede correr
+# seguido sin molestar a nadie, mientras que el aviso conviene mandarlo poco y
+# en un horario razonable. Este workflow NO recalcula: lee el archivo que dejó
+# el otro y solo envía.
+#
+# Solo se le escribe a quien tiene errores. Mandarle un correo a alguien para
+# decirle que no tiene nada que corregir es la forma más rápida de que la
+# gente deje de abrir estos avisos.
+#
+# La maestra admite varias filas con el mismo NOMBRE_SUPERVISOR: cada una es
+# un destinatario. Así se le puede copiar a un acompañante sin tocar código.
+
+on:
+  schedule:
+    # Quincenal: día 2 y 17 a las 8:00 a.m. hora Colombia (13:00 UTC —
+    # Colombia es UTC-5 todo el año). Un día después del cálculo, que corre
+    # el 1 y el 16, para que el archivo ya esté listo.
+    - cron: '0 13 2,17 * *'
+
+  workflow_dispatch:
+    inputs:
+      mes:
+        description: 'Mes (1-12). Vacío = mes actual.'
+        required: false
+        default: ''
+      anio:
+        description: 'Año (ej. 2026). Vacío = año actual.'
+        required: false
+        default: ''
+      supervisores:
+        description: 'Nombre(s) completo(s) SEPARADOS POR COMA. Vacío = todos los que tengan errores.'
+        required: false
+        default: ''
+      modo_prueba:
+        description: 'Modo prueba: muestra a quién le llegaría, sin enviar nada.'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  envio-errores:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Enviar
+        env:
+          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          CORREO_REMITENTE:    ${{ secrets.CORREO_REMITENTE }}
+        run: |
+          MES="${{ inputs.mes }}"
+          ANIO="${{ inputs.anio }}"
+          if [ -z "$MES" ];  then MES=$(date +%-m);  fi
+          if [ -z "$ANIO" ]; then ANIO=$(date +%Y); fi
+
+          ARGS="--mes $MES --anio $ANIO"
+
+          # El cron no manda inputs y `modo_prueba` llega vacío. Por defecto
+          # NO envía: para que el envío real sea siempre una decisión
+          # explícita y no algo que pase por descuido.
+          if [ "${{ inputs.modo_prueba }}" != "false" ]; then
+            ARGS="$ARGS --prueba"
+            echo "MODO PRUEBA — no se envía nada"
+          fi
+
+          # Separado por COMA, no por espacio: los nombres traen espacios y
+          # partirlos por palabra haría que "MILENA" suelta le pegue a varias
+          # personas distintas.
+          SUPS=()
+          if [ -n "${{ inputs.supervisores }}" ]; then
+            IFS=',' read -ra RAW <<< "${{ inputs.supervisores }}"
+            for s in "${RAW[@]}"; do
+              t="$(echo "$s" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+              if [ -n "$t" ]; then SUPS+=("$t"); fi
+            done
+          fi
+
+          if [ "${#SUPS[@]}" -gt 0 ]; then
+            python envio_errores.py $ARGS --supervisor "${SUPS[@]}"
+          else
+            python envio_errores.py $ARGS
+          fi

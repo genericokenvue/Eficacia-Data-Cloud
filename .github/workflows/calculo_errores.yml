@@ -1,0 +1,106 @@
+name: Cálculo de Errores
+
+# Paraguas para las validaciones de calidad de datos. Hoy corre solo la de
+# precios; la idea es ir colgando más acá (agotados, exhibiciones, SOS…) sin
+# crear un workflow por cada una.
+#
+# CÓMO AGREGAR UNA VALIDACIÓN NUEVA
+#   1. Escribir `etl_<modulo>_errores.py` que acepte --mes y --anio.
+#   2. Agregar el nombre del módulo a las `options` del input `tipo`.
+#   3. Agregar su bloque en el paso "Ejecutar validaciones".
+#
+# Cada validación deja su propio archivo en SALIDAS, con dos columnas vacías
+# para que el supervisor las llene en Excel Online. El archivo se regenera en
+# cada corrida pero CONSERVA lo ya corregido, así que se puede correr seguido
+# sin borrarle el trabajo a nadie.
+
+on:
+  schedule:
+    # Quincenal: día 1 y 16 a las 9:00 a.m. hora Colombia.
+    # El cron va en UTC y Colombia es UTC-5 todo el año (sin horario de
+    # verano), así que 14:00 UTC = 9:00 a.m. local.
+    - cron: '0 14 1,16 * *'
+
+  workflow_dispatch:
+    inputs:
+      tipo:
+        description: 'Qué validar'
+        required: true
+        type: choice
+        default: 'todas'
+        options:
+          - todas
+          - precios
+      mes:
+        description: 'Mes (1-12). Vacío = mes actual.'
+        required: false
+        default: ''
+      anio:
+        description: 'Año (ej. 2026). Vacío = año actual.'
+        required: false
+        default: ''
+      umbral:
+        description: 'Solo precios: ratio contra la mediana del SKU. 2 marca ~46 filas, 3 marca ~30. Vacío = 2.'
+        required: false
+        default: ''
+
+jobs:
+  calculo-errores:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Ejecutar validaciones
+        env:
+          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          # El cron no manda inputs; sin ellos se toma el periodo en curso.
+          # Se calcula en el momento de la corrida para no tener que editar
+          # este archivo cada mes.
+          TIPO="${{ inputs.tipo }}"
+          MES="${{ inputs.mes }}"
+          ANIO="${{ inputs.anio }}"
+          if [ -z "$TIPO" ]; then TIPO="todas"; fi
+          if [ -z "$MES" ];  then MES=$(date +%-m);  fi
+          if [ -z "$ANIO" ]; then ANIO=$(date +%Y); fi
+
+          FALLOS=0
+
+          # ── Precios ────────────────────────────────────────────────────
+          if [ "$TIPO" = "todas" ] || [ "$TIPO" = "precios" ]; then
+            ARGS="--mes $MES --anio $ANIO"
+            if [ -n "${{ inputs.umbral }}" ]; then
+              ARGS="$ARGS --umbral ${{ inputs.umbral }}"
+            fi
+            echo "───────────────────────────────────────────────"
+            echo "  PRECIOS — etl_precios_errores.py $ARGS"
+            echo "───────────────────────────────────────────────"
+            # Se marca el fallo pero no se corta: si mañana hay varias
+            # validaciones, que una falle no debe impedir que corran las otras.
+            python etl_precios_errores.py $ARGS || FALLOS=1
+          fi
+
+          # ── Acá van las validaciones nuevas ────────────────────────────
+          # if [ "$TIPO" = "todas" ] || [ "$TIPO" = "agotados" ]; then
+          #   python etl_agotados_errores.py --mes $MES --anio $ANIO || FALLOS=1
+          # fi
+
+          if [ "$FALLOS" -ne 0 ]; then
+            echo "❌ Al menos una validación falló — revisa el log de arriba."
+            exit 1
+          fi
+          echo "✅ Validaciones completadas"

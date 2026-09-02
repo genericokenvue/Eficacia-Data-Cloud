@@ -511,13 +511,71 @@ def cargar_detalle(
     return insertadas
 
 
+_DIAS_SEMANA = {
+    "lunes": 0, "martes": 1, "miercoles": 2, "miércoles": 2, "jueves": 3,
+    "viernes": 4, "sabado": 5, "sábado": 5, "domingo": 6,
+}
+
+
+def toca_cargar_hoy() -> tuple[bool, str]:
+    """
+    Decide si en esta corrida se sube a Supabase, según `SUPABASE_DIA_CARGA`.
+
+    Sirve para separar dos ritmos: el ETL puede correr todos los días (para
+    que SharePoint y las alertas estén al día) mientras que la base se
+    actualiza solo algunos días.
+
+    Valores de la variable de entorno:
+        (sin definir)          carga siempre — el comportamiento de siempre
+        siempre / diario       igual
+        lunes                  solo los lunes
+        lunes,jueves           lunes y jueves
+        nunca / off            no carga nunca (útil para probar sin tocar la base)
+
+    El día se evalúa en hora de Colombia, no en UTC: GitHub Actions corre en
+    UTC y una corrida de las 8 p.m. de Colombia ya es el día siguiente allá.
+
+    Devuelve (si_carga, motivo_si_no).
+    """
+    cfg = (os.environ.get("SUPABASE_DIA_CARGA") or "").strip().lower()
+    if not cfg or cfg in ("siempre", "diario", "todos", "1", "si", "sí"):
+        return True, ""
+    if cfg in ("nunca", "off", "no", "0"):
+        return False, "SUPABASE_DIA_CARGA=nunca"
+
+    pedidos = [d.strip() for d in cfg.split(",") if d.strip()]
+    numeros = {_DIAS_SEMANA[d] for d in pedidos if d in _DIAS_SEMANA}
+    if not numeros:
+        # Ante una configuración que no se entiende, se carga: es preferible
+        # una carga de más que un mes faltante por un typo en la variable.
+        print(f"  ⚠️  SUPABASE_DIA_CARGA='{cfg}' no se entiende "
+              f"(esperado: {', '.join(sorted(_DIAS_SEMANA))}, siempre o nunca). Se carga igual.")
+        return True, ""
+
+    # ahora_colombia() devuelve texto; acá hace falta el objeto para el día.
+    hoy = datetime.now(ZONA_COLOMBIA).weekday()
+    if hoy in numeros:
+        return True, ""
+    nombres = {v: k for k, v in _DIAS_SEMANA.items()}
+    return False, f"hoy es {nombres.get(hoy, '?')} y SUPABASE_DIA_CARGA={cfg}"
+
+
 def cargar_detalle_seguro(tabla: str, df: pd.DataFrame, mes: int, anio: int, **kw) -> int:
     """
     Igual que `cargar_detalle` pero no interrumpe el ETL si Supabase falla.
 
     El archivo de SharePoint ya quedó escrito en ese punto; que la base de
     datos esté caída no debería tumbar toda la corrida.
+
+    Respeta `SUPABASE_DIA_CARGA` (ver `toca_cargar_hoy`): si hoy no toca, no
+    hace nada y lo dice. Importante que el corte sea ACÁ y no dentro de
+    `cargar_detalle`: así ni siquiera se ejecuta el DELETE del periodo, que es
+    lo que dejaría el mes vacío si algo fallara después.
     """
+    carga, motivo = toca_cargar_hoy()
+    if not carga:
+        print(f"  ⏭️  {tabla}: no se sube a Supabase ({motivo}).")
+        return 0
     try:
         return cargar_detalle(tabla, df, mes, anio, **kw)
     except Exception as e:
