@@ -248,10 +248,14 @@ def detectar(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     err.loc[fuera_alto, "SEVERIDAD"] = "ALTA"
 
     def _texto(r: float) -> str:
+        # Dice "promedio" aunque el cálculo use la MEDIANA. Es a propósito: en
+        # campo "promedio" se entiende de una, y la distinción estadística no
+        # le cambia nada a quien tiene que corregir el precio. Lo que se
+        # compara sigue siendo la mediana, por lo explicado más arriba.
         if r > 1:
-            return f"{r:.1f}x por ENCIMA de la mediana del producto"
+            return f"{r:.1f}x por ENCIMA del promedio del producto"
         if r > 0:
-            return f"{1/r:.1f}x por DEBAJO de la mediana del producto"
+            return f"{1/r:.1f}x por DEBAJO del promedio del producto"
         return "precio en cero o inválido"
 
     err["DIAGNOSTICO"] = err["_RATIO_EXACTO"].apply(_texto)
