@@ -37,6 +37,7 @@ USO
 from __future__ import annotations
 
 import argparse
+import base64
 import io
 import os
 import sys
@@ -78,18 +79,38 @@ VALIDACIONES = {
         "que_paso": ("Se detectaron precios que se alejan mucho del precio habitual "
                      "de ese mismo producto. Casi siempre es un dígito de más o de "
                      "menos al digitar."),
-        "que_hacer": ("filtrá la hoja <i>Errores</i> por tu nombre en la columna "
-                      "SUPERVISOR_LIDER y escribí el precio real en "
-                      "<b>PRECIO_CORREGIDO</b>. Si el precio estaba bien, dejalo "
-                      "vacío y anotá por qué en <b>OBSERVACION_SUPERVISOR</b>."),
+        "que_hacer_adjunto": ("escribí el precio real en <b>PRECIO_CORREGIDO</b>. "
+                              "Si el precio estaba bien, dejalo vacío y anotá por "
+                              "qué en <b>OBSERVACION_SUPERVISOR</b>."),
         "columnas": [
             ("Gestor", "Empleado"),
             ("Producto", "NOMBRE_PRODUCTO"),
             ("Capturado", "PRECIO_CAPTURADO"),
-            ("Habitual", "PRECIO_HABITUAL"),
             ("Diagnóstico", "DIAGNOSTICO"),
         ],
-        "moneda": {"PRECIO_CAPTURADO", "PRECIO_HABITUAL"},
+        "moneda": {"PRECIO_CAPTURADO"},
+        "prefijo_adjunto": "Errores_Precios",
+    },
+    "exhibiciones": {
+        "titulo": "Exhibiciones para revisar",
+        "carpeta": paths.RUTA_CARPETA_SALIDAS_EXHIB,
+        "archivo": lambda s: f"ERRORES_EXHIBICIONES_{s.mes_str_upper}_{s.anio}.xlsx",
+        "que_paso": ("Se registraron exhibiciones con una cantidad muy alta para un "
+                     "solo punto de venta. Suele ser que se digitó el total del mes "
+                     "en vez de lo de esa visita."),
+        "que_hacer_adjunto": ("escribí la cantidad real en <b>CANTIDAD_CORREGIDA</b>. "
+                              "Si la cantidad estaba bien, dejala vacía y anotá por "
+                              "qué en <b>OBSERVACION_SUPERVISOR</b>."),
+        "columnas": [
+            ("Gestor", "Empleado"),
+            ("PDV", "ID PDV"),
+            ("Tipo", "Tipo Exhibición"),
+            ("Marca", "Marca"),
+            ("Cantidad", "CANTIDAD"),
+            ("Diagnóstico", "DIAGNOSTICO"),
+        ],
+        "moneda": set(),
+        "prefijo_adjunto": "Errores_Exhibiciones",
     },
 }
 
@@ -144,6 +165,20 @@ def link_archivo(headers: dict, site_id: str, carpeta: str, nombre: str) -> str:
     return r.json().get("webUrl", "") if r.status_code == 200 else ""
 
 
+def excel_del_supervisor(filas: pd.DataFrame) -> bytes:
+    """
+    Excel con SOLO las filas de ese supervisor, en una sola hoja.
+
+    Se manda adjunto en vez de un link al archivo compartido para que cada
+    supervisor reciba únicamente lo suyo y no vea los casos de sus pares.
+    """
+    buf = io.BytesIO()
+    with pd.ExcelWriter(buf, engine="openpyxl") as w:
+        filas.to_excel(w, sheet_name="Errores", index=False)
+    buf.seek(0)
+    return buf.getvalue()
+
+
 def validar_remitente() -> None:
     """
     Revisa CORREO_REMITENTE ANTES de intentar el primer envío.
@@ -165,18 +200,27 @@ def validar_remitente() -> None:
         )
 
 
-def enviar_correo(destinatario: str, asunto: str, cuerpo: str) -> None:
+def enviar_correo(destinatario: str, asunto: str, cuerpo: str,
+                  nombre_adjunto: str | None = None,
+                  bytes_adjunto: bytes | None = None) -> None:
     token = paths.obtener_token_azure()
     url = (f"https://graph.microsoft.com/v1.0/users/"
            f"{urllib.parse.quote(CORREO_REMITENTE)}/sendMail")
+    mensaje = {
+        "subject": asunto,
+        "body": {"contentType": "HTML", "content": cuerpo},
+        "toRecipients": [{"emailAddress": {"address": destinatario}}],
+    }
+    if bytes_adjunto and nombre_adjunto:
+        mensaje["attachments"] = [{
+            "@odata.type": "#microsoft.graph.fileAttachment",
+            "name": nombre_adjunto,
+            "contentBytes": base64.b64encode(bytes_adjunto).decode(),
+        }]
     r = requests.post(
         url,
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        json={"message": {
-            "subject": asunto,
-            "body": {"contentType": "HTML", "content": cuerpo},
-            "toRecipients": [{"emailAddress": {"address": destinatario}}],
-        }, "saveToSentItems": "true"},
+        json={"message": mensaje, "saveToSentItems": "true"},
     )
     if r.status_code not in (200, 202):
         raise RuntimeError(f"Graph sendMail devolvió {r.status_code}: {r.text}")
@@ -224,10 +268,8 @@ def cuerpo_html(nombre_sup: str, filas: pd.DataFrame, link: str,
     mas = (f"<p style='color:#666'>… y {n - MAX_FILAS_CORREO} más en el archivo.</p>"
            if n > MAX_FILAS_CORREO else "")
     urgentes = (f', <b style="color:#c00">{altas} muy marcados</b>' if altas else "")
-    boton = (f"""<p style="margin:18px 0">
-        <a href="{link}" style="background:#1F4E79;color:#fff;padding:11px 22px;
-           text-decoration:none;border-radius:4px;display:inline-block">
-           Abrir el archivo y corregir</a></p>""" if link else "")
+    # Sin botón: el archivo va adjunto, no hay a dónde enlazar.
+    boton = ""
 
     return f"""
 <div style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#222">
@@ -237,9 +279,8 @@ def cuerpo_html(nombre_sup: str, filas: pd.DataFrame, link: str,
 
   <p>Hay <b>{n} caso(s)</b> para revisar{urgentes}. {cfg['que_paso']}</p>
   {boton}
-  <p><b>Qué hacer:</b> {cfg['que_hacer']}</p>
-  <p style="color:#666">Se guarda solo. Lo que escribas se conserva aunque el
-     archivo se vuelva a generar, así que podés corregir de a poco.</p>
+  <p><b>Qué hacer:</b> abrí el archivo adjunto, {cfg['que_hacer_adjunto']}
+     Cuando termines, respondé este correo con el archivo.</p>
 
   <h3 style="color:#1F4E79;margin-bottom:6px">Los de tu equipo</h3>
   <table style="border-collapse:collapse;font-size:13px">
@@ -249,8 +290,7 @@ def cuerpo_html(nombre_sup: str, filas: pd.DataFrame, link: str,
   {mas}
 
   <p style="color:#888;font-size:12px;margin-top:24px">
-     Abrilo desde el navegador (Excel Online). Si lo abrís con el Excel de
-     escritorio queda bloqueado para los demás.</p>
+     El adjunto trae solo los casos de tu equipo.</p>
 </div>"""
 
 
@@ -300,14 +340,20 @@ def enviar_validacion(headers: dict, site_id: str, maestra: pd.DataFrame,
                   f"{len(filas)} caso(s)" + (f", {altas} urgentes" if altas else ""))
         cuerpo = cuerpo_html(nombre_sup, filas, link, spec, cfg)
 
+        # Un archivo por supervisor, con solo sus filas. El nombre lleva el
+        # suyo para que al responder el correo se sepa de quién viene.
+        adjunto = excel_del_supervisor(filas)
+        nombre_adjunto = (f"{cfg['prefijo_adjunto']}_{nombre_sup.replace(' ', '_')}"
+                          f"_{spec.mes:02d}_{spec.anio}.xlsx")
+
         for correo in correos:
             if prueba:
                 print(f"  [PRUEBA] {nombre_sup} → {correo} "
-                      f"({len(filas)} casos, {altas} altas)")
+                      f"({len(filas)} casos, {altas} altas) — adjunto: {nombre_adjunto}")
                 enviados += 1
                 continue
             try:
-                enviar_correo(correo, asunto, cuerpo)
+                enviar_correo(correo, asunto, cuerpo, nombre_adjunto, adjunto)
                 print(f"  ✓ {nombre_sup} → {correo} ({len(filas)} casos)")
                 enviados += 1
             except Exception as e:

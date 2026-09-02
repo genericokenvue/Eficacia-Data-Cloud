@@ -176,6 +176,19 @@ def subir_excel_cloud(headers: dict, site_id: str, carpeta: str, nombre: str,
 # DETECCIÓN
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Las mismas cuatro columnas llave, pero con el nombre que tienen ya en la
+# hoja de salida (Fecha de la encuesta se renombró a FECHA).
+COLS_LLAVE_VISIBLES = ["ID PDV", "CODIGO_SKU", "FECHA", "Empleado"]
+
+
+def _llave_visible(df: pd.DataFrame) -> pd.Series:
+    """Llave compuesta a partir de las columnas ya renombradas de la hoja."""
+    partes = [df[c].astype(str).str.strip() if c in df.columns
+              else pd.Series([""] * len(df), index=df.index)
+              for c in COLS_LLAVE_VISIBLES]
+    return partes[0].str.cat(partes[1:], sep="|")
+
+
 def _llave(df: pd.DataFrame) -> pd.Series:
     """Identificador estable de una captura, para cruzar entre corridas."""
     partes = []
@@ -303,22 +316,22 @@ def conservar_correcciones(nuevo: pd.DataFrame, previo: pd.DataFrame | None) -> 
         nuevo[c] = ""
     if previo is None or previo.empty:
         return nuevo
-    if "ID" not in previo.columns and any(c not in previo.columns for c in COLS_LLAVE):
-        print("  ⚠️  El archivo anterior no trae ID ni las columnas llave; no se "
-              "pueden conservar las correcciones. Se genera limpio.")
+    if any(c not in previo.columns for c in COLS_LLAVE_VISIBLES):
+        print("  ⚠️  El archivo anterior no trae las columnas llave; no se pueden "
+              "conservar las correcciones. Se genera limpio.")
         return nuevo
 
-    # Se cruza por la columna ID, que ahora va visible en la hoja. Si el
-    # archivo anterior es de una versión previa sin ID, se rearma desde las
-    # columnas llave para no perder lo que ya estaba escrito.
+    # La llave se rearma desde las 4 columnas visibles, en los dos lados. Ya
+    # no hay una columna ID concatenada: se separó para que la hoja se pueda
+    # leer y filtrar, pero el cruce necesita las cuatro juntas igual.
     previo = previo.copy()
-    if "ID" not in previo.columns:
-        previo["ID"] = _llave(previo)
+    llave_previo = _llave_visible(previo)
+    llave_nuevo = _llave_visible(nuevo)
     for c in COLS_RESPUESTA:
         if c not in previo.columns:
             continue
-        mapa = dict(zip(previo["ID"].astype(str), previo[c].fillna("")))
-        nuevo[c] = nuevo["ID"].astype(str).map(mapa).fillna("")
+        mapa = dict(zip(llave_previo, previo[c].fillna("")))
+        nuevo[c] = llave_nuevo.map(mapa).fillna("")
     n = int((nuevo["PRECIO_CORREGIDO"].astype(str).str.strip() != "").sum())
     if n:
         print(f"  ✓ Se conservaron {n} corrección(es) que ya había escrito el supervisor.")
@@ -330,16 +343,13 @@ def conservar_correcciones(nuevo: pd.DataFrame, previo: pd.DataFrame | None) -> 
 # ─────────────────────────────────────────────────────────────────────────────
 
 # La hoja que ve el supervisor: lo mínimo para entender el error y arreglarlo.
-# Se dejaron afuera CODIGO_SKU, Fecha, Marca, RATIO, MEDIA_SKU y CAPTURAS_SKU
-# porque no cambian la decisión de quien corrige y solo hacen la hoja más
-# difícil de leer. Todo eso sigue disponible en "Todos los registros".
-#
-# ID es la llave compuesta (PDV-SKU-fecha-gestor). Va visible y no se toca: es
-# lo que permite reencontrar la fila entre corridas para conservar lo escrito,
-# y para devolver la corrección al ANALISIS_PRECIOS.
+# Las 4 columnas llave van SEPARADAS (no concatenadas) para que se puedan leer
+# y filtrar. Juntas identifican la captura de forma única, que es lo que
+# permite reencontrar la fila entre corridas y conservar lo ya escrito.
 COLS_SALIDA = [
-    "ID", "SEVERIDAD", "SUPERVISOR_LIDER", "Empleado", "PDV", "NOMBRE_PRODUCTO",
-    "PRECIO_CAPTURADO", "PRECIO_HABITUAL", "DIAGNOSTICO",
+    "ID PDV", "CODIGO_SKU", "FECHA", "Empleado",
+    "SUPERVISOR_LIDER", "PDV", "NOMBRE_PRODUCTO",
+    "PRECIO_CAPTURADO", "DIAGNOSTICO",
     "PRECIO_CORREGIDO", "OBSERVACION_SUPERVISOR",
 ]
 
@@ -386,20 +396,18 @@ def run(spec: pr.PeriodoSpec, umbral: float | None = None) -> int:
 
     if err.empty:
         print("  ✓ No se encontró ningún precio fuera de rango.")
-        subir_excel_cloud(headers, site_id, carpeta, nombre_salida, {
-            "Errores": pd.DataFrame(columns=COLS_SALIDA),
-            "Todos los registros": todos,
-            "SKUs sin evaluar": sin_evaluar,
-        })
+        subir_excel_cloud(headers, site_id, carpeta, nombre_salida,
+                          {"Errores": pd.DataFrame(columns=COLS_SALIDA)})
         return 0
 
     err = asignar_supervisor(err, kpis)
-    err["ID"] = _llave(err)
     # Nombres pensados para quien corrige, no para quien programó el ETL.
     err = err.rename(columns={"PRECIO_REGULAR": "PRECIO_CAPTURADO",
-                              "MEDIANA_SKU": "PRECIO_HABITUAL"})
+                              "Fecha de la encuesta": "FECHA",
+                              "ID del PDV": "ID PDV"})
     err = conservar_correcciones(err, previo)
-    err = err.reindex(columns=COLS_SALIDA)
+    # Se ordena ANTES de recortar columnas: SEVERIDAD sirve para dejar arriba
+    # los casos más graves, pero no se muestra.
     # ALTA antes que MEDIA, y dentro de cada supervisor agrupado por gestor.
     # RATIO ya no está en esta hoja (se simplificó), así que se ordena por el
     # precio capturado, que deja juntos los casos parecidos.
@@ -421,13 +429,15 @@ def run(spec: pr.PeriodoSpec, umbral: float | None = None) -> int:
         print(f"     {r['SUPERVISOR_LIDER'][:38]:38} {r['ERRORES']:>3} "
               f"({r['ALTA']} altas)")
 
+    # Recién acá se recortan las columnas: SEVERIDAD hizo falta para ordenar,
+    # contar las graves y armar el resumen, pero no se muestra en la hoja.
+    err = err.reindex(columns=COLS_SALIDA)
+
     print("\nGuardando:")
-    subir_excel_cloud(headers, site_id, carpeta, nombre_salida, {
-        "Errores": err,
-        "Resumen por supervisor": resumen,
-        "Todos los registros": todos,
-        "SKUs sin evaluar": sin_evaluar,
-    })
+    # Una sola hoja: el archivo es un formulario, no un informe. Las otras
+    # hojas (resumen, todos los registros, SKUs sin evaluar) hacían que el
+    # supervisor tuviera que buscar dónde trabajar.
+    subir_excel_cloud(headers, site_id, carpeta, nombre_salida, {"Errores": err})
     return len(err)
 
 

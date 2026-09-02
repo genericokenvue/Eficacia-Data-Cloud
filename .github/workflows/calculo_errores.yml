@@ -31,6 +31,7 @@ on:
         options:
           - todas
           - precios
+          - exhibiciones
       mes:
         description: 'Mes (1-12). Vacío = mes actual.'
         required: false
@@ -90,6 +91,14 @@ jobs:
             # Se marca el fallo pero no se corta: si mañana hay varias
             # validaciones, que una falle no debe impedir que corran las otras.
             python etl_precios_errores.py $ARGS || FALLOS=1
+          fi
+
+          # ── Exhibiciones ───────────────────────────────────────────────
+          if [ "$TIPO" = "todas" ] || [ "$TIPO" = "exhibiciones" ]; then
+            echo "───────────────────────────────────────────────"
+            echo "  EXHIBICIONES — etl_exhibiciones_errores.py"
+            echo "───────────────────────────────────────────────"
+            python etl_exhibiciones_errores.py --mes $MES --anio $ANIO || FALLOS=1
           fi
 
           # ── Acá van las validaciones nuevas ────────────────────────────
