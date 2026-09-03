@@ -253,7 +253,28 @@ def load_encuestas(files: dict) -> pd.DataFrame:
     for df in dfs[1:]: cols_comunes &= set(df.columns)
     cols_comunes = [c for c in dfs[0].columns if c in cols_comunes]
     df = pd.concat([d[cols_comunes] for d in dfs], ignore_index=True)
-    
+
+    # FIX: "Informar" y "Planning" son, por diseño, dos encuestas SIN solape
+    # (Informar = Gratis/Concurso, Planning = Pagadas) — así fue en marzo,
+    # abril, mayo y julio 2026 (0% de IDs en común). En agosto 2026 el export
+    # de "Planning" cambió de forma y empezó a incluir TAMBIÉN las mismas
+    # capturas de "Informar" (100% de sus 2.061 filas repetidas, byte a byte:
+    # mismo ID de encuesta, categoría y cantidad), además de sus propias 2.353
+    # filas nuevas de Pagadas. Sin deduplicar, esa captura repetida se contaba
+    # dos veces antes incluso de llegar al merge con el Plan de Trabajo — el
+    # PDV 9236 pasó de 24 (valor real) a 48, y de ahí el otro bug del merge
+    # (filas duplicadas del plan) lo llevaba a 192.
+    #
+    # Deduplicar por "ID de la encuesta" es seguro en los dos escenarios: si
+    # no hay solape (marzo-julio) no cambia nada; si lo hay (agosto) deja una
+    # sola copia de cada captura real.
+    if "ID de la encuesta" in df.columns:
+        n_antes = len(df)
+        df = df.drop_duplicates(subset="ID de la encuesta")
+        if len(df) != n_antes:
+            print(f"    ℹ️  Encuestas: {n_antes:,} filas → {len(df):,} tras deduplicar por "
+                  f"'ID de la encuesta' (Informar/Planning se solapaban este periodo).")
+
     if "Sub canal" in df.columns:
         n_antes = len(df)
         df = df[df["Sub canal"].astype(str).str.strip().str.upper() != "DISCOUNTER"].copy()
