@@ -336,22 +336,10 @@ def generar_analisis_precios(periodo_nom, spec: pr.PeriodoSpec, headers, site_id
 
     df_analisis = df[cols_finales]
 
-    # LLAVE: misma forma que arma etl_precios_errores, para poder cruzar los
-    # dos archivos con un BUSCARV directo en vez de concatenar a mano en Excel.
-    # Va al final para no mover las columnas que ya lee todo el mundo.
-    df_excel = df_analisis.copy()
-    df_excel["LLAVE"] = (
-        df_excel["ID del PDV"].astype(str).str.strip()
-        .str.cat([df_excel["CODIGO_SKU"].astype(str).str.strip(),
-                  df_excel["Fecha de la encuesta"].astype(str).str.strip(),
-                  df_excel["Empleado"].astype(str).str.strip()], sep="|"))
-
     nombre_analisis = f"ANALISIS_PRECIOS_{periodo_nom}.xlsx"
-    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_analisis, df_excel)
+    subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_SALIDAS, nombre_analisis, df_analisis)
     print(f"✅ Análisis detallado guardado en SharePoint.")
 
-    # A Supabase va SIN la llave: allá el cruce se hace con las columnas
-    # reales, y agregarla obligaría a tocar el esquema de la tabla.
     supabase_io.cargar_detalle_seguro("precios_analisis_detalle", df_analisis, spec.mes, spec.anio)
 
 # =============================================================================

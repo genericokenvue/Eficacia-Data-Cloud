@@ -77,9 +77,15 @@ UMBRAL_ALTO = 30        # más de esto es casi seguro un error
 
 COLS_RESPUESTA = ["CANTIDAD_CORREGIDA", "OBSERVACION_SUPERVISOR"]
 
-# Identifica una exhibición de forma estable entre corridas, para arrastrar lo
-# que el supervisor ya escribió aunque el archivo se regenere.
-COLS_LLAVE = ["ID PDV", "Tipo Exhibición", "Marca", "Empleado"]
+# Identifica una exhibición de forma ÚNICA y estable entre corridas, para
+# arrastrar lo que el supervisor ya escribió aunque el archivo se regenere.
+#
+# Lleva Mes y Año porque el archivo de origen acumula todos los periodos: sin
+# ellos un ID de agosto se pegaba también a filas de marzo, abril y mayo.
+# Y lleva Categoría porque sin ella quedaban 24 filas de agosto con la misma
+# llave — es lo que distingue Gratis de Concurso en un mismo PDV y marca.
+COLS_LLAVE = ["Mes", "Año", "ID PDV", "Tipo Exhibición", "Marca",
+              "Categoría", "Nivel Impacto", "Empleado"]
 
 ARCHIVO_ORIGEN = "Resultado exhibiciones gratis.xlsx"
 
@@ -302,6 +308,64 @@ def asignar_ids(nuevo: pd.DataFrame, previo: pd.DataFrame | None,
     return pd.Series(ids, index=nuevo.index)
 
 
+def _nombre_hoja(headers: dict, site_id: str, ruta: str) -> str:
+    """Nombre de la primera hoja del libro, para no renombrarla al reescribir."""
+    url = (f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/"
+           f"{urllib.parse.quote(ruta)}:/content")
+    r = requests.get(url, headers=headers)
+    if r.status_code != 200:
+        return "Sheet1"
+    return pd.ExcelFile(io.BytesIO(r.content)).sheet_names[0]
+
+
+def escribir_id_en_origen(headers: dict, site_id: str, carpeta: str, archivo: str,
+                          err: pd.DataFrame, llave_origen_fn, llave_err_fn,
+                          spec: pr.PeriodoSpec | None = None) -> None:
+    """
+    Devuelve el ID_ERROR al archivo oficial, para poder ubicar ahí cada caso.
+
+    Las filas sin error quedan con la celda vacía. Los IDs de OTROS periodos
+    que ya estuvieran en el archivo se respetan: en exhibiciones el archivo
+    acumula todos los meses y sería un problema borrarlos.
+
+    OJO CON EL ORDEN
+        El ETL de origen regenera su archivo desde cero en cada corrida, y con
+        eso se lleva puesta esta columna. Por eso el workflow de errores corre
+        DESPUÉS del ETL diario (día 1 y 16, una hora más tarde): si se corriera
+        antes, el ID quedaría escrito y luego borrado el mismo día.
+    """
+    ruta = f"{carpeta}/{archivo}"
+    df = leer_excel_cloud(headers, site_id, ruta, archivo, obligatorio=False)
+    if df is None or df.empty:
+        return
+
+    # Se conserva el nombre de la hoja original: al reescribir el archivo con
+    # un nombre distinto se rompería cualquier consulta o tabla dinamica que
+    # apunte a esa hoja por nombre.
+    hoja = _nombre_hoja(headers, site_id, ruta)
+
+    nuevos = dict(zip(llave_err_fn(err), err["ID_ERROR"].astype(str)))
+    llaves = llave_origen_fn(df)
+
+    # El periodo que se está procesando se reescribe entero desde ;
+    # los demás conservan lo que tuvieran. Sin este corte, un ID viejo cuya
+    # llave cambió quedaría huérfano en el archivo apuntando a nada.
+    if spec is not None and "Mes" in df.columns and "Año" in df.columns:
+        del_periodo = ((pd.to_numeric(df["Mes"], errors="coerce") == spec.mes)
+                       & (pd.to_numeric(df["Año"], errors="coerce") == spec.anio))
+    else:
+        del_periodo = pd.Series(True, index=df.index)
+
+    anterior = (df["ID_ERROR"].fillna("").astype(str).replace("nan", "")
+                if "ID_ERROR" in df.columns else pd.Series("", index=df.index))
+    df["ID_ERROR"] = anterior.where(~del_periodo, "")
+    df.loc[del_periodo, "ID_ERROR"] = llaves[del_periodo].map(nuevos).fillna("")
+    n = int((df["ID_ERROR"] != "").sum())
+
+    subir_excel_cloud(headers, site_id, carpeta, archivo, {hoja: df})
+    print(f"  🔗 ID_ERROR escrito en {archivo}: {n} fila(s) marcadas")
+
+
 def conservar_correcciones(nuevo: pd.DataFrame, previo: pd.DataFrame | None) -> pd.DataFrame:
     """Arrastra lo que el supervisor ya escribió en la corrida anterior."""
     for c in COLS_RESPUESTA:
@@ -338,9 +402,6 @@ COLS_SALIDA = [
     "SUPERVISOR_LIDER", "Nivel Impacto",
     "CANTIDAD", "DIAGNOSTICO",
     "CANTIDAD_CORREGIDA", "OBSERVACION_SUPERVISOR",
-    # Va ÚLTIMA a propósito: es fea de leer, pero evita armar la fórmula
-    # concatenada a mano para cruzar contra el archivo original.
-    "LLAVE",
 ]
 
 COLS_TODOS = [
@@ -385,7 +446,6 @@ def run(spec: pr.PeriodoSpec) -> int:
     err = asignar_supervisor(err, mapa)
     err = err.rename(columns={"Cantidad": "CANTIDAD"})
     err["ID_ERROR"] = asignar_ids(err, previo, "EXH", spec, _llave)
-    err["LLAVE"] = _llave(err)
     err = conservar_correcciones(err, previo)
     # Se ordena ANTES de recortar columnas: SEVERIDAD deja arriba los casos
     # más graves, pero no se muestra.
@@ -406,6 +466,11 @@ def run(spec: pr.PeriodoSpec) -> int:
     for _, r in resumen.head(10).iterrows():
         print(f"     {str(r['SUPERVISOR_LIDER'])[:38]:38} {r['ERRORES']:>3} "
               f"({r['ALTA']} altas, máx {r['CANTIDAD_MAX']:.0f})")
+
+
+    escribir_id_en_origen(
+        headers, site_id, carpeta, ARCHIVO_ORIGEN, err,
+        llave_origen_fn=_llave, llave_err_fn=_llave, spec=spec)
 
     # Recién acá se recortan las columnas: SEVERIDAD hizo falta para ordenar,
     # contar las graves y armar el resumen, pero no se muestra en la hoja.

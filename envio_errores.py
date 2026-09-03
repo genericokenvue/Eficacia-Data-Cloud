@@ -89,7 +89,7 @@ VALIDACIONES = {
             ("Diagnóstico", "DIAGNOSTICO"),
         ],
         "moneda": {"PRECIO_CAPTURADO"},
-        "prefijo_adjunto": "Errores_Precios",
+        "hoja": "Precios",
     },
     "exhibiciones": {
         "titulo": "Exhibiciones para revisar",
@@ -110,7 +110,7 @@ VALIDACIONES = {
             ("Diagnóstico", "DIAGNOSTICO"),
         ],
         "moneda": set(),
-        "prefijo_adjunto": "Errores_Exhibiciones",
+        "hoja": "Exhibiciones",
     },
 }
 
@@ -163,6 +163,25 @@ def link_archivo(headers: dict, site_id: str, carpeta: str, nombre: str) -> str:
            f"{urllib.parse.quote(carpeta)}/{urllib.parse.quote(nombre)}")
     r = requests.get(url, headers=headers)
     return r.json().get("webUrl", "") if r.status_code == 200 else ""
+
+
+def _encabezados(cfg: dict) -> str:
+    return "".join(f"<th style='padding:7px 10px;text-align:left'>{tit}</th>"
+                   for tit, _ in cfg["columnas"])
+
+
+def _fila_html(r, cfg: dict) -> str:
+    celdas = ""
+    for _, col in cfg["columnas"]:
+        v = r.get(col, "")
+        if col in cfg.get("moneda", set()):
+            try:
+                celdas += f"<td style='{BORDE};text-align:right'>${float(v):,.0f}</td>"
+                continue
+            except (TypeError, ValueError):
+                pass
+        celdas += f"<td style='{BORDE}'>{v}</td>"
+    return f"<tr>{celdas}</tr>"
 
 
 def excel_del_supervisor(filas: pd.DataFrame) -> bytes:
@@ -298,32 +317,104 @@ def cuerpo_html(nombre_sup: str, filas: pd.DataFrame, link: str,
 # PRINCIPAL
 # ─────────────────────────────────────────────────────────────────────────────
 
-def enviar_validacion(headers: dict, site_id: str, maestra: pd.DataFrame,
-                      tipo: str, spec: pr.PeriodoSpec, prueba: bool,
-                      solo: list[str] | None) -> tuple[int, int, int]:
-    cfg = VALIDACIONES[tipo]
-    nombre = cfg["archivo"](spec)
-    carpeta = cfg["carpeta"]
+ASUNTO_BASE = "CAPTURA DE ERRORES"
 
-    print(f"\n── {tipo.upper()} ─────────────────────────────────")
-    err = leer_excel(headers, site_id, f"{carpeta}/{nombre}", nombre, obligatorio=False)
-    if err is None or err.empty:
-        print(f"  Sin errores que enviar.")
-        return 0, 0, 0
 
-    link = link_archivo(headers, site_id, carpeta, nombre)
-    if not link:
-        print("  ⚠️  No se pudo obtener el link; el correo va sin botón.")
+def cargar_errores(headers: dict, site_id: str, tipos: list[str],
+                   spec: pr.PeriodoSpec) -> dict[str, pd.DataFrame]:
+    """Lee el archivo de cada validación. Devuelve {tipo: DataFrame}."""
+    datos: dict[str, pd.DataFrame] = {}
+    for tipo in tipos:
+        cfg = VALIDACIONES[tipo]
+        nombre = cfg["archivo"](spec)
+        err = leer_excel(headers, site_id, f"{cfg['carpeta']}/{nombre}", nombre,
+                         obligatorio=False)
+        if err is None or err.empty:
+            print(f"  ℹ️  {tipo}: sin errores.")
+            continue
+        err["SUPERVISOR_LIDER"] = (
+            err["SUPERVISOR_LIDER"].astype(str).str.strip().str.upper())
+        datos[tipo] = err
+        print(f"  ✓ {tipo}: {len(err)} caso(s)")
+    return datos
 
-    err["SUPERVISOR_LIDER"] = err["SUPERVISOR_LIDER"].astype(str).str.strip().str.upper()
+
+def libro_del_supervisor(por_tipo: dict[str, pd.DataFrame]) -> bytes:
+    """
+    UN archivo con una hoja por validación, solo con las filas de ese
+    supervisor. Antes iba un archivo por validación y llegaban dos correos;
+    con una hoja por tema alcanza uno solo.
+    """
+    buf = io.BytesIO()
+    with pd.ExcelWriter(buf, engine="openpyxl") as w:
+        for tipo, filas in por_tipo.items():
+            filas.to_excel(w, sheet_name=VALIDACIONES[tipo]["hoja"][:31], index=False)
+    buf.seek(0)
+    return buf.getvalue()
+
+
+def cuerpo_unico(nombre_sup: str, por_tipo: dict[str, pd.DataFrame],
+                 spec: pr.PeriodoSpec) -> str:
+    """Un cuerpo con una sección por validación."""
+    total = sum(len(f) for f in por_tipo.values())
+    secciones = []
+    for tipo, filas in por_tipo.items():
+        cfg = VALIDACIONES[tipo]
+        secciones.append(f"""
+  <h3 style="color:#1F4E79;margin:26px 0 4px">{cfg['titulo']}
+      — {len(filas)} caso(s)</h3>
+  <p style="margin-top:0">{cfg['que_paso']}</p>
+  <p style="color:#444">En la hoja <b>{cfg['hoja']}</b>, {cfg['que_hacer_adjunto']}</p>
+  <table style="border-collapse:collapse;font-size:13px">
+    <tr style="background:#DCE6F1">{_encabezados(cfg)}</tr>
+    {''.join(_fila_html(r, cfg) for _, r in filas.head(MAX_FILAS_CORREO).iterrows())}
+  </table>
+  {f"<p style='color:#666'>… y {len(filas) - MAX_FILAS_CORREO} más en el archivo.</p>"
+   if len(filas) > MAX_FILAS_CORREO else ""}""")
+
+    return f"""
+<div style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#222">
+  <h2 style="color:#1F4E79;margin-bottom:4px">{ASUNTO_BASE}
+      — {spec.mes_str} {spec.anio}</h2>
+  <p style="color:#666;margin-top:0">Equipo de <b>{nombre_sup}</b></p>
+
+  <p>Hay <b>{total} caso(s)</b> para revisar, en el archivo adjunto.
+     Cada tema está en su propia hoja.</p>
+
+  <p><b>Cuando termines, respondé este correo con el archivo.</b></p>
+  {''.join(secciones)}
+
+  <p style="color:#888;font-size:12px;margin-top:26px">
+     El adjunto trae solo los casos de tu equipo. La columna <b>ID_ERROR</b>
+     identifica cada caso: si preguntás por uno, mencioná ese código.</p>
+</div>"""
+
+
+def enviar_todo(headers: dict, site_id: str, maestra: pd.DataFrame,
+                por_validacion: dict[str, pd.DataFrame], spec: pr.PeriodoSpec,
+                prueba: bool, solo: list[str] | None) -> tuple[int, int, int]:
+    """Un correo por supervisor, con todas sus validaciones juntas."""
+    # Universo de supervisores con al menos un caso en alguna validación.
+    sups = sorted({s for err in por_validacion.values()
+                   for s in err["SUPERVISOR_LIDER"].unique()})
     filtro = [s.strip().upper() for s in solo] if solo else None
     enviados = fallidos = sin_correo = 0
 
-    for nombre_sup, filas in err.groupby("SUPERVISOR_LIDER"):
+    for nombre_sup in sups:
         if filtro and nombre_sup not in filtro:
             continue
         if nombre_sup == "(SIN CRUZAR)":
-            print(f"  ⏭️  {len(filas)} fila(s) sin supervisor asignado — no se envían.")
+            n = sum(int((e["SUPERVISOR_LIDER"] == "(SIN CRUZAR)").sum())
+                    for e in por_validacion.values())
+            print(f"  ⏭️  {n} fila(s) sin supervisor asignado — no se envían.")
+            continue
+
+        por_tipo = {}
+        for tipo, err in por_validacion.items():
+            filas = err[err["SUPERVISOR_LIDER"] == nombre_sup]
+            if not filas.empty:
+                por_tipo[tipo] = filas
+        if not por_tipo:
             continue
 
         correos = [c for c in maestra.loc[
@@ -335,26 +426,23 @@ def enviar_validacion(headers: dict, site_id: str, maestra: pd.DataFrame,
             sin_correo += 1
             continue
 
-        altas = int((filas["SEVERIDAD"] == "ALTA").sum()) if "SEVERIDAD" in filas else 0
-        asunto = (f"{cfg['titulo']} — {spec.mes_str} {spec.anio} — "
-                  f"{len(filas)} caso(s)" + (f", {altas} urgentes" if altas else ""))
-        cuerpo = cuerpo_html(nombre_sup, filas, link, spec, cfg)
-
-        # Un archivo por supervisor, con solo sus filas. El nombre lleva el
-        # suyo para que al responder el correo se sepa de quién viene.
-        adjunto = excel_del_supervisor(filas)
-        nombre_adjunto = (f"{cfg['prefijo_adjunto']}_{nombre_sup.replace(' ', '_')}"
+        total = sum(len(f) for f in por_tipo.values())
+        detalle = ", ".join(f"{len(f)} de {t}" for t, f in por_tipo.items())
+        asunto = f"{ASUNTO_BASE} — {spec.mes_str} {spec.anio} — {total} caso(s)"
+        cuerpo = cuerpo_unico(nombre_sup, por_tipo, spec)
+        adjunto = libro_del_supervisor(por_tipo)
+        nombre_adjunto = (f"Errores_{nombre_sup.replace(' ', '_')}"
                           f"_{spec.mes:02d}_{spec.anio}.xlsx")
 
         for correo in correos:
             if prueba:
-                print(f"  [PRUEBA] {nombre_sup} → {correo} "
-                      f"({len(filas)} casos, {altas} altas) — adjunto: {nombre_adjunto}")
+                print(f"  [PRUEBA] {nombre_sup} → {correo} ({detalle}) "
+                      f"— adjunto: {nombre_adjunto}")
                 enviados += 1
                 continue
             try:
                 enviar_correo(correo, asunto, cuerpo, nombre_adjunto, adjunto)
-                print(f"  ✓ {nombre_sup} → {correo} ({len(filas)} casos)")
+                print(f"  ✓ {nombre_sup} → {correo} ({detalle})")
                 enviados += 1
             except Exception as e:
                 print(f"  ❌ {nombre_sup} → {correo}: {e}")
@@ -407,13 +495,15 @@ def main() -> int:
         maestra["NOMBRE_SUPERVISOR"].fillna("").astype(str).str.strip().str.upper())
     maestra["CORREO"] = maestra["CORREO"].fillna("").astype(str).str.strip()
 
-    tot_env = tot_fall = tot_sin = 0
-    for tipo in tipos:
-        e, f, s = enviar_validacion(headers, site_id, maestra, tipo, spec,
-                                    args.prueba, args.supervisor)
-        tot_env += e
-        tot_fall += f
-        tot_sin += s
+    print("\nLeyendo los archivos de errores:")
+    por_validacion = cargar_errores(headers, site_id, tipos, spec)
+    if not por_validacion:
+        print("\n  No hay errores que enviar.")
+        return 0
+
+    print("\nEnviando:")
+    tot_env, tot_fall, tot_sin = enviar_todo(
+        headers, site_id, maestra, por_validacion, spec, args.prueba, args.supervisor)
 
     print(f"\n  Enviados: {tot_env} | Fallidos: {tot_fall} | Sin correo: {tot_sin}")
     return 1 if tot_fall else 0

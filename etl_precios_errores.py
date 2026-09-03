@@ -352,6 +352,57 @@ def asignar_ids(nuevo: pd.DataFrame, previo: pd.DataFrame | None,
     return pd.Series(ids, index=nuevo.index)
 
 
+def _nombre_hoja(headers: dict, site_id: str, ruta: str) -> str:
+    """Nombre de la primera hoja del libro, para no renombrarla al reescribir."""
+    url = (f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/"
+           f"{urllib.parse.quote(ruta)}:/content")
+    r = requests.get(url, headers=headers)
+    if r.status_code != 200:
+        return "Sheet1"
+    return pd.ExcelFile(io.BytesIO(r.content)).sheet_names[0]
+
+
+def escribir_id_en_origen(headers: dict, site_id: str, carpeta: str, archivo: str,
+                          err: pd.DataFrame, llave_origen_fn, llave_err_fn) -> None:
+    """
+    Devuelve el ID_ERROR al archivo oficial, para poder ubicar ahí cada caso.
+
+    Las filas sin error quedan con la celda vacía. Los IDs de OTROS periodos
+    que ya estuvieran en el archivo se respetan: en exhibiciones el archivo
+    acumula todos los meses y sería un problema borrarlos.
+
+    OJO CON EL ORDEN
+        El ETL de origen regenera su archivo desde cero en cada corrida, y con
+        eso se lleva puesta esta columna. Por eso el workflow de errores corre
+        DESPUÉS del ETL diario (día 1 y 16, una hora más tarde): si se corriera
+        antes, el ID quedaría escrito y luego borrado el mismo día.
+    """
+    ruta = f"{carpeta}/{archivo}"
+    df = leer_excel_cloud(headers, site_id, ruta, archivo, obligatorio=False)
+    if df is None or df.empty:
+        return
+
+    # Se conserva el nombre de la hoja original: al reescribir el archivo con
+    # un nombre distinto se rompería cualquier consulta o tabla dinamica que
+    # apunte a esa hoja por nombre.
+    hoja = _nombre_hoja(headers, site_id, ruta)
+
+    nuevos = dict(zip(llave_err_fn(err), err["ID_ERROR"].astype(str)))
+    previos = {}
+    if "ID_ERROR" in df.columns:
+        # IDs de otros periodos que ya estaban: no se tocan.
+        for k, v in zip(llave_origen_fn(df), df["ID_ERROR"].fillna("").astype(str)):
+            if v and v != "nan" and k not in nuevos:
+                previos[k] = v
+
+    llaves = llave_origen_fn(df)
+    df["ID_ERROR"] = llaves.map({**previos, **nuevos}).fillna("")
+    n = int((df["ID_ERROR"] != "").sum())
+
+    subir_excel_cloud(headers, site_id, carpeta, archivo, {hoja: df})
+    print(f"  🔗 ID_ERROR escrito en {archivo}: {n} fila(s) marcadas")
+
+
 def conservar_correcciones(nuevo: pd.DataFrame, previo: pd.DataFrame | None) -> pd.DataFrame:
     """
     Arrastra PRECIO_CORREGIDO y OBSERVACION_SUPERVISOR de la corrida anterior.
@@ -399,10 +450,6 @@ COLS_SALIDA = [
     "SUPERVISOR_LIDER", "PDV", "NOMBRE_PRODUCTO",
     "PRECIO_CAPTURADO", "DIAGNOSTICO",
     "PRECIO_CORREGIDO", "OBSERVACION_SUPERVISOR",
-    # Va ÚLTIMA a propósito: es fea de leer, pero evita tener que armar la
-    # fórmula concatenada a mano para cruzar contra ANALISIS_PRECIOS. Las
-    # cuatro columnas que la componen siguen visibles y legibles al principio.
-    "LLAVE",
 ]
 
 # La hoja con TODOS los registros: mismas columnas más la marca, y sin las
@@ -458,7 +505,6 @@ def run(spec: pr.PeriodoSpec, umbral: float | None = None) -> int:
                               "Fecha de la encuesta": "FECHA",
                               "ID del PDV": "ID PDV"})
     err["ID_ERROR"] = asignar_ids(err, previo, "PRE", spec, _llave_visible)
-    err["LLAVE"] = _llave_visible(err)
     err = conservar_correcciones(err, previo)
     # Se ordena ANTES de recortar columnas: SEVERIDAD sirve para dejar arriba
     # los casos más graves, pero no se muestra.
@@ -482,6 +528,17 @@ def run(spec: pr.PeriodoSpec, umbral: float | None = None) -> int:
     for _, r in resumen.head(10).iterrows():
         print(f"     {r['SUPERVISOR_LIDER'][:38]:38} {r['ERRORES']:>3} "
               f"({r['ALTA']} altas)")
+
+
+    # El ID vuelve al archivo oficial para poder ubicar ahi cada caso.
+    escribir_id_en_origen(
+        headers, site_id, carpeta, f'ANALISIS_PRECIOS_{periodo_nom}.xlsx', err,
+        llave_origen_fn=lambda d: (
+            d['ID del PDV'].astype(str).str.strip().str.cat(
+                [d['CODIGO_SKU'].astype(str).str.strip(),
+                 d['Fecha de la encuesta'].astype(str).str.strip(),
+                 d['Empleado'].astype(str).str.strip()], sep='|')),
+        llave_err_fn=_llave_visible)
 
     # Recién acá se recortan las columnas: SEVERIDAD hizo falta para ordenar,
     # contar las graves y armar el resumen, pero no se muestra en la hoja.

@@ -407,7 +407,22 @@ def calcular_gratis_concurso(df_enc, df_plan, df_visitas) -> pd.DataFrame:
         COL_PLAN_ID_PDV: COL_ID_PDV, COL_PLAN_ROL: "_rol",
         'CANTIDAD_VISITAS': "_frec_plan", COL_PLAN_MES: COL_MES, COL_PLAN_ANIO: COL_ANIO
     })[[COL_ID_PDV, "_rol", "_frec_plan", COL_MES, COL_ANIO]]
-    
+
+    # FIX: el Plan de Trabajo trae varias filas para el mismo (PDV, rol, mes,
+    # año) — probablemente una por SKU/categoría del plan, sin deduplicar por
+    # PDV. El merge de abajo es por esa llave, SIN Empleado, así que sin este
+    # drop_duplicates cada captura real de la encuesta se multiplicaba por la
+    # cantidad de filas repetidas: un PDV con 8 filas duplicadas en el plan
+    # convertía 2 capturas de 12 unidades en 16 filas de 12, sumando 192 en
+    # vez de 24. Se verificó que _frec_plan es idéntica entre los duplicados
+    # (incluidos los 3 casos con gestores distintos que comparten PDV+rol),
+    # así que quedarse con la primera fila no pierde ningún dato real.
+    n_antes = len(plan_lookup)
+    plan_lookup = plan_lookup.drop_duplicates(subset=[COL_ID_PDV, "_rol", COL_MES, COL_ANIO])
+    if len(plan_lookup) != n_antes:
+        print(f"  ℹ️  Plan de trabajo: {n_antes:,} filas → {len(plan_lookup):,} tras "
+              f"deduplicar por (PDV, rol, mes, año) — evita inflar Cantidad en el merge.")
+
     df = df.merge(plan_lookup, on=[COL_ID_PDV, "_rol", COL_MES, COL_ANIO], how="left")
     
     if not df_visitas.empty:
@@ -584,25 +599,12 @@ def run(spec: pr.PeriodoSpec):
     except Exception as e:
         print(f"  ⚠️ No se pudo leer resultado previo de SharePoint ({e}); se sobrescribe.")
 
-    # LLAVE: misma forma que arma etl_exhibiciones_errores, para poder cruzar
-    # los dos archivos con un BUSCARV directo en vez de concatenar a mano en
-    # Excel. Va al final para no mover las columnas que ya lee todo el mundo,
-    # y solo en el Excel — a Supabase se sube df_out sin ella.
-    df_excel = df_out.copy()
-    df_excel["LLAVE"] = (
-        df_excel["ID PDV"].astype(str).str.strip()
-        .str.cat([df_excel["Tipo Exhibición"].astype(str).str.strip(),
-                  df_excel["Marca"].astype(str).str.strip(),
-                  df_excel["Empleado"].astype(str).str.strip()], sep="|"))
-
     output_buffer = BytesIO()
-    df_excel.to_excel(output_buffer, index=False, sheet_name="Exhibiciones_implementadas", engine="openpyxl")
+    df_out.to_excel(output_buffer, index=False, sheet_name="Exhibiciones_implementadas", engine="openpyxl")
     _upload_sharepoint_file(OUTPUT_PATH, output_buffer)
     print(f"\n✓ Output escrito con éxito en SharePoint: {OUTPUT_PATH} ({len(df_out):,} filas)")
 
     # El archivo acumula todos los meses; solo_periodo sube solo el procesado.
-    # Va SIN la columna LLAVE que sí lleva el Excel: allá el cruce se hace con
-    # las columnas reales y agregarla obligaría a tocar el esquema de la tabla.
     supabase_io.cargar_detalle_seguro(
         "exhibiciones_gratis_detalle", df_out, spec.mes, spec.anio)
     
