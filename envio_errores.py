@@ -47,6 +47,7 @@ import msal
 import pandas as pd
 import requests
 from dotenv import load_dotenv
+from openpyxl.utils import get_column_letter
 
 import paths
 import periodo_resolver as pr
@@ -112,6 +113,41 @@ VALIDACIONES = {
         "moneda": set(),
         "hoja": "Exhibiciones",
     },
+    "espacios": {
+        "titulo": "Espacios para revisar",
+        "carpeta": paths.RUTA_CARPETA_SALIDAS_SOS,
+        "archivo": lambda s: f"ERRORES_ESPACIOS_{s.mes_str_upper}_{s.anio}.xlsx",
+        "que_paso": ("Dos motivos posibles (columna Motivo): la suma de cm de las "
+                     "marcas quedó por encima del universo capturado para esa "
+                     "categoría — algo que no puede pasar — o la participación de "
+                     "una marca propia (cm de la marca / universo) cambió mucho "
+                     "respecto al promedio de los 3 meses anteriores. Cada caso "
+                     "trae una fila por marca, para que se vea con cuáles se armó "
+                     "la suma."),
+        "que_hacer_adjunto": ("escribí el valor real en <b>CM_MARCA_CORREGIDO</b> "
+                              "(si una marca puntual estaba mal) o en "
+                              "<b>UNIVERSO_CORREGIDO</b> (si el universo estaba mal). "
+                              "Si todo estaba bien, dejalos vacíos y anotá por qué en "
+                              "<b>OBSERVACION_SUPERVISOR</b>."),
+        "columnas": [
+            ("Gestor", "Empleado"),
+            ("PDV", "PDV"),
+            ("Línea", "LINEA_PRODUCTO"),
+            ("Marca", "MARCA"),
+            ("Universo", "UNIVERSO_CM"),
+            ("cm marca", "CM_MARCA"),
+            ("Universo prom. 3m", "UNIVERSO_CM_PROMEDIO_3M"),
+            ("cm marca prom. 3m", "CM_MARCA_PROMEDIO_3M"),
+            ("Participación", "PARTICIPACION"),
+            ("Prom. 3 meses", "PARTICIPACION_PROMEDIO_3M"),
+            ("Motivo", "MOTIVO"),
+            ("Periodo", "PERIODO"),
+            ("Diagnóstico", "DIAGNOSTICO"),
+        ],
+        "moneda": set(),
+        "porcentaje": {"PARTICIPACION", "PARTICIPACION_PROMEDIO_3M"},
+        "hoja": "Espacios",
+    },
 }
 
 
@@ -171,12 +207,27 @@ def _encabezados(cfg: dict) -> str:
 
 
 def _fila_html(r, cfg: dict) -> str:
+    porcentaje = cfg.get("porcentaje", set())
     celdas = ""
     for _, col in cfg["columnas"]:
         v = r.get(col, "")
         if col in cfg.get("moneda", set()):
             try:
                 celdas += f"<td style='{BORDE};text-align:right'>${float(v):,.0f}</td>"
+                continue
+            except (TypeError, ValueError):
+                pass
+        if col in porcentaje:
+            try:
+                valor = float(v)
+                color = ""
+                # La comparación (subió/bajó) solo aplica a la participación
+                # de este mes — el promedio no se compara contra sí mismo.
+                if col == "PARTICIPACION" and "PARTICIPACION_PROMEDIO_3M" in r:
+                    promedio = float(r["PARTICIPACION_PROMEDIO_3M"])
+                    color = "color:#0a7d1f" if valor > promedio else "color:#c00"
+                celdas += (f"<td style='{BORDE};text-align:right;font-weight:600;{color}'>"
+                          f"{valor:,.1f}%</td>")
                 continue
             except (TypeError, ValueError):
                 pass
@@ -339,6 +390,20 @@ def cargar_errores(headers: dict, site_id: str, tipos: list[str],
     return datos
 
 
+def _formatear_porcentajes(ws, columnas: list[str], porcentaje: set[str]) -> None:
+    """
+    Los valores de `porcentaje` ya vienen multiplicados por 100 (ej. 50.0 =
+    50%), así que el formato usa un '%' literal entre comillas — el formato
+    nativo de Excel ('0.0%') multiplicaría por 100 otra vez.
+    """
+    for idx, col in enumerate(columnas, start=1):
+        if col not in porcentaje:
+            continue
+        letra = get_column_letter(idx)
+        for fila in range(2, ws.max_row + 1):
+            ws[f"{letra}{fila}"].number_format = '0.0"%"'
+
+
 def libro_del_supervisor(por_tipo: dict[str, pd.DataFrame]) -> bytes:
     """
     UN archivo con una hoja por validación, solo con las filas de ese
@@ -348,7 +413,11 @@ def libro_del_supervisor(por_tipo: dict[str, pd.DataFrame]) -> bytes:
     buf = io.BytesIO()
     with pd.ExcelWriter(buf, engine="openpyxl") as w:
         for tipo, filas in por_tipo.items():
-            filas.to_excel(w, sheet_name=VALIDACIONES[tipo]["hoja"][:31], index=False)
+            hoja = VALIDACIONES[tipo]["hoja"][:31]
+            filas.to_excel(w, sheet_name=hoja, index=False)
+            porcentaje = VALIDACIONES[tipo].get("porcentaje", set())
+            if porcentaje:
+                _formatear_porcentajes(w.sheets[hoja], list(filas.columns), porcentaje)
     buf.seek(0)
     return buf.getvalue()
 
@@ -456,8 +525,9 @@ def main() -> int:
                                  formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument("--mes", type=int, required=True, choices=range(1, 13))
     ap.add_argument("--anio", type=int, required=True)
-    ap.add_argument("--tipo", default="todas",
-                    help=f"Qué enviar: todas | {' | '.join(VALIDACIONES)}")
+    ap.add_argument("--tipo", nargs="+", default=["todas"],
+                    help=f"Qué enviar: todas | uno o más de {' | '.join(VALIDACIONES)} "
+                         f"(ej. --tipo precios espacios)")
     ap.add_argument("--prueba", action="store_true",
                     help="Muestra a quién le llegaría, sin enviar nada.")
     ap.add_argument("--supervisor", nargs="+", default=None,
@@ -465,7 +535,7 @@ def main() -> int:
     args = ap.parse_args()
 
     spec = pr.resolver(int(args.mes), int(args.anio))
-    tipos = list(VALIDACIONES) if args.tipo == "todas" else [args.tipo]
+    tipos = list(VALIDACIONES) if args.tipo == ["todas"] else args.tipo
     desconocidos = [t for t in tipos if t not in VALIDACIONES]
     if desconocidos:
         print(f"❌ Validación desconocida: {desconocidos}. "

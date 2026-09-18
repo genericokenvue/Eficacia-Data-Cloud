@@ -1,8 +1,8 @@
 name: Cálculo de Errores
 
-# Paraguas para las validaciones de calidad de datos. Hoy corre solo la de
-# precios; la idea es ir colgando más acá (agotados, exhibiciones, SOS…) sin
-# crear un workflow por cada una.
+# Paraguas para las validaciones de calidad de datos. Hoy corren precios,
+# exhibiciones y espacios (SOS); la idea es ir colgando más acá (agotados…)
+# sin crear un workflow por cada una.
 #
 # CÓMO AGREGAR UNA VALIDACIÓN NUEVA
 #   1. Escribir `etl_<modulo>_errores.py` que acepte --mes y --anio.
@@ -32,6 +32,7 @@ on:
           - todas
           - precios
           - exhibiciones
+          - espacios
       mes:
         description: 'Mes (1-12). Vacío = mes actual.'
         required: false
@@ -99,6 +100,14 @@ jobs:
             echo "  EXHIBICIONES — etl_exhibiciones_errores.py"
             echo "───────────────────────────────────────────────"
             python etl_exhibiciones_errores.py --mes $MES --anio $ANIO || FALLOS=1
+          fi
+
+          # ── Espacios (SOS) ─────────────────────────────────────────────
+          if [ "$TIPO" = "todas" ] || [ "$TIPO" = "espacios" ]; then
+            echo "───────────────────────────────────────────────"
+            echo "  ESPACIOS — etl_espacios_errores.py"
+            echo "───────────────────────────────────────────────"
+            python etl_espacios_errores.py --mes $MES --anio $ANIO || FALLOS=1
           fi
 
           # ── Acá van las validaciones nuevas ────────────────────────────

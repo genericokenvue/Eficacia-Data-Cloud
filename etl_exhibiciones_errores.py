@@ -141,12 +141,59 @@ def leer_excel_cloud(headers: dict, site_id: str, ruta: str, descripcion: str,
     return pd.read_excel(io.BytesIO(r.content))
 
 
+def _embellecer_hoja(ws, df: pd.DataFrame) -> None:
+    """
+    Formato visual de la hoja: encabezado resaltado y congelado, columnas
+    con ancho ajustado al contenido, bordes finos, alineación por tipo de
+    dato (numérica a la derecha, texto a la izquierda — detectado por el
+    dtype real de la columna) y filtro automático.
+    """
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    columnas = list(df.columns)
+    n_filas = len(df)
+    if n_filas == 0:
+        return
+
+    borde = Border(*(Side(style="thin", color="DDDDDD"),) * 4)
+    relleno_encabezado = PatternFill("solid", fgColor="DCE6F1")
+    alin_izq, alin_der = Alignment(horizontal="left"), Alignment(horizontal="right")
+    alineaciones = [alin_der if pd.api.types.is_numeric_dtype(df[c]) else alin_izq
+                   for c in columnas]
+
+    for idx, col in enumerate(columnas, start=1):
+        letra = get_column_letter(idx)
+        celda_enc = ws[f"{letra}1"]
+        celda_enc.font = Font(bold=True)
+        celda_enc.fill = relleno_encabezado
+        celda_enc.alignment = Alignment(horizontal="center", vertical="center")
+        celda_enc.border = borde
+
+        largo = max([len(str(col))] + [len(str(v)) for v in df[col].astype(str)])
+        tope = 90 if col in ("DIAGNOSTICO", "OBSERVACION_SUPERVISOR") else 45
+        ws.column_dimensions[letra].width = min(max(largo + 2, 10), tope)
+
+    # Una sola pasada fila por fila (iter_rows) en vez de direcciones de celda
+    # repetidas — en archivos de miles de filas (encuestas crudas) la
+    # diferencia de tiempo es real.
+    for fila in ws.iter_rows(min_row=2, max_row=n_filas + 1, max_col=len(columnas)):
+        for idx, celda in enumerate(fila):
+            celda.border = borde
+            celda.alignment = alineaciones[idx]
+
+    ws.freeze_panes = "A2"
+    ws.auto_filter.ref = ws.dimensions
+
+
 def subir_excel_cloud(headers: dict, site_id: str, carpeta: str, nombre: str,
-                      hojas: dict[str, pd.DataFrame]) -> None:
+                      hojas: dict[str, pd.DataFrame], embellecer: bool = False) -> None:
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         for hoja, df in hojas.items():
             df.to_excel(writer, sheet_name=hoja[:31], index=False)
+            if embellecer:
+                _embellecer_hoja(writer.sheets[hoja[:31]], df)
     buffer.seek(0)
     url = (f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/"
            f"{urllib.parse.quote(carpeta)}/{urllib.parse.quote(nombre)}:/content")
@@ -212,8 +259,9 @@ def detectar(df: pd.DataFrame, spec: pr.PeriodoSpec) -> tuple[pd.DataFrame, pd.D
     err = d[d["Cantidad"] > UMBRAL_CANTIDAD].copy()
     err["SEVERIDAD"] = "MEDIA"
     err.loc[err["Cantidad"] > UMBRAL_ALTO, "SEVERIDAD"] = "ALTA"
-    err["DIAGNOSTICO"] = err["Cantidad"].apply(
-        lambda c: f"{c:,.0f} unidades en un solo PDV (el tope es {UMBRAL_CANTIDAD})")
+    # El umbral NO se menciona en el diagnóstico a propósito: no conviene que
+    # el equipo en campo sepa el número exacto que dispara la alerta.
+    err["DIAGNOSTICO"] = "Revise la cantidad de exhibiciones para asegurar un error de digitación"
 
     todos = d.copy()
     todos["TIENE_ERROR"] = "NO"
@@ -362,7 +410,7 @@ def escribir_id_en_origen(headers: dict, site_id: str, carpeta: str, archivo: st
     df.loc[del_periodo, "ID_ERROR"] = llaves[del_periodo].map(nuevos).fillna("")
     n = int((df["ID_ERROR"] != "").sum())
 
-    subir_excel_cloud(headers, site_id, carpeta, archivo, {hoja: df})
+    subir_excel_cloud(headers, site_id, carpeta, archivo, {hoja: df}, embellecer=True)
     print(f"  🔗 ID_ERROR escrito en {archivo}: {n} fila(s) marcadas")
 
 
@@ -478,7 +526,7 @@ def run(spec: pr.PeriodoSpec) -> int:
 
     print("\nGuardando:")
     # Una sola hoja: el archivo es un formulario, no un informe.
-    subir_excel_cloud(headers, site_id, carpeta, nombre_salida, {"Errores": err})
+    subir_excel_cloud(headers, site_id, carpeta, nombre_salida, {"Errores": err}, embellecer=True)
     return len(err)
 
 

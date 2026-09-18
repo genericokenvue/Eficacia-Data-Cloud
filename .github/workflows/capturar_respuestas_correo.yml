@@ -1,0 +1,43 @@
+name: Capturar Respuestas de Correo
+
+# Reemplaza el paso que iba a hacer Power Automate: revisa la bandeja de
+# entrada de generico_kenvue@eficacia.com.co, busca correos "CAPTURA DE
+# ERRORES" con adjunto, y guarda cada adjunto en
+# SALIDAS/RESPUESTAS_ERRORES — de ahí en adelante, aplicar_correcciones.py
+# (otro workflow, corre 1 vez al día) es quien aplica cada corrección.
+#
+# Corre cada 15 minutos: no hace falta que sea instantáneo, porque
+# aplicar_correcciones.py de todos modos solo corre una vez al día — este
+# intervalo solo evita que un correo espere casi 24 horas antes de quedar
+# guardado.
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+
+  workflow_dispatch: {}
+
+jobs:
+  capturar-respuestas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Buscar y guardar respuestas nuevas
+        env:
+          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: python capturar_respuestas_correo.py

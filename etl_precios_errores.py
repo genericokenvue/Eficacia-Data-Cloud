@@ -129,12 +129,59 @@ def leer_excel_cloud(headers: dict, site_id: str, ruta: str, descripcion: str,
     return pd.read_excel(io.BytesIO(r.content))
 
 
+def _embellecer_hoja(ws, df: pd.DataFrame) -> None:
+    """
+    Formato visual de la hoja: encabezado resaltado y congelado, columnas
+    con ancho ajustado al contenido, bordes finos, alineación por tipo de
+    dato (numérica a la derecha, texto a la izquierda — detectado por el
+    dtype real de la columna) y filtro automático.
+    """
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    columnas = list(df.columns)
+    n_filas = len(df)
+    if n_filas == 0:
+        return
+
+    borde = Border(*(Side(style="thin", color="DDDDDD"),) * 4)
+    relleno_encabezado = PatternFill("solid", fgColor="DCE6F1")
+    alin_izq, alin_der = Alignment(horizontal="left"), Alignment(horizontal="right")
+    alineaciones = [alin_der if pd.api.types.is_numeric_dtype(df[c]) else alin_izq
+                   for c in columnas]
+
+    for idx, col in enumerate(columnas, start=1):
+        letra = get_column_letter(idx)
+        celda_enc = ws[f"{letra}1"]
+        celda_enc.font = Font(bold=True)
+        celda_enc.fill = relleno_encabezado
+        celda_enc.alignment = Alignment(horizontal="center", vertical="center")
+        celda_enc.border = borde
+
+        largo = max([len(str(col))] + [len(str(v)) for v in df[col].astype(str)])
+        tope = 90 if col in ("DIAGNOSTICO", "OBSERVACION_SUPERVISOR") else 45
+        ws.column_dimensions[letra].width = min(max(largo + 2, 10), tope)
+
+    # Una sola pasada fila por fila (iter_rows) en vez de direcciones de celda
+    # repetidas — en archivos de miles de filas (encuestas crudas) la
+    # diferencia de tiempo es real.
+    for fila in ws.iter_rows(min_row=2, max_row=n_filas + 1, max_col=len(columnas)):
+        for idx, celda in enumerate(fila):
+            celda.border = borde
+            celda.alignment = alineaciones[idx]
+
+    ws.freeze_panes = "A2"
+    ws.auto_filter.ref = ws.dimensions
+
+
 def subir_excel_cloud(headers: dict, site_id: str, carpeta: str, nombre: str,
-                      hojas: dict[str, pd.DataFrame]) -> None:
+                      hojas: dict[str, pd.DataFrame], embellecer: bool = False) -> None:
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         for hoja, df in hojas.items():
             df.to_excel(writer, sheet_name=hoja[:31], index=False)
+            if embellecer:
+                _embellecer_hoja(writer.sheets[hoja[:31]], df)
     buffer.seek(0)
     url = (f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/"
            f"{urllib.parse.quote(carpeta)}/{urllib.parse.quote(nombre)}:/content")
@@ -196,6 +243,23 @@ def _llave(df: pd.DataFrame) -> pd.Series:
         col = df[c] if c in df.columns else pd.Series([""] * len(df), index=df.index)
         partes.append(col.astype(str).str.strip())
     return partes[0].str.cat(partes[1:], sep="|")
+
+
+def _llave_origen_respuestas(df: pd.DataFrame) -> pd.Series:
+    """
+    Misma llave que COLS_LLAVE, pero sobre las columnas CRUDAS de
+    Respuestas_Encuesta_<MES>_<AÑO>.xlsx (antes de que este script derive
+    CODIGO_SKU) — el SKU sale de 'Producto (SKU)' partiendo por ' - ', igual
+    que hace `generar_analisis_precios()` en etl_precios.py. Validado 1 a 1
+    contra ANALISIS_PRECIOS con datos reales de agosto 2026 (23.356/23.356
+    filas, llaves únicas en ambos lados) — ver conversación del 2026-09-14.
+    """
+    codigo_sku = (df.get("Producto (SKU)", pd.Series("", index=df.index))
+                    .astype(str).str.split(" - ", n=1).str[0].str.strip())
+    return (df["ID del PDV"].astype(str).str.strip()
+            .str.cat(codigo_sku, sep="|")
+            .str.cat(df["Fecha de la encuesta"].astype(str).str.strip(), sep="|")
+            .str.cat(df["Empleado"].astype(str).str.strip(), sep="|"))
 
 
 def detectar(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -399,7 +463,7 @@ def escribir_id_en_origen(headers: dict, site_id: str, carpeta: str, archivo: st
     df["ID_ERROR"] = llaves.map({**previos, **nuevos}).fillna("")
     n = int((df["ID_ERROR"] != "").sum())
 
-    subir_excel_cloud(headers, site_id, carpeta, archivo, {hoja: df})
+    subir_excel_cloud(headers, site_id, carpeta, archivo, {hoja: df}, embellecer=True)
     print(f"  🔗 ID_ERROR escrito en {archivo}: {n} fila(s) marcadas")
 
 
@@ -540,6 +604,16 @@ def run(spec: pr.PeriodoSpec, umbral: float | None = None) -> int:
                  d['Empleado'].astype(str).str.strip()], sep='|')),
         llave_err_fn=_llave_visible)
 
+    # También a la encuesta CRUDA (Respuestas_Encuesta): es de ahí que
+    # `aplicar_correcciones.py` corrige el precio, porque ANALISIS_PRECIOS se
+    # regenera entero cada corrida de etl_precios.py y perdería la
+    # corrección. Ver conversación del 2026-09-14.
+    escribir_id_en_origen(
+        headers, site_id, paths.bases_precios(spec.anio),
+        f'Respuestas_Encuesta_{periodo_nom}.xlsx', err,
+        llave_origen_fn=_llave_origen_respuestas,
+        llave_err_fn=_llave_visible)
+
     # Recién acá se recortan las columnas: SEVERIDAD hizo falta para ordenar,
     # contar las graves y armar el resumen, pero no se muestra en la hoja.
     err = err.reindex(columns=COLS_SALIDA)
@@ -548,7 +622,7 @@ def run(spec: pr.PeriodoSpec, umbral: float | None = None) -> int:
     # Una sola hoja: el archivo es un formulario, no un informe. Las otras
     # hojas (resumen, todos los registros, SKUs sin evaluar) hacían que el
     # supervisor tuviera que buscar dónde trabajar.
-    subir_excel_cloud(headers, site_id, carpeta, nombre_salida, {"Errores": err})
+    subir_excel_cloud(headers, site_id, carpeta, nombre_salida, {"Errores": err}, embellecer=True)
     return len(err)
 
 

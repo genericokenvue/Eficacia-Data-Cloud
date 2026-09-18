@@ -121,6 +121,11 @@ RUTA_CARPETA_PT_DYP      = RUTA_CARPETA_PT
 RUTA_CARPETA_BASES_DYP    = bases_dyp()
 RUTA_CARPETA_SALIDAS_DYP  = f"{_SALIDAS_ROOT}/DYP"
 
+# Adjuntos de correo que Power Automate guarda cuando un supervisor responde
+# "CAPTURA DE ERRORES" con el Excel corregido — aplicar_correcciones.py los
+# procesa desde acá.
+RUTA_CARPETA_RESPUESTAS_ERRORES = f"{_SALIDAS_ROOT}/RESPUESTAS_ERRORES"
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # AÑO DEL PERIODO vs AÑO DEL RELOJ

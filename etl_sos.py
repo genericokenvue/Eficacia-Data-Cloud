@@ -93,19 +93,35 @@ def obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_carpeta):
     return res_json.get("value", [])
 
 def subir_archivo_a_sharepoint(headers, site_id, ruta_carpeta, nombre_archivo, dataframe):
+    import time
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         dataframe.to_excel(writer, index=False)
     buffer.seek(0)
-    
+    contenido = buffer.getvalue()
+
     url_subida = f"https://graph.microsoft.com/v1.0/sites/{site_id}/drive/root:/{ruta_carpeta}/{nombre_archivo}:/content"
     headers_subida = {**headers, "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-    
-    response = requests.put(url_subida, headers=headers_subida, data=buffer.getvalue())
-    if response.status_code in [200, 201]:
-        print(f"  ✅ SHAREPOINT: Archivo guardado con éxito -> {ruta_carpeta}/{nombre_archivo}")
-    else:
-        print(f"  ❌ Error al subir a SharePoint ({nombre_archivo}): {response.text}")
+
+    # 423 = alguien lo tiene abierto en el Excel de escritorio. Se reintenta
+    # con espera creciente antes de darse por vencido (mismo criterio que los
+    # scripts de errores).
+    espera = 20
+    for intento in range(1, 4):
+        response = requests.put(url_subida, headers=headers_subida, data=contenido)
+        if response.status_code in (200, 201):
+            print(f"  ✅ SHAREPOINT: Archivo guardado con éxito -> {ruta_carpeta}/{nombre_archivo}")
+            return
+        if response.status_code not in (423,) and "resourceLocked" not in response.text:
+            print(f"  ❌ Error al subir a SharePoint ({nombre_archivo}): {response.text}")
+            return
+        if intento < 3:
+            print(f"  ⏳ {nombre_archivo} está bloqueado (alguien lo tiene abierto) "
+                  f"— intento {intento}/3, reintento en {espera}s…")
+            time.sleep(espera)
+            espera *= 2
+    print(f"  ❌ No se pudo guardar {nombre_archivo}: sigue bloqueado (HTTP 423). "
+          f"Pedile a quien lo tenga abierto que lo cierre y volvé a correr.")
 
 def eliminar_tildes(texto):
     if pd.isna(texto): return texto
@@ -268,6 +284,23 @@ def ejecutar_paso_2_consolidar_encuestas(spec: pr.PeriodoSpec, headers, site_id)
         for a in encuestas
     ]
     df_enc_total = pd.concat(lista_dfs, ignore_index=True) if lista_dfs else pd.DataFrame()
+
+    # La consolidada tiene que ser de UN SOLO MES. Hoy los archivos crudos ya
+    # vienen separados por mes, pero si alguna vez vuelven acumulados (traen
+    # todas las respuestas desde el inicio de la campaña, como pasó antes),
+    # este filtro evita que la consolidada de agosto termine con marzo-agosto
+    # adentro — lo que rompía el chequeo de espacios y el cálculo de
+    # PARTICIPACION_SOS / Cumplimiento (ver conversación del 2026-09-10).
+    if not df_enc_total.empty and "Mes del año" in df_enc_total.columns and "Año" in df_enc_total.columns:
+        n_antes = len(df_enc_total)
+        df_enc_total = df_enc_total[
+            (pd.to_numeric(df_enc_total["Mes del año"], errors="coerce") == spec.mes)
+            & (pd.to_numeric(df_enc_total["Año"], errors="coerce") == spec.anio)
+        ].reset_index(drop=True)
+        if len(df_enc_total) != n_antes:
+            print(f"  🔎 Filtrado al periodo {spec.mes:02d}/{spec.anio}: "
+                  f"{n_antes:,} → {len(df_enc_total):,} filas "
+                  f"(los crudos traían otros meses).")
 
     nombre_encuesta_salida = f"Encuesta_Sos_Consolidada_{periodo_nom}.xlsx"
     subir_archivo_a_sharepoint(headers, site_id, paths.RUTA_CARPETA_BASES_SOS, nombre_encuesta_salida, df_enc_total)

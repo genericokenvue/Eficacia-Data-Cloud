@@ -1,0 +1,55 @@
+name: Aplicar Correcciones
+
+# Revisa SALIDAS/RESPUESTAS_ERRORES/ (donde Power Automate va dejando los
+# Excel que los supervisores devuelven corregidos) y aplica cada corrección
+# al archivo oficial correspondiente — ver aplicar_correcciones.py.
+#
+# Power Automate SOLO guarda el adjunto ahí (correo con asunto "CAPTURA DE
+# ERRORES" → crear archivo en esa carpeta). Todo lo demás — leer el Excel,
+# cruzar por ID_ERROR o por llave natural, sobrescribir el valor real,
+# marcar el archivo como procesado — lo hace este workflow.
+
+on:
+  schedule:
+    # Todos los días a las 8:00 a.m. hora Colombia (13:00 UTC, sin horario
+    # de verano). Diario porque las respuestas llegan sin horario fijo — a
+    # diferencia de calculo_errores/envio_errores, acá no hay un periodo
+    # que cuidar, solo procesar lo que haya llegado.
+    - cron: '0 13 * * *'
+
+  workflow_dispatch:
+    inputs:
+      carpeta:
+        description: 'Carpeta a revisar (vacío = SALIDAS/RESPUESTAS_ERRORES)'
+        required: false
+        default: ''
+
+jobs:
+  aplicar-correcciones:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Procesar respuestas pendientes
+        env:
+          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          CARPETA="${{ inputs.carpeta }}"
+          if [ -z "$CARPETA" ]; then
+            CARPETA="Equipo Información/BI/INVOLVES/SALIDAS/RESPUESTAS_ERRORES"
+          fi
+          python aplicar_correcciones.py --carpeta "$CARPETA"
