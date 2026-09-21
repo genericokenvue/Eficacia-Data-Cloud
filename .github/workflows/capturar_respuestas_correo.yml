@@ -6,15 +6,10 @@ name: Capturar Respuestas de Correo
 # SALIDAS/RESPUESTAS_ERRORES — de ahí en adelante, aplicar_correcciones.py
 # (otro workflow, corre 1 vez al día) es quien aplica cada corrección.
 #
-# Corre cada 15 minutos: no hace falta que sea instantáneo, porque
-# aplicar_correcciones.py de todos modos solo corre una vez al día — este
-# intervalo solo evita que un correo espere casi 24 horas antes de quedar
-# guardado.
+# Manual por ahora (sin schedule). Para volver a automatizarlo cada 15
+# minutos, agregar bajo `on:` un `schedule:` con `- cron: '*/15 * * * *'`.
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
-
   workflow_dispatch: {}
 
 jobs:

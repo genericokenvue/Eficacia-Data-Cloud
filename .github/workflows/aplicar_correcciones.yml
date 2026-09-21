@@ -9,14 +9,11 @@ name: Aplicar Correcciones
 # cruzar por ID_ERROR o por llave natural, sobrescribir el valor real,
 # marcar el archivo como procesado — lo hace este workflow.
 
-on:
-  schedule:
-    # Todos los días a las 8:00 a.m. hora Colombia (13:00 UTC, sin horario
-    # de verano). Diario porque las respuestas llegan sin horario fijo — a
-    # diferencia de calculo_errores/envio_errores, acá no hay un periodo
-    # que cuidar, solo procesar lo que haya llegado.
-    - cron: '0 13 * * *'
+# Manual por ahora (sin schedule). Para volver a automatizarlo todos los
+# días a las 8:00 a.m. Colombia, agregar bajo `on:` un `schedule:` con
+# `- cron: '0 13 * * *'` (13:00 UTC, Colombia no tiene horario de verano).
 
+on:
   workflow_dispatch:
     inputs:
       carpeta:
