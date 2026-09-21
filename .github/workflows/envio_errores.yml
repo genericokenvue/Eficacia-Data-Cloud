@@ -15,13 +15,12 @@ name: Envío de Errores
 # La maestra admite varias filas con el mismo NOMBRE_SUPERVISOR: cada una es
 # un destinatario. Así se le puede copiar a un acompañante sin tocar código.
 
-on:
-  schedule:
-    # Quincenal: día 2 y 17 a las 8:00 a.m. hora Colombia (13:00 UTC —
-    # Colombia es UTC-5 todo el año). Un día después del cálculo, que corre
-    # el 1 y el 16, para que el archivo ya esté listo.
-    - cron: '0 13 2,17 * *'
+# Manual por ahora (sin schedule): el envío se hace al cierre del periodo. Para
+# volver a automatizarlo, agregar bajo `on:` un `schedule:` con
+# `- cron: '0 13 2,17 * *'` (días 2 y 17, 8:00 a.m. Colombia; un día después
+# del cálculo).
 
+on:
   workflow_dispatch:
     inputs:
       mes:

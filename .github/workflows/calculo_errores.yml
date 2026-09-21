@@ -14,13 +14,12 @@ name: Cálculo de Errores
 # cada corrida pero CONSERVA lo ya corregido, así que se puede correr seguido
 # sin borrarle el trabajo a nadie.
 
-on:
-  schedule:
-    # Quincenal: día 1 y 16 a las 9:00 a.m. hora Colombia.
-    # El cron va en UTC y Colombia es UTC-5 todo el año (sin horario de
-    # verano), así que 14:00 UTC = 9:00 a.m. local.
-    - cron: '0 14 1,16 * *'
+# Manual por ahora (sin schedule): el cálculo se hace al cierre del periodo. Para
+# volver a automatizarlo, agregar bajo `on:` un `schedule:` con
+# `- cron: '0 14 1,16 * *'` (días 1 y 16, 9:00 a.m. Colombia; el cron va en UTC
+# y Colombia es UTC-5 todo el año).
 
+on:
   workflow_dispatch:
     inputs:
       tipo:
