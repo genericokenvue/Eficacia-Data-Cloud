@@ -1,4 +1,4 @@
-name: 6. Alertas de Cumplimiento (Telegram/Email — independiente)
+name: 1C. Alertas de Cumplimiento (Telegram/Email)
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: 3. Enviar Errores a Supervisores
+name: 2B. Enviar Errores a Supervisores
 
 # Le manda a cada supervisor el link al archivo con SUS errores para que los
 # corrija en Excel Online.
