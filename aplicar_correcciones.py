@@ -214,7 +214,8 @@ def aplicar_generico(headers: dict, site_id: str, filas: pd.DataFrame, cfg: dict
         if "carpeta" in cfg:
             rutas = [f"{cfg['carpeta']}/{r}" for r in rutas]
 
-        mapa_valor = dict(zip(grupo["ID_ERROR"].astype(str), grupo[cfg["col_corregido"]]))
+        mapa_valor = {k: v for k, v in zip(grupo["ID_ERROR"].astype(str), grupo[cfg["col_corregido"]])
+                     if _valor_no_vacio(v)}
         encontrado = False
         for ruta in rutas:
             carpeta, nombre = ruta.rsplit("/", 1)
@@ -243,10 +244,17 @@ def aplicar_generico(headers: dict, site_id: str, filas: pd.DataFrame, cfg: dict
                 oficial["CORREGIDO"] = ""
                 oficial.loc[tiene_id, "CORREGIDO"] = "No"
 
+            # Defensa extra: pase lo que pase arriba en el filtro, nunca se
+            # escribe un valor vacío encima de un dato real — el 22/09/2026
+            # un archivo de prueba sin corregir sobrescribió 42 precios
+            # reales con NaN (se recuperó del log). Este chequeo es la
+            # última barrera aunque el filtro de más arriba falle.
             for idx in oficial[cambia].index:
                 id_err = ids_oficial.at[idx]
-                viejo = oficial.at[idx, cfg["col_oficial"]]
                 nuevo = mapa_valor[id_err]
+                if not _valor_no_vacio(nuevo):
+                    continue
+                viejo = oficial.at[idx, cfg["col_oficial"]]
                 oficial.at[idx, cfg["col_oficial"]] = nuevo
                 oficial.at[idx, "CORREGIDO"] = "Sí"
                 _log_fila(log, archivo_respuesta, modulo, id_err, id_err,

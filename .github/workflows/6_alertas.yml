@@ -1,4 +1,4 @@
-name: Ejecutar Sistema de Alertas
+name: 6. Alertas de Cumplimiento (Telegram/Email — independiente)
 
 on:
   workflow_dispatch:

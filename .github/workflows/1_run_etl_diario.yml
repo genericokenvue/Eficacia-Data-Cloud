@@ -1,4 +1,4 @@
-name: Run ETL Suite Eficacia — Diario Automático
+name: 1. ETL Diario (automático)
 
 # Corre run_all.py una vez al día, con todos los ETLs, periodo actual, y
 # regenerando GOLD al final. Sin inputs que configurar — para correr algo

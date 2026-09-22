@@ -1,4 +1,4 @@
-name: Cálculo de Errores
+name: 2. Calcular Errores (precios, exhibiciones, espacios)
 
 # Paraguas para las validaciones de calidad de datos. Hoy corren precios,
 # exhibiciones y espacios (SOS); la idea es ir colgando más acá (agotados…)
