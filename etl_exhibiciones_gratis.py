@@ -295,7 +295,13 @@ def load_plan(files: dict, spec: pr.PeriodoSpec) -> pd.DataFrame:
     for path in files.get("plan_trabajo", []):
         try:
             stream_data = _get_sharepoint_file_stream(path)
-            df = pd.read_excel(stream_data)   
+            # Antes leía la PRIMERA hoja, que en varios meses era "Resumen".
+            # Ahora busca la del plan (nueva "PLAN DE TRABAJO" o las viejas);
+            # si no la encuentra, conserva el comportamiento anterior.
+            from shared_loader import resolver_hoja, HOJAS_PT
+            with pd.ExcelFile(stream_data) as xls:
+                hoja = resolver_hoja(xls.sheet_names, HOJAS_PT) or xls.sheet_names[0]
+                df = pd.read_excel(xls, sheet_name=hoja)
             df.columns = [str(c).strip().upper() for c in df.columns]
             
             if "SUB CANAL" in df.columns:

@@ -99,6 +99,7 @@ from shared_loader import (
     COLUMNAS_SUPERSET as COLUMNAS_FINALES_PT,
     COLUMNAS_NUMERICAS,
     renombrar_columnas_estandar,
+    resolver_hoja, HOJAS_PT, hoja_captura,
 )
 
 # =============================================================================
@@ -138,7 +139,13 @@ def ejecutar_paso_1_consolidar_pt_np(spec: pr.PeriodoSpec, headers, site_id):
     def leer_y_normalizar_cloud_np(url_download, hoja, fuente):
         content = requests.get(url_download).content
         with pd.ExcelFile(io.BytesIO(content)) as xls:
-            df_val = pd.read_excel(xls, sheet_name="Captura de modulos")
+            # Hojas nuevas ("PLAN DE TRABAJO"/"CAPTURA") o viejas: ver shared_loader.
+            hoja = resolver_hoja(xls.sheet_names, (hoja, *HOJAS_PT))
+            hoja_cap = hoja_captura(xls)
+            if not hoja or not hoja_cap:
+                print(f"⚠ {fuente}: faltan hojas de plan de trabajo/captura. Hojas: {xls.sheet_names}")
+                return pd.DataFrame()
+            df_val = pd.read_excel(xls, sheet_name=hoja_cap)
             df_val.columns = df_val.columns.str.strip().str.upper()
             col_filtro = "NO PRESENCIA_FINAL" if fuente == "ISM" else "NO PRESENCIA"
             if col_filtro not in df_val.columns: return pd.DataFrame()

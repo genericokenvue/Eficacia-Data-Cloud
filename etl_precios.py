@@ -108,6 +108,7 @@ def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
     print(f"\n--- PASO 1: Consolidando Plan de Trabajo  ({spec.etiqueta}) ---")
 
     from shared_loader import COLUMNAS_ESTANDAR_UNIFICADO as COLUMNAS_ESTANDAR, renombrar_columnas_estandar
+    from shared_loader import resolver_hoja, HOJAS_PT, hoja_captura
 
     COLUMNAS_FINALES_PT = [
         "ID_PDV_INVOLVES", "NOMBRE_PDV", "VENTAS_PROMEDIO_MES", "ACRONIMO",
@@ -152,7 +153,13 @@ def ejecutar_paso_1_consolidar_pt(spec: pr.PeriodoSpec, headers, site_id):
     def leer_y_normalizar_cloud(url_download, hoja, fuente):
         content = requests.get(url_download).content
         with pd.ExcelFile(io.BytesIO(content)) as xls:
-            df_val = pd.read_excel(xls, sheet_name="Captura de modulos")
+            # Hojas nuevas ("PLAN DE TRABAJO"/"CAPTURA") o viejas: ver shared_loader.
+            hoja = resolver_hoja(xls.sheet_names, (hoja, *HOJAS_PT))
+            hoja_cap = hoja_captura(xls)
+            if not hoja or not hoja_cap:
+                print(f"⚠ {fuente}: faltan hojas de plan de trabajo/captura. Hojas: {xls.sheet_names}")
+                return pd.DataFrame()
+            df_val = pd.read_excel(xls, sheet_name=hoja_cap)
             df_val.columns = df_val.columns.str.strip().str.upper()
             col_filtro = "PRECIOS_FINAL" if fuente == "ISM" else "PRECIOS"
             if col_filtro not in df_val.columns: return pd.DataFrame()

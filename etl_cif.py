@@ -156,6 +156,7 @@ from shared_loader import (
     COLUMNAS_SUPERSET            as COLUMNAS_FINALES,
     COLUMNAS_NUMERICAS,
     renombrar_columnas_estandar,
+    resolver_hoja, HOJAS_PT,
 )
 
 # ─────────────────────────────────────────────
@@ -164,10 +165,12 @@ from shared_loader import (
 def leer_y_normalizar_cloud(url_download, hoja, fuente):
     content = descargar_archivo_bytes(url_download)
     with pd.ExcelFile(io.BytesIO(content)) as xls:
-        if hoja not in xls.sheet_names:
-            print(f"⚠️  Hoja '{hoja}' no encontrada en {fuente}")
+        # Hoja nueva "PLAN DE TRABAJO" o las viejas: ver shared_loader.HOJAS_PT.
+        hoja_real = resolver_hoja(xls.sheet_names, (hoja, *HOJAS_PT))
+        if not hoja_real:
+            print(f"⚠️  Hoja de plan de trabajo no encontrada en {fuente}. Hojas: {xls.sheet_names}")
             return pd.DataFrame()
-        df = pd.read_excel(xls, sheet_name=hoja)
+        df = pd.read_excel(xls, sheet_name=hoja_real)
     
     df.columns = df.columns.str.strip()
     df = renombrar_columnas_estandar(df)  # ignora tildes (Cedula/Cédula/CÉDULA -> CEDULA)

@@ -95,6 +95,46 @@ def renombrar_columnas_estandar(df: pd.DataFrame) -> pd.DataFrame:
             mapa[col] = _COLUMNAS_ESTANDAR_SIN_TILDES[col_plano]
     return df.rename(columns=mapa)
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HOJAS DEL PLAN DE TRABAJO
+# ─────────────────────────────────────────────────────────────────────────────
+# Desde septiembre 2026 las hojas se llaman "PLAN DE TRABAJO" y "CAPTURA".
+# Antes eran "Plan de trabajo" (Directo) / "Plan de trabajo CIF" (ISM) y
+# "Captura de modulos". Se aceptan ambos formatos para poder reprocesar meses
+# viejos. El orden importa: primero el nombre nuevo.
+HOJAS_PT      = ("PLAN DE TRABAJO", "Plan de trabajo", "Plan de trabajo CIF")
+HOJAS_CAPTURA = ("CAPTURA", "Captura de modulos")
+
+
+def _norm_hoja(nombre) -> str:
+    """'  Captura de  Módulos ' → 'CAPTURA DE MODULOS' (sin tildes ni dobles espacios)."""
+    return " ".join(_sin_tildes_col(str(nombre)).upper().split())
+
+
+def resolver_hoja(nombres_hojas, candidatas) -> str | None:
+    """
+    Devuelve el nombre REAL (tal cual está en el archivo) de la primera hoja
+    de `candidatas` que exista en `nombres_hojas`, sin importar mayúsculas,
+    tildes o espacios de más. None si no hay ninguna.
+    """
+    reales = {_norm_hoja(h): h for h in nombres_hojas}
+    for c in candidatas:
+        if _norm_hoja(c) in reales:
+            return reales[_norm_hoja(c)]
+    return None
+
+
+def hoja_pt(xls: pd.ExcelFile) -> str | None:
+    """Hoja con el plan de trabajo (formato nuevo o viejo)."""
+    return resolver_hoja(xls.sheet_names, HOJAS_PT)
+
+
+def hoja_captura(xls: pd.ExcelFile) -> str | None:
+    """Hoja con la captura de módulos (formato nuevo o viejo)."""
+    return resolver_hoja(xls.sheet_names, HOJAS_CAPTURA)
+
+
 COLUMNAS_SUPERSET = [
     "ID_PDV_INVOLVES", "NOMBRE_PDV", "VENTAS_PROMEDIO_MES", "ACRONIMO",
     "CEDULA", "NOMBRE", "COD_MERCADERISTA", "FECHA", "HORA_INICIO",
@@ -442,23 +482,36 @@ def _leer_archivo_pt(ruta: str, hoja_pt: str, fuente: str) -> tuple[pd.DataFrame
 
     try:
         with pd.ExcelFile(ruta) as xls:
-            df_mod = pd.read_excel(xls, sheet_name="Captura de modulos")
+            # `hoja_pt` (el parámetro) queda como preferida; si no está, se
+            # aceptan los nombres nuevos y viejos (ver HOJAS_PT/HOJAS_CAPTURA).
+            nombre_pt  = resolver_hoja(xls.sheet_names, (hoja_pt, *HOJAS_PT))
+            nombre_cap = hoja_captura(xls)
+            if not nombre_pt or not nombre_cap:
+                log.critical(
+                    f"[{fuente}] {os.path.basename(ruta)}: no tiene la hoja "
+                    f"{'de plan de trabajo' if not nombre_pt else 'de captura'} "
+                    f"(se esperaba {HOJAS_PT if not nombre_pt else HOJAS_CAPTURA}). "
+                    f"Hojas del archivo: {xls.sheet_names} — fuente excluida del pipeline"
+                )
+                return pd.DataFrame(), pd.DataFrame()
+
+            df_mod = pd.read_excel(xls, sheet_name=nombre_cap)
             df_mod.columns = df_mod.columns.str.strip().str.upper()
 
             if df_mod.empty:
                 log.warning(
-                    f"[{fuente}] Hoja 'Captura de modulos' vacía en {os.path.basename(ruta)} "
+                    f"[{fuente}] Hoja '{nombre_cap}' vacía en {os.path.basename(ruta)} "
                     f"— los filtros de módulo no se aplicarán para esta fuente"
                 )
             elif "ID PDV INVOLVES" not in df_mod.columns:
                 log.warning(
-                    f"[{fuente}] Columna 'ID PDV INVOLVES' ausente en 'Captura de modulos' "
+                    f"[{fuente}] Columna 'ID PDV INVOLVES' ausente en '{nombre_cap}' "
                     f"({os.path.basename(ruta)}) — filtros de módulo desactivados para esta fuente"
                 )
             else:
                 df_mod["ID PDV INVOLVES"] = id_a_str(df_mod["ID PDV INVOLVES"])
 
-            df_pt = pd.read_excel(xls, sheet_name=hoja_pt)
+            df_pt = pd.read_excel(xls, sheet_name=nombre_pt)
             df_pt.columns = df_pt.columns.str.strip()
             df_pt.rename(
                 columns={col: COLUMNAS_ESTANDAR_UNIFICADO[col]
