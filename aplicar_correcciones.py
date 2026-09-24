@@ -106,11 +106,44 @@ CFG_PRECIOS = {
     "col_oficial": "Digite Precio Regular",
 }
 
+def _txt(v) -> str:
+    """Texto comparable: sin espacios y sin el '.0' que agrega Excel a los números."""
+    s = str(v).strip()
+    return s[:-2] if s.endswith(".0") and s[:-2].lstrip("-").isdigit() else s
+
+
+def _ubicar_exhibicion(oficial: pd.DataFrame, fila: pd.Series, mes: int, anio: int):
+    """
+    Plan B cuando el ID_ERROR ya no está en `Resultado exhibiciones gratis.xlsx`
+    (ese archivo lo regenera la corrida diaria, y si alguien recalcula los
+    errores los IDs cambian de número). Ubica la fila por periodo + PDV + tipo
+    + marca + gestor + nivel de impacto; si queda más de una, desempata por la
+    cantidad que se reportó como error. Solo devuelve algo si queda
+    EXACTAMENTE una fila: ante la duda no se corrige nada.
+    """
+    pares = [("ID PDV", "ID PDV"), ("Tipo Exhibición", "Tipo Exhibición"),
+             ("Marca", "Marca"), ("Empleado", "Empleado")]
+    if any(c not in oficial.columns or c_r not in fila.index for c, c_r in pares):
+        return None
+    m = ((pd.to_numeric(oficial["Mes"], errors="coerce") == mes)
+         & (pd.to_numeric(oficial["Año"], errors="coerce") == anio))
+    for c, c_r in pares:
+        m &= oficial[c].map(_txt) == _txt(fila[c_r])
+    if "Nivel Impacto" in oficial.columns and _valor_no_vacio(fila.get("Nivel Impacto")):
+        m &= oficial["Nivel Impacto"].map(_txt) == _txt(fila["Nivel Impacto"])
+    cand = oficial.index[m]
+    if len(cand) > 1 and _valor_no_vacio(fila.get("CANTIDAD")):
+        cant = pd.to_numeric(oficial.loc[cand, "Cantidad"], errors="coerce")
+        cand = cand[(cant - float(fila["CANTIDAD"])).abs() < 0.01]
+    return cand[0] if len(cand) == 1 else None
+
+
 CFG_EXHIBICIONES = {
     "carpeta": paths.RUTA_CARPETA_SALIDAS_EXHIB,
     "archivo": lambda mes, anio: "Resultado exhibiciones gratis.xlsx",
     "col_corregido": "CANTIDAD_CORREGIDA",
     "col_oficial": "Cantidad",
+    "respaldo": _ubicar_exhibicion,
 }
 
 
@@ -220,14 +253,34 @@ def aplicar_generico(headers: dict, site_id: str, filas: pd.DataFrame, cfg: dict
         for ruta in rutas:
             carpeta, nombre = ruta.rsplit("/", 1)
             oficial = esp.leer_excel_cloud(headers, site_id, ruta, nombre, obligatorio=False)
-            if oficial is None:
+            if oficial is None or cfg["col_oficial"] not in oficial.columns:
                 continue
-            if "ID_ERROR" not in oficial.columns or cfg["col_oficial"] not in oficial.columns:
-                continue
+            if "ID_ERROR" not in oficial.columns:
+                if "respaldo" not in cfg:
+                    continue
+                oficial["ID_ERROR"] = ""
 
             ids_oficial = oficial["ID_ERROR"].astype(str)
             cambia = ids_oficial.isin(mapa_valor) & (ids_oficial != "") & (ids_oficial != "nan")
-            n = int(cambia.sum())
+            destino = {idx: ids_oficial.at[idx] for idx in oficial.index[cambia]}
+
+            # Plan B (solo módulos con "respaldo"): IDs que ya no están en el
+            # archivo se ubican por llave natural y se les vuelve a escribir
+            # el ID, para que la fila quede marcada igual que las demás.
+            if "respaldo" in cfg:
+                for id_err in sorted(set(mapa_valor) - set(destino.values())):
+                    fila = grupo[grupo["ID_ERROR"].astype(str) == id_err].iloc[0]
+                    idx = cfg["respaldo"](oficial, fila, mes, anio)
+                    if idx is None or idx in destino:
+                        print(f"  ⚠️  {id_err}: no está en {nombre} ni se pudo ubicar "
+                              f"sin ambigüedad — se salta.")
+                        continue
+                    destino[idx] = id_err
+                    oficial.at[idx, "ID_ERROR"] = id_err
+                    print(f"  ↪ {id_err}: el ID ya no estaba en {nombre}; "
+                          f"ubicado por PDV/tipo/marca/gestor.")
+
+            n = len(destino)
             if n == 0:
                 continue
             encontrado = True
@@ -249,8 +302,7 @@ def aplicar_generico(headers: dict, site_id: str, filas: pd.DataFrame, cfg: dict
             # un archivo de prueba sin corregir sobrescribió 42 precios
             # reales con NaN (se recuperó del log). Este chequeo es la
             # última barrera aunque el filtro de más arriba falle.
-            for idx in oficial[cambia].index:
-                id_err = ids_oficial.at[idx]
+            for idx, id_err in destino.items():
                 nuevo = mapa_valor[id_err]
                 if not _valor_no_vacio(nuevo):
                     continue

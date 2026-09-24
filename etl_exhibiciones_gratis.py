@@ -604,6 +604,12 @@ def run(spec: pr.PeriodoSpec):
     df_out = df_out[OUTPUT_COLS].sort_values(["Año", "Mes", "ID PDV"])
     df_out["Cantidad"] = pd.to_numeric(df_out["Cantidad"], errors="coerce").round(2)
 
+    # ID_ERROR / CORREGIDO los escriben etl_exhibiciones_errores y
+    # aplicar_correcciones en ESTE archivo. Antes el upsert recortaba a
+    # OUTPUT_COLS y cada corrida diaria los borraba de TODOS los meses, así que
+    # una corrección de agosto ya no encontraba su ID. Ahora se conservan en
+    # los meses que no se reprocesan (los del periodo actual se regeneran).
+    cols_excel = list(OUTPUT_COLS)
     try:
         stream_prev = _get_sharepoint_file_stream(OUTPUT_PATH)
         df_prev = pd.read_excel(stream_prev, sheet_name="Exhibiciones_implementadas")
@@ -620,7 +626,8 @@ def run(spec: pr.PeriodoSpec):
             )
             df_prev = df_prev[mask_keep].drop(columns=["_mes_int", "_anio_int"])
             df_out = pd.concat([df_prev, df_out], ignore_index=True, sort=False)
-            df_out = df_out[OUTPUT_COLS].sort_values(["Año", "Mes", "ID PDV"])
+            cols_excel += [c for c in ("ID_ERROR", "CORREGIDO") if c in df_prev.columns]
+            df_out = df_out[cols_excel].sort_values(["Año", "Mes", "ID PDV"])
         else:
             print("  ⚠️ Resultado previo sin Mes/Año — descartado en upsert.")
     except Exception as e:
@@ -630,6 +637,8 @@ def run(spec: pr.PeriodoSpec):
     df_out.to_excel(output_buffer, index=False, sheet_name="Exhibiciones_implementadas", engine="openpyxl")
     _upload_sharepoint_file(OUTPUT_PATH, output_buffer)
     print(f"\n✓ Output escrito con éxito en SharePoint: {OUTPUT_PATH} ({len(df_out):,} filas)")
+    # De aquí en adelante (Supabase, KPIs) sigue todo con las columnas de siempre.
+    df_out = df_out[OUTPUT_COLS]
 
     # El archivo acumula todos los meses; solo_periodo sube solo el procesado.
     supabase_io.cargar_detalle_seguro(
