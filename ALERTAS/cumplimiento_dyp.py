@@ -50,6 +50,7 @@ Casos especiales
 
 from __future__ import annotations
 
+import difflib
 import io
 import os
 import re
@@ -493,13 +494,29 @@ def _enriquecer_con_acronimo(
     nombres_sup_bc = set(nombres_supervisores_bc or [])
 
     def _palabras(s):
+        # Sin tildes ni Ñ: "MONICA JULIETH CASTAÑO VARGAS" (rutero) tiene que
+        # cruzar con "MONICA CASTANO" (Base cupos).
         FILLER = {"DE", "LA", "LAS", "LOS", "DEL", "Y"}
-        return {w for w in str(s).upper().split() if w and w not in FILLER}
+        s = unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode("ascii")
+        return {w for w in s.upper().split() if w and w not in FILLER}
 
     pt_sup_idx = [(n, _palabras(n)) for n in nombres_sup_bc if n]
 
+    def _palabra_parecida(a: str, b: str) -> bool:
+        """YEIMY ~ YEIMI: misma palabra salvo una letra (misma inicial)."""
+        return a == b or (a[:1] == b[:1] and difflib.SequenceMatcher(None, a, b).ratio() >= 0.8)
+
+    def _no_es_persona(nombre) -> bool:
+        """
+        "VACANTE" y las filas de prueba no son un supervisor: sin esto,
+        "VACANTE" cruzaba exacto con un cupo vacante de Base cupos (T3101) y
+        le cargaba los KPIs de todo un equipo.
+        """
+        pal = _palabras(nombre)
+        return "VACANTE" in pal or "PRUEBA" in pal
+
     def _resolver_acr_sup(sup_raw: str) -> str:
-        if not sup_raw:
+        if not sup_raw or _no_es_persona(sup_raw):
             return ""
         # 1) match exacto
         if sup_raw in nombre_a_acr and sup_raw in nombres_sup_bc:
@@ -511,6 +528,17 @@ def _enriquecer_con_acronimo(
         for nombre_pt, pal_pt in pt_sup_idx:
             if pal_v.issubset(pal_pt) or pal_pt.issubset(pal_v):
                 return nombre_a_acr.get(nombre_pt, "")
+        # 3) diferencias de ortografía ("YEIMY SOLORZANO" vs "YEIMI SOLORZANO
+        #    GONZALEZ"): cada palabra del nombre más corto (mínimo 2) tiene
+        #    que parecerse a una del otro. Solo se acepta si hay UN candidato;
+        #    ante la duda no se cruza.
+        candidatos = []
+        for nombre_pt, pal_pt in pt_sup_idx:
+            corto, largo = sorted((pal_v, pal_pt), key=len)
+            if len(corto) >= 2 and all(any(_palabra_parecida(a, b) for b in largo) for a in corto):
+                candidatos.append(nombre_pt)
+        if len(candidatos) == 1:
+            return nombre_a_acr.get(candidatos[0], "")
         return ""
 
     # ── Enriquecer gestor ─────────────────────────────────────────────────
@@ -528,7 +556,7 @@ def _enriquecer_con_acronimo(
         supervisor = supervisor.copy()
         supervisor["ACRONIMO"] = supervisor["SUPERVISOR_LIDER"].apply(_resolver_acr_sup)
         # Si no se resolvió por armonización, intentar match exacto contra nombre_a_acr
-        falta = supervisor["ACRONIMO"] == ""
+        falta = (supervisor["ACRONIMO"] == "") & ~supervisor["SUPERVISOR_LIDER"].apply(_no_es_persona)
         supervisor.loc[falta, "ACRONIMO"] = (
             supervisor.loc[falta, "SUPERVISOR_LIDER"].map(nombre_a_acr).fillna("")
         )
