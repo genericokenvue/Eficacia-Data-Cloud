@@ -198,7 +198,7 @@ def ejecutar_paso_1(spec: pr.PeriodoSpec, headers, site_id):
     print(f" INICIANDO PASO 1: CONSOLIDACIÓN CLOUD  ({spec.etiqueta})")
     print("="*40)
     
-    ruta_pt_sharepoint = getattr(paths, 'RUTA_CARPETA_PT_CIF', getattr(paths, 'RUTA_CARPETA_PT', "Equipo Información/BI/INVOLVES/PLAN DE TRABAJO"))
+    ruta_pt_sharepoint = getattr(paths, 'RUTA_CARPETA_PT_CIF', getattr(paths, 'RUTA_CARPETA_PT', "Equipo Información/BI/INVOLVES/BASES DE RESPUESTAS/PLAN DE TRABAJO"))
     archivos_pt = obtener_archivos_carpeta_sharepoint(headers, site_id, ruta_pt_sharepoint)
     num_mes = f"{spec.mes:02d}"
     # OJO: antes esto era `pr.MESES_ESPANOL[...] if hasattr(...) else ""`, y

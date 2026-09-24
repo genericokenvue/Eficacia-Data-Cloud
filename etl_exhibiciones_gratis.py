@@ -47,7 +47,7 @@ _BASES_ROOT = os.getenv("BASES_ROOT", f"{SHAREPOINT_BASE_DIR}/BASES DE RESPUESTA
 _SALIDAS_ROOT = os.getenv("SALIDAS_ROOT", f"{SHAREPOINT_BASE_DIR}/SALIDAS").replace("\\", "/")
 AÑO_ACTUAL = pd.Timestamp.now().year
 
-RUTA_CARPETA_PT = f"{SHAREPOINT_BASE_DIR}/PLAN DE TRABAJO".replace("\\", "/")
+RUTA_CARPETA_PT = paths.RUTA_CARPETA_PT  # única fuente: paths.py
 RUTA_CARPETA_BASES_EXHIB = f"{_BASES_ROOT}/EXHIBICIONES/{AÑO_ACTUAL}".replace("\\", "/")
 RUTA_CARPETA_SALIDAS_EXHIB = f"{_SALIDAS_ROOT}/EXHIBICIONES".replace("\\", "/")
 
@@ -219,8 +219,8 @@ def resolve_files(spec: pr.PeriodoSpec) -> dict:
         p_visitas = ""
 
     nombre_mes_anio = spec.etiqueta.replace('_', ' ')
-    p_plan_directo = f"{SHAREPOINT_BASE_DIR}/PLAN DE TRABAJO/Plan de trabajo Directo {nombre_mes_anio}.xlsx".replace("\\", "/")
-    p_plan_ism = f"{SHAREPOINT_BASE_DIR}/PLAN DE TRABAJO/Plan de trabajo ISM {nombre_mes_anio}.xlsx".replace("\\", "/")
+    p_plan_directo = f"{RUTA_CARPETA_PT}/Plan de trabajo Directo {nombre_mes_anio}.xlsx"
+    p_plan_ism = f"{RUTA_CARPETA_PT}/Plan de trabajo ISM {nombre_mes_anio}.xlsx"
 
     groups["informar"]     = [p_informar] if p_informar else []
     groups["planning"]     = [p_planning] if p_planning else []

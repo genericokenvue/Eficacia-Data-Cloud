@@ -65,9 +65,11 @@ AÑO_ACTUAL = datetime.datetime.now().year
 SHAREPOINT_BASE_DIR = "Equipo Información/BI"
 
 # Rutas dinámicas
-RUTA_CARPETA_PT = f"{SHAREPOINT_BASE_DIR}/INVOLVES/PLAN DE TRABAJO" #OOKK
 _BASES_ROOT     = f"{SHAREPOINT_BASE_DIR}/INVOLVES/BASES DE RESPUESTAS" #OOKKK
 _SALIDAS_ROOT   = f"{SHAREPOINT_BASE_DIR}/INVOLVES/SALIDAS" #OOOKKK
+# Desde 24/09/2026 los planes de trabajo viven dentro de BASES DE RESPUESTAS
+# (antes: INVOLVES/PLAN DE TRABAJO). Sin subcarpeta por año: el mes va en el nombre.
+RUTA_CARPETA_PT = f"{_BASES_ROOT}/PLAN DE TRABAJO"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CARPETAS DE BASES POR AÑO
